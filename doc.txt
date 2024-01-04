@@ -1,0 +1,9 @@
+A suggestion of project roadmap : 1- Begin by establishing a working client/server socket connection, 2- Then build on that : add the signals handling (CTRL+C, CTRL+D, CTRL+Z); 3- Only then begin the client registration system (NICK, USER, PASS), 4- The server commands (PING, OPER, KILL...) and 5- The channel operations commands (JOIN, PART, INVITE, KICK, PRIVMSG, NOTICE...).
+
+
+Keep in mind that nc is very "minimalist" compared to irssi. That means that irssi will send you everything at once : the command, and the CRLF ending (\r\n). It will also append the : in some cases (for instance TOPIC #channel :message).
+
+This is not the case with nc : you will have to concatenate the messages sent by the Client until you find the proper "end" (the CRLF). That means that you should have a (read) buffer ==for each client== connected to your server. Bonus: this will take care of he CTRL+D signal too! 😏
+
+So now, if you follow us, you should guess that, for each client, you will need a (send) buffer as well! This will be very efficient in taking care of the CTRL+Z signal 😇 . Don't forget to also check the POLLIN and POLLOUT revents in your server loop...
+
