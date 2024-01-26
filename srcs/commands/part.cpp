@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:42:49 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/24 15:12:13 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/01/26 15:22:18 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,30 @@ RFC 1459              Internet Relay Chat Protocol              May 1993
                                    "#oz-ops".
 */
 
-void handlePartCommand(const char* message, Users *sender, Server *server)
+void handlePartCommand(const char* message, Users* sender, Server* server)
 {
-	(void) message;
-	(void) sender;
-	(void) server;
+	std::string msg(message);
+	std::string channelName;
+
+	size_t spacePos = msg.find(' ');
+	if (spacePos != std::string::npos)
+	{
+		channelName = msg.substr(spacePos + 1);
+	}
+	else
+	{
+		// Handle error: Invalid command format
+		return;
+	}
+
+	Channels* channel = server->getChannelByName(channelName);
+	if (channel)
+	{
+		channel->removeUser(sender);
+		sender->setCurrentChannel(nullptr);
+	}
+	else
+	{
+		// Handle error: Channel not found
+	}
 }

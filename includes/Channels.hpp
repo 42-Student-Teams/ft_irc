@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channels.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:16:43 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/24 18:53:01 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/01/26 12:12:41 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,17 +30,23 @@
 #include <algorithm>
 #include <sys/socket.h>
 #include "Users.hpp"
+#include "Server.hpp"
 
 class Users;
+class Server;
 
 class Channels
 {
 private:
 	std::string 			_name;
 	std::list<Users *>		_users;
-	Users*					_channel_operator;
+	std::list<Users *>		_channel_operators;
 	std::string 			_topic;
-	std::string				_mode;
+	bool					_inviteOnly;
+	bool					_topicRestrictions;
+	std::string				_channelKey;
+	int						_userLimit;
+	
 
 public:
 	Channels(const std::string &name);
@@ -53,8 +59,15 @@ public:
 	Users *getUserByName(std::string name) const;
 	void setTopic(const std::string &topic);
 	const std::string& getTopic() const;
-	const Users *getOperator() const;
-	void setOperator(const Users *operatorName);
+	const Users *getOperator(const Users *chanOperator) const;
+	void setOperator(const std::string operatorName, Server &server);
+	void removeOperator(const std::string operatorName);
+	void setInviteOnly(bool inviteOnly);
+	void setTopicRestrictions(bool topicRestrictions);
+	void setChannelKey(const std::string &channelKey);
+	void removeChannelKey();
+	void setUserLimit(int userLimit);
+	void removeUserLimit();
 };
 
 #endif

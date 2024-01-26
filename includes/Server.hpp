@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 11:28:27 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/24 18:54:11 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/01/26 12:13:58 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #define MAG		"\033[0;35m"
 #define CYN 	"\033[0;36m"
 
+#pragma once
 
 #include <iostream>
 #include <sys/types.h>
@@ -40,6 +41,9 @@
 #include "Channels.hpp"
 
 #define TIMEOUT 3000
+
+class Users;
+class Channels;
 
 class Server
 {

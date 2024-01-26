@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   kick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 14:30:08 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/24 19:05:42 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/01/26 14:31:54 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,8 @@ void handleKickCommand(const char* message, Users *sender, Server *server)
 	if (!channel)
 	{
 		send(sender->getSocket(), ERR_NOSUCHCHANNEL(sender->getNickname(), channelName).c_str(),
-			ERR_NOSUCHCHANNEL(sender->getNickname(), channelName).length(), 0);
-		std::cout << "Channel does not exist" << std::endl;
+			ERR_NOSUCHCHANNEL(sender->getNickname(), channelName).size(), 0);
+		std::cout << "Channel not found" << std::endl;
 		return;
 	}
 	Users* user = channel->getUserByName(username);
@@ -82,7 +82,7 @@ void handleKickCommand(const char* message, Users *sender, Server *server)
 		std::cout << "User not in channel" << std::endl;
 		return;
 	}
-	if (channel->getOperator() != sender)
+	if (channel->getOperator(sender) == NULL)
 	{
 		send(sender->getSocket(), ERR_CHANOPRIVSNEEDED(sender->getNickname(), channelName).c_str(),
 			ERR_CHANOPRIVSNEEDED(sender->getNickname(), channelName).length(), 0);
