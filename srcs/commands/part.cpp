@@ -6,13 +6,14 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:42:49 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/26 15:22:18 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/01/26 16:21:49 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Users.hpp"
 #include "../../includes/Server.hpp"
 #include "../../includes/Channels.hpp"
+#include "../../includes/replies.hpp"
 
 /*
       Command: PART
@@ -69,4 +70,11 @@ void handlePartCommand(const char* message, Users* sender, Server* server)
 	{
 		// Handle error: Channel not found
 	}
+	std::string reason = "your reason here";
+	// send(sender->getFd().fd, RPL_PART(sender->getNickname(), channelName, reason).c_str(),
+	// 	RPL_PART(sender->getNickname(), channelName, reason).size() + 1, 0);
+	std::string msgs = ":" + sender->getNickname() + "!~" + sender->getUsername() 
+		+"@localhost PART " + channelName + " :" + reason + "\r\n";
+	send(sender->getFd().fd, msgs.c_str(), msgs.size() + 1, 0);
+	channel->broadcastMessage(msgs, *sender);
 }

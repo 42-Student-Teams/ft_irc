@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:19:14 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/26 15:27:55 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/01/26 15:42:01 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,11 @@ void Channels::broadcastMessage(const std::string &message, Users &sender)
 {
 	std::string formattedMessage = ":" + sender.getNickname() + " PRIVMSG " + getName() + " :" + message + "\r\n";
 
+	if (getUserByName(sender.getNickname()) == NULL)
+	{
+		std::cout << "Error: user not found in channel" << std::endl;
+		return;
+	}
 	for (std::list<Users*>::iterator it = _users.begin(); it != _users.end(); ++it)
 	{
 		Users* user = *it;
