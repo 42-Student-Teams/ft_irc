@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 19:02:18 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/24 14:31:11 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 13:02:59 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void handlePingCommand(const char* message, Users *sender, Server *server)
 
 		std::string pongResponse = "PONG " + serverIdentifier + "\r\n";
 
-		send(sender->getSocket(), RPL_PONG(sender->getNickname(), serverIdentifier).c_str(),
-			RPL_PONG(sender->getNickname(), serverIdentifier).size(), 0);
+		send(sender->getSocket(), RPL_PONG(user_id(sender->getNickname(), sender->getUsername()), serverIdentifier).c_str(),
+			RPL_PONG(user_id(sender->getNickname(), sender->getUsername()), serverIdentifier).size(), 0);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 11:28:27 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/26 12:13:58 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 15:21:13 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,8 @@ class Server
 		void	handleMessage(int userIndex, const char* message);
 		void	run(void);
 		void	broadcastMessage(const char* message, int except_fd);
+		void	closeConnection(Users *user);
+		void	removeUser(Users *user);
 		//void	sendServerRpl(int const client_fd, std::string client_buffer);
 		
 		

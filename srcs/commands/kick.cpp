@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 14:30:08 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/26 14:31:54 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 12:59:19 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,6 @@ void handleKickCommand(const char* message, Users *sender, Server *server)
 	}
 	channel->removeUser(user);
 	user->setCurrentChannel(nullptr);
-	send(sender->getSocket(), RPL_KICK(sender->getNickname(), channelName, username, "u suck").c_str(),
-		RPL_KICK(sender->getNickname(), channelName, username, "u suck").length(), 0);
+	send(sender->getSocket(), RPL_KICK(user_id(sender->getNickname(), sender->getUsername()), channelName, username, "u suck").c_str(),
+		RPL_KICK(user_id(sender->getNickname(), sender->getUsername()), channelName, username, "u suck").length(), 0);
 }

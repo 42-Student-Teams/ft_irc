@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:19:14 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/26 15:42:01 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 14:14:32 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,23 +45,60 @@ void Channels::addUser(Users *user)
 	broadcastMessage(welcomeMessage, *user);
 }
 
+// void Channels::removeUser(Users *user)
+// {
+// 	std::string partMessage = " left the channel\n";
+// 	std::string quitMessage = RED + partMessage + RESET;
+// 	if (getUserByName(user->getNickname()) == NULL)
+// 	{
+// 		std::cout << "Error: user not found in channel" << std::endl;
+// 		return;
+// 	}
+// 	else
+// 	{
+// 		broadcastMessage(quitMessage, *user);
+// 		_users.remove(getUserByName(user->getNickname()));
+// 	}
+// }
+
 void Channels::removeUser(Users *user)
 {
 	std::string partMessage = " left the channel\n";
 	std::string quitMessage = RED + partMessage + RESET;
 	broadcastMessage(quitMessage, *user);
-	_users.remove(user);
+
+	for (std::list<Users*>::iterator it = _users.begin(); it != _users.end(); )
+	{
+		if ((*it)->getNickname() == user->getNickname())
+		{
+			it = _users.erase(it);
+		}
+		else
+			++it;
+	}
+}
+
+void Channels::removeUserByName(const std::string &nickname)
+{
+	std::string partMessage = " left the channel\n";
+	std::string quitMessage = RED + partMessage + RESET;
+	Users* user = getUserByName(nickname);
+	if (user == NULL)
+	{
+		std::cout << "Error: user not found in channel" << std::endl;
+		return;
+	}
+	else
+	{
+		broadcastMessage(quitMessage, *user);
+		_users.remove(getUserByName(nickname));
+	}
 }
 
 void Channels::broadcastMessage(const std::string &message, Users &sender)
 {
 	std::string formattedMessage = ":" + sender.getNickname() + " PRIVMSG " + getName() + " :" + message + "\r\n";
 
-	if (getUserByName(sender.getNickname()) == NULL)
-	{
-		std::cout << "Error: user not found in channel" << std::endl;
-		return;
-	}
 	for (std::list<Users*>::iterator it = _users.begin(); it != _users.end(); ++it)
 	{
 		Users* user = *it;
@@ -182,4 +219,13 @@ void Channels::setUserLimit(int userLimit)
 void Channels::removeUserLimit()
 {
 	_userLimit = 0;
+}
+
+void Channels::printUsers()
+{
+	for (std::list<Users*>::iterator it = _users.begin(); it != _users.end(); ++it)
+	{
+		Users* user = *it;
+		std::cout << "User: " << user->getNickname() << std::endl;
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:42:49 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/26 16:21:49 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 15:01:19 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,29 +52,39 @@ void handlePartCommand(const char* message, Users* sender, Server* server)
 	size_t spacePos = msg.find(' ');
 	if (spacePos != std::string::npos)
 	{
-		channelName = msg.substr(spacePos + 1);
+		channelName = msg.substr(spacePos + 1, msg.find(' ', spacePos + 1) - spacePos - 1);
 	}
 	else
 	{
 		// Handle error: Invalid command format
+		std::cout << "Invalid command format" << std::endl;
 		return;
 	}
 
-	Channels* channel = server->getChannelByName(channelName);
-	if (channel)
+	std::string reason;
+	size_t colonPos = msg.find(':', spacePos + 1);
+	if (colonPos != std::string::npos)
 	{
-		channel->removeUser(sender);
-		sender->setCurrentChannel(nullptr);
+		reason = msg.substr(colonPos + 1);
+		std::cout << "Reason: " << reason << std::endl;
+	}
+	else
+	{
+		reason = "No reason specified"; // Default reason if none is provided
+	}
+
+	Channels* channel = server->getChannelByName(channelName);
+	if (channel && channel->getUserByName(sender->getNickname()))
+	{
+		std::cout << "Channel found" << std::endl;
+		channel->getUserByName(sender->getNickname())->setCurrentChannel(nullptr);
+		//channel->removeUser(channel->getUserByName(sender->getNickname()));
+		channel->removeUserByName(sender->getNickname());
+		send(sender->getFd().fd, RPL_PART(user_id(sender->getNickname(), sender->getUsername()), channelName, reason).c_str(),
+			RPL_PART(user_id(sender->getNickname(), sender->getUsername()), channelName, reason).size() + 1, 0);
 	}
 	else
 	{
 		// Handle error: Channel not found
 	}
-	std::string reason = "your reason here";
-	// send(sender->getFd().fd, RPL_PART(sender->getNickname(), channelName, reason).c_str(),
-	// 	RPL_PART(sender->getNickname(), channelName, reason).size() + 1, 0);
-	std::string msgs = ":" + sender->getNickname() + "!~" + sender->getUsername() 
-		+"@localhost PART " + channelName + " :" + reason + "\r\n";
-	send(sender->getFd().fd, msgs.c_str(), msgs.size() + 1, 0);
-	channel->broadcastMessage(msgs, *sender);
 }

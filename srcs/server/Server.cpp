@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 11:28:30 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/26 12:47:29 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 15:25:40 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,4 +217,30 @@ Users*		Server::getUserByNickname(std::string& nickname)
 		}
 	}
 	return (NULL);
+}
+
+void Server::removeUser(Users* user)
+{
+	for (std::list<Users>::iterator it = _users.begin(); it != _users.end(); ++it)
+	{
+		if (&(*it) == user)
+		{
+			_users.erase(it);
+			return;
+		}
+	}
+}
+
+void Server::closeConnection(Users* user)
+{
+	if (user != NULL)
+	{
+		int fd = user->getFd().fd;
+		
+		shutdown(fd, SHUT_RDWR);
+		
+		close(fd);
+		std::cout << "User " << user->getNickname() << " disconnected." << std::endl;
+		this->removeUser(user);
+	}
 }

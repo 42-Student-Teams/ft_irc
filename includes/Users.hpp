@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Users.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:18:30 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/24 18:39:02 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 15:31:43 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,15 +28,16 @@ class Channels;
 class Users
 {
 	private:
-		std::string 		_nickname;
-		std::string			_username;
-		std::string			_realname;
-		int					_socket;
-		struct pollfd		_fd;
-		Channels*			_currentChannel;
-		bool				_isOperator;
-		bool				_isRegistered;
-		std::string			_mode;
+		std::string 			_nickname;
+		std::string				_username;
+		std::string				_realname;
+		int						_socket;
+		struct pollfd			_fd;
+		std::vector<Channels*>	_currentChannels;
+		//Channels*				_currentChannels;
+		bool					_isOperator;
+		bool					_isRegistered;
+		std::string				_mode;
 
 	
 	public:
@@ -48,7 +49,8 @@ class Users
 		std::string		getUsername() const;
 		std::string		getRealname() const;
 		struct pollfd	getFd() const;
-		Channels*		getCurrentChannel() const;
+		Channels**		getCurrentChannels() const;
+		Channels*		getChannelByName(const std::string &channelName) const;
 
 		void			setFd(struct pollfd fd);
 		void			setNickname(const std::string &nickname);

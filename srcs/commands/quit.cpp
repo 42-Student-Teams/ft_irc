@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 14:27:08 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/16 13:02:33 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 15:12:29 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,9 +52,34 @@ RFC 1459              Internet Relay Chat Protocol              May 1993
    QUIT :Gone to have lunch        ; Preferred message format.
 */
 
-void handleQuitCommand(const char* message, Users *sender, Server *server)
+#include <string>
+
+void handleQuitCommand(const char* message, Users* sender, Server* server)
 {
-    (void) message;
-    (void) sender;
-    (void) server;
+	std::string quitMsg(message ? message : "");
+	if (quitMsg.empty())
+	{
+		quitMsg = "Quit: Client exited";
+	}
+	else
+	{
+		if (quitMsg.front() == ':')
+				quitMsg.erase(0, 1);
+	}
+
+	std::string broadcastMsg = ":" + sender->getNickname() + "!" + sender->getUsername() 
+								+ "@localhost QUIT :" + quitMsg;
+
+	std::vector<Channels*> channels = sender->getChannels();
+	for (size_t i = 0; i < channels.size(); ++i)
+	{
+		if (channels[i])
+		{
+				channels[i]->broadcastMessage(broadcastMsg, *sender);
+				channels[i]->removeUser(sender);
+		}
+	}
+
+	server->closeConnection(sender);
 }
+

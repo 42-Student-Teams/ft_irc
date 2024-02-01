@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:16:43 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/26 12:12:41 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 14:14:16 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ public:
 
 	void addUser(Users *user);
 	void removeUser(Users *user);
+	void removeUserByName(const std::string &nickname);
 	void broadcastMessage(const std::string &message, Users &sender);
 
 	const std::string& getName() const;
@@ -68,6 +69,7 @@ public:
 	void removeChannelKey();
 	void setUserLimit(int userLimit);
 	void removeUserLimit();
+	void printUsers();
 };
 
 #endif

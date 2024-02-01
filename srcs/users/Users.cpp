@@ -6,14 +6,14 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:19:06 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/24 12:44:38 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 15:34:43 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Users.hpp"
 
 Users::Users(const int &socket) : _nickname("default"), _username("default"), _realname("default"),
-	_socket(socket), _currentChannel(NULL), _isOperator(false), _isRegistered(false)
+	_socket(socket), _isOperator(false), _isRegistered(false)
 {
 	_fd.fd = -1;
 	_fd.events = 0;
@@ -40,11 +40,21 @@ struct pollfd	Users::getFd() const
 	return (_fd);
 }
 
-Channels*	Users::getCurrentChannel() const
+Channels**	Users::getCurrentChannels() const
 {
-	if (!_currentChannel)
+	if (!_currentChannels.top())
 		return (NULL);
-	return (_currentChannel);
+	return (_currentChannels);
+}
+
+Channels*	Users::getChannelByName(const std::string &channelName) const;
+{
+	for (std::vector<Channels*>::iterator it = _currentChannels.begin(); it != _currentChannels.end(); ++it)
+	{
+		if (*it->getName() == channelName)
+			return (*it);
+	}
+	return (NULL);
 }
 
 void	Users::setFd(struct pollfd fd)
@@ -59,7 +69,12 @@ void	Users::setNickname(const std::string &nickname)
 
 void	Users::setCurrentChannel(Channels* channel)
 {
-	_currentChannel = channel;
+	for (std::vector<Channels*>::iterator it = _currentChannels.begin(); it != _currentChannels.end(); ++it)
+	{
+		if (*it == channel)
+			return;
+	}
+	_currentChannels.push_back(channel);
 }
 
 bool	Users::isOperator() const

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   user.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:57:28 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/24 18:09:58 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 13:05:05 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,6 @@ void handleUserCommand(const char* message, Users *sender, Server *server)
 		sender->setRegistered(true);
 		std::cout << "User registered" << std::endl;
 	}
-	send(sender->getSocket(), RPL_WELCOME(sender->getUsername(), sender->getNickname()).c_str(), 
-		RPL_WELCOME(sender->getUsername(), sender->getNickname()).length(), 0);
+	send(sender->getSocket(), RPL_WELCOME(user_id(sender->getNickname(), sender->getUsername()), sender->getNickname()).c_str(), 
+		RPL_WELCOME(user_id(user_id(sender->getNickname(), sender->getUsername()), sender->getUsername()), sender->getNickname()).length(), 0);
 }

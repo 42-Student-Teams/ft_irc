@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 15:11:21 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/16 12:44:49 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 12:47:54 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,10 @@ void handleInviteCommand(const char* message, Users *sender, Server *server)
 	// if (sender->getCurrentChannel()->getUserByName(sender->getNickname()))
 	// {
 	// 	// Check if the channel is invite-only and the sender is a channel operator
-	// 	if (/*!server->isChannelInviteOnly(channel) || */sender->isOperator(sender))
+	// 	if (/*!server->isChannelInviteOnly(channel) || */sender->isOperator())
 	// 	{
 	// 		// Invite the nickname to the channel
+			
 	// 		server->inviteUserToChannel(nickname, channel);
 	// 	}
 	// 	else
