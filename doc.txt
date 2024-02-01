@@ -14,17 +14,17 @@ nc send message : "message ctrlv + ctrlm + enter"
 COMMANDS :
 
 - cap: functionality OK | replies OK						OK
-- invite: functionality KO | replies KO						KO
-- join: functionality GOOD START | replies GOOD START		KO
-- kick: functionality KO | replies KO						KO
-- message: functionality OK | replies GOOD START			KO
-- mode: functionality KO | replies KO						KO
-- nick: functionality OK | replies GOOD START				KO
-- notice: functionality KO | replies KO						KO
-- oper; functionality OK | replies GOOD START				KO
-- part: functionality KO | replies KO						KO
-- pass: functionality GOOD START | replies KO				KO
+- invite: functionality GOOD START | replies KO				    KO
+- join: functionality GOOD START | replies GOOD START		        GOOD START
+- kick: functionality GOOD START | replies GOOD START		        GOOD START
+- message: functionality OK | replies GOOD START			        GOOD START
+- mode: functionality GOOD START | replies KO				    KO
+- nick: functionality OK | replies GOOD START				        GOOD START
+- notice: functionality KO | replies KO						    KO
+- oper; functionality OK | replies GOOD START				        GOOD START
+- part: functionality GOOD START | replies KO				    KO
+- pass: functionality GOOD START | replies KO				    KO
 - ping: functionality OK | replies OK						OK
-- quit: functionality KO | replies KO						KO
-- topic: functionality KO | replies KO						KO
+- quit: functionality KO | replies KO						    KO
+- topic: functionality GOOD START | replies KO				    KO
 - user: functionality OK | replies OK						OK
