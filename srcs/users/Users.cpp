@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Users.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:19:06 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 15:34:43 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 17:42:49 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,21 +40,14 @@ struct pollfd	Users::getFd() const
 	return (_fd);
 }
 
-Channels**	Users::getCurrentChannels() const
+Channels* Users::getChannelByName(const std::string &channelName) const
 {
-	if (!_currentChannels.top())
-		return (NULL);
-	return (_currentChannels);
-}
-
-Channels*	Users::getChannelByName(const std::string &channelName) const;
-{
-	for (std::vector<Channels*>::iterator it = _currentChannels.begin(); it != _currentChannels.end(); ++it)
+    for (std::vector<Channels*>::const_iterator it = _currentChannels.begin(); it != _currentChannels.end(); ++it)
 	{
-		if (*it->getName() == channelName)
-			return (*it);
-	}
-	return (NULL);
+        if ((*it)->getName() == channelName)
+            return (*it);
+    }
+    return (nullptr);
 }
 
 void	Users::setFd(struct pollfd fd)
@@ -116,4 +109,21 @@ std::string	Users::getUsername() const
 std::string	Users::getRealname() const
 {
 	return (_realname);
+}
+
+std::vector<Channels*> *Users::getAllChannels() const
+{
+	return (const_cast<std::vector<Channels*>*>(&_currentChannels));
+}
+
+void	Users::removeChannelByName(const std::string &channelName)
+{
+	for (std::vector<Channels*>::iterator it = _currentChannels.begin(); it != _currentChannels.end(); ++it)
+	{
+		if ((*it)->getName() == channelName)
+		{
+			_currentChannels.erase(it);
+			return;
+		}
+	}
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Users.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:18:30 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 15:31:43 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 17:42:35 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,10 @@ class Users
 		std::string		getUsername() const;
 		std::string		getRealname() const;
 		struct pollfd	getFd() const;
-		Channels**		getCurrentChannels() const;
+		std::vector<Channels*> *getAllChannels() const;
+		//Channels**		getCurrentChannels() const;
 		Channels*		getChannelByName(const std::string &channelName) const;
+		void			removeChannelByName(const std::string &channelName);
 
 		void			setFd(struct pollfd fd);
 		void			setNickname(const std::string &nickname);

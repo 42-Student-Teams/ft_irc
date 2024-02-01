@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 11:28:30 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 15:25:40 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 17:28:24 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,19 +87,43 @@ void Server::handleNewConnection(int client_socket)
 	_users.back().setNickname(nickname.str());
 }
 
+// void Server::handleMessage(int userIndex, const char* message)
+// {
+// 	std::list<Users>::iterator it = _users.begin();
+// 	std::advance(it, userIndex);
+
+// 	if (it != _users.end())
+// 	{
+// 		if (parseCommands(message, &(*it), this) == 1)
+// 			return;
+// 		if (it->getCurrentChannel())
+// 			it->getCurrentChannel()->broadcastMessage(message, *it);
+// 	}
+// }
+
 void Server::handleMessage(int userIndex, const char* message)
 {
-	std::list<Users>::iterator it = _users.begin();
-	std::advance(it, userIndex);
+    std::list<Users>::iterator it = _users.begin();
+    std::advance(it, userIndex);
 
-	if (it != _users.end())
+    if (it != _users.end())
 	{
-		if (parseCommands(message, &(*it), this) == 1)
-			return;
-		if (it->getCurrentChannel())
-			it->getCurrentChannel()->broadcastMessage(message, *it);
-	}
+        if (parseCommands(message, &(*it), this) == 1)
+            return;
+
+        std::vector<Channels*> *allChannels = it->getAllChannels();
+        if (allChannels)
+		{
+            for (std::vector<Channels*>::iterator channelIt = allChannels->begin(); channelIt != allChannels->end(); ++channelIt)
+			{
+                Channels* channel = *channelIt;
+                if (channel)
+                    channel->broadcastMessage(message, *it);
+            }
+        }
+    }
 }
+
 
 void Server::run()
 {
@@ -170,8 +194,18 @@ void Server::run()
 
 						if (it != _users.end())
 						{
-							if (it->getCurrentChannel())
-								it->getCurrentChannel()->removeUser(&(*it));
+							std::vector<Channels*> *allChannels = it->getAllChannels();
+							if (allChannels)
+							{
+								for (std::vector<Channels*>::iterator channelIt = allChannels->begin(); channelIt != allChannels->end(); ++channelIt)
+								{
+									Channels* channel = *channelIt;
+									if (channel)
+										channel->removeUser(&(*it));
+								}
+							}
+							// if (it->getCurrentChannel())
+							// 	it->getCurrentChannel()->removeUser(&(*it));
 							_users.erase(it);
 						}
 						i--;

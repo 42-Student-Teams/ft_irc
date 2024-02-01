@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   quit.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 14:27:08 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 15:12:29 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 17:29:45 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,30 +56,34 @@ RFC 1459              Internet Relay Chat Protocol              May 1993
 
 void handleQuitCommand(const char* message, Users* sender, Server* server)
 {
-	std::string quitMsg(message ? message : "");
-	if (quitMsg.empty())
-	{
-		quitMsg = "Quit: Client exited";
-	}
-	else
-	{
-		if (quitMsg.front() == ':')
-				quitMsg.erase(0, 1);
-	}
+	(void)	server;
+	(void)	message;
+	(void)	sender;
+	
+	// std::string quitMsg(message ? message : "");
+	// if (quitMsg.empty())
+	// {
+	// 	quitMsg = "Quit: Client exited";
+	// }
+	// else
+	// {
+	// 	if (quitMsg.front() == ':')
+	// 			quitMsg.erase(0, 1);
+	// }
 
-	std::string broadcastMsg = ":" + sender->getNickname() + "!" + sender->getUsername() 
-								+ "@localhost QUIT :" + quitMsg;
+	// std::string broadcastMsg = ":" + sender->getNickname() + "!" + sender->getUsername() 
+	// 							+ "@localhost QUIT :" + quitMsg;
 
-	std::vector<Channels*> channels = sender->getChannels();
-	for (size_t i = 0; i < channels.size(); ++i)
-	{
-		if (channels[i])
-		{
-				channels[i]->broadcastMessage(broadcastMsg, *sender);
-				channels[i]->removeUser(sender);
-		}
-	}
+	// std::vector<Channels*> channels = sender->getChannels();
+	// for (size_t i = 0; i < channels.size(); ++i)
+	// {
+	// 	if (channels[i])
+	// 	{
+	// 			channels[i]->broadcastMessage(broadcastMsg, *sender);
+	// 			channels[i]->removeUser(sender);
+	// 	}
+	// }
 
-	server->closeConnection(sender);
+	// server->closeConnection(sender);
 }
 

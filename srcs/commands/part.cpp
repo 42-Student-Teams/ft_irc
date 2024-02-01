@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   part.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:42:49 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 15:01:19 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 17:47:59 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,8 +78,12 @@ void handlePartCommand(const char* message, Users* sender, Server* server)
 	{
 		std::cout << "Channel found" << std::endl;
 		channel->getUserByName(sender->getNickname())->setCurrentChannel(nullptr);
+		std::cout << "1" << std::endl;
 		//channel->removeUser(channel->getUserByName(sender->getNickname()));
+		sender->removeChannelByName(channelName);
+		std::cout << "2" << std::endl;
 		channel->removeUserByName(sender->getNickname());
+		std::cout << "3" << std::endl;
 		send(sender->getFd().fd, RPL_PART(user_id(sender->getNickname(), sender->getUsername()), channelName, reason).c_str(),
 			RPL_PART(user_id(sender->getNickname(), sender->getUsername()), channelName, reason).size() + 1, 0);
 	}
