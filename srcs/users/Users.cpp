@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:19:06 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 17:42:49 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/01 17:56:06 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,10 +120,13 @@ void	Users::removeChannelByName(const std::string &channelName)
 {
 	for (std::vector<Channels*>::iterator it = _currentChannels.begin(); it != _currentChannels.end(); ++it)
 	{
-		if ((*it)->getName() == channelName)
+		if (*it)
 		{
-			_currentChannels.erase(it);
-			return;
+			if ((*it)->getName() == channelName)
+			{
+				_currentChannels.erase(it);
+				return;
+			}
 		}
 	}
 }
