@@ -6,13 +6,14 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 15:11:21 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 12:47:54 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/02 16:26:12 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Users.hpp"
 #include "../../includes/Server.hpp"
 #include "../../includes/Channels.hpp"
+#include "../../includes/replies.hpp"
 
 /*
 	Command: INVITE
@@ -47,30 +48,52 @@ void handleInviteCommand(const char* message, Users *sender, Server *server)
 	(void) server;
 	(void) sender;
 	(void) message;
-	// std::string inviteMessage(message);
-	// std::istringstream iss(inviteMessage);
-	// std::string command, nickname, channel;
-	// iss >> command >> nickname >> channel;
+	std::string inviteMessage(message);
+	std::istringstream iss(inviteMessage);
+	std::string command, nickname, channel;
+	iss >> command >> nickname >> channel;
 
-	// // Check if the sender is a member of the channel
-	// if (sender->getCurrentChannel()->getUserByName(sender->getNickname()))
-	// {
-	// 	// Check if the channel is invite-only and the sender is a channel operator
-	// 	if (/*!server->isChannelInviteOnly(channel) || */sender->isOperator())
-	// 	{
-	// 		// Invite the nickname to the channel
+	if (server->getChannelByName(channel) == nullptr)
+	{
+		// Channel does not exist
+		// Handle error or send error message to the sender
+		return;
+	}
+	
+	if (server->getUserByNickname(nickname) == nullptr)
+	{
+		// User does not exist
+		// Handle error or send error message to the sender
+		return;
+	}
+	
+	if (sender->getChannelByName(channel) != nullptr)
+	{
+		// Check if the channel is invite-only and the sender is a channel operator
+		//if (/*!server->isChannelInviteOnly(channel) || */sender->isOperator())
+		{
+			server->getChannelByName(channel)->addUser(server->getUserByNickname(nickname));
+			server->getUserByNickname(nickname)->setCurrentChannel(server->getChannelByName(channel));
+			send(server->getUserByNickname(nickname)->getSocket(), RPL_INVITE(user_id(server->getUserByNickname(nickname)->getNickname(), server->getUserByNickname(nickname)->getUsername()), server->getUserByNickname(nickname)->getNickname(), channel).c_str(),
+				RPL_INVITE(user_id(server->getUserByNickname(nickname)->getNickname(), server->getUserByNickname(nickname)->getUsername()), server->getUserByNickname(nickname)->getNickname(), channel).length(), 0);
+			send(sender->getSocket(), RPL_INVITING(user_id(sender->getNickname(), sender->getUsername()), sender->getUsername(), sender->getNickname(), channel).c_str(),
+				RPL_INVITING(user_id(sender->getNickname(), sender->getUsername()), sender->getUsername(), sender->getNickname(), channel).length(), 0);
+			send(server->getUserByNickname(nickname)->getSocket(), RPL_JOIN(user_id(server->getUserByNickname(nickname)->getNickname(), server->getUserByNickname(nickname)->getUsername()), channel).c_str(), 
+				RPL_JOIN(user_id(server->getUserByNickname(nickname)->getNickname(), server->getUserByNickname(nickname)->getUsername()), channel).length(), 0);
 			
-	// 		server->inviteUserToChannel(nickname, channel);
-	// 	}
-	// 	else
-	// 	{
-	// 		// Sender is not a channel operator, cannot invite other clients
-	// 		// Handle error or send error message to the sender
-	// 	}
-	// }
-	// else
-	// {
-	// 	// Sender is not a member of the channel, cannot invite other clients
-	// 	// Handle error or send error message to the sender
-	// }
+			
+			// send(server->getUserByNickname(nickname)->getSocket(), RPL_TOPIC(nickname, channel, channel->getTopic()).c_str(), 
+			// 	RPL_TOPIC(nickname, channel, getChannelByName(channel)->getTopic()).length(), 0);
+		}
+		//else
+		{
+			// Sender is not a channel operator, cannot invite other clients
+			// Handle error or send error message to the sender
+		}
+	}
+	else
+	{
+		// Sender is not a member of the channel, cannot invite other clients
+		// Handle error or send error message to the sender
+	}
 }

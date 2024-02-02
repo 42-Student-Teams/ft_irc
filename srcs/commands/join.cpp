@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   join.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 12:13:07 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 17:46:38 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/02 16:04:28 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void handleJoinCommand(const char* message, Users *sender, Server *server)
 	else
 		return;
 	send(sender->getSocket(), RPL_JOIN(user_id(sender->getNickname(), sender->getUsername()), channelName).c_str(), 
-		RPL_JOIN(user_id(user_id(sender->getNickname(), sender->getUsername()), sender->getUsername()), channelName).length(), 0);
+		RPL_JOIN(user_id(sender->getNickname(), sender->getUsername()), channelName).length(), 0);
 	send(sender->getSocket(), RPL_TOPIC(sender->getNickname(), channelName, channel->getTopic()).c_str(), 
 		RPL_TOPIC(sender->getNickname(), channelName, channel->getTopic()).length(), 0);
 }
