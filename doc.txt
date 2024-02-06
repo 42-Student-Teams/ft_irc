@@ -25,6 +25,6 @@ COMMANDS :
 - part: functionality OK | replies OK				    	OK
 - pass: functionality OK | replies OK				    	OK
 - ping: functionality OK | replies OK						OK
-- quit: functionality KO | replies KO						OK
+- quit: functionality OK | replies OK						OK
 - topic: functionality OK | replies OK				    	OK
 - user: functionality OK | replies OK						OK
