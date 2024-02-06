@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:16:43 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 14:14:16 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 14:31:13 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,9 @@ public:
 	void setUserLimit(int userLimit);
 	void removeUserLimit();
 	void printUsers();
+	bool getInviteOnly();
+	std::string getChannelKey();
+	bool getTopicRestrictions();
 };
 
 #endif

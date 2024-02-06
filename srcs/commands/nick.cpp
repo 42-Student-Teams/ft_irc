@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 13:53:30 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/24 15:09:03 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 13:43:58 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,8 @@
 
    Numeric Replies:
 
-           ERR_NONICKNAMEGIVEN             ERR_ERRONEUSNICKNAME
-           ERR_NICKNAMEINUSE               ERR_NICKCOLLISION
+           OK ERR_NONICKNAMEGIVEN             OK ERR_ERRONEUSNICKNAME
+           OK ERR_NICKNAMEINUSE               ERR_NICKCOLLISION
 
    Example:
 

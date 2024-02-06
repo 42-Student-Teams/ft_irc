@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 15:11:21 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/02 16:26:12 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 11:57:19 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,10 @@
 
    Numeric Replies:
 
-           ERR_NEEDMOREPARAMS              ERR_NOSUCHNICK
-           ERR_NOTONCHANNEL                ERR_USERONCHANNEL
-           ERR_CHANOPRIVSNEEDED
-           RPL_INVITING                    RPL_AWAY
+           OK ERR_NEEDMOREPARAMS               OK ERR_NOSUCHNICK
+           OK ERR_NOTONCHANNEL                OK ERR_USERONCHANNEL
+           OK ERR_CHANOPRIVSNEEDED
+    	   OK RPL_INVITING                    RPL_AWAY
 
    Examples:
 
@@ -53,24 +53,39 @@ void handleInviteCommand(const char* message, Users *sender, Server *server)
 	std::string command, nickname, channel;
 	iss >> command >> nickname >> channel;
 
+	if(nickname.empty() || channel.empty())
+	{
+		send(sender->getSocket(), ERR_NEEDMOREPARAMS(user_id(sender->getNickname(), sender->getUsername()), "INVITE").c_str(), 
+			ERR_NEEDMOREPARAMS(user_id(sender->getNickname(), sender->getUsername()), "INVITE").length(), 0);
+		return;
+	}
 	if (server->getChannelByName(channel) == nullptr)
 	{
-		// Channel does not exist
-		// Handle error or send error message to the sender
+		send(sender->getSocket(), ERR_NOSUCHNICK(user_id(sender->getNickname(), sender->getUsername()), nickname).c_str(), 
+			ERR_NOSUCHNICK(user_id(sender->getNickname(), sender->getUsername()), nickname).length(), 0);
 		return;
 	}
-	
+	if (server->getChannelByName(channel)->getUserByName(sender->getNickname()) == nullptr)
+	{
+		send(sender->getSocket(), ERR_NOTONCHANNEL(user_id(sender->getNickname(), sender->getUsername()), channel).c_str(), 
+			ERR_NOTONCHANNEL(user_id(sender->getNickname(), sender->getUsername()), channel).length(), 0);
+		return;
+	}
 	if (server->getUserByNickname(nickname) == nullptr)
 	{
-		// User does not exist
-		// Handle error or send error message to the sender
+		send(sender->getSocket(), ERR_NOSUCHNICK(user_id(sender->getNickname(), sender->getUsername()), nickname).c_str(), 
+			ERR_NOSUCHNICK(user_id(sender->getNickname(), sender->getUsername()), nickname).length(), 0);
 		return;
 	}
-	
+	if (server->getChannelByName(channel)->getUserByName(nickname) != nullptr)
+	{
+		send(sender->getSocket(), ERR_USERONCHANNEL(user_id(sender->getNickname(), sender->getUsername()), nickname, channel).c_str(), 
+			ERR_USERONCHANNEL(user_id(sender->getNickname(), sender->getUsername()), nickname, channel).length(), 0);
+		return;
+	}
 	if (sender->getChannelByName(channel) != nullptr)
 	{
-		// Check if the channel is invite-only and the sender is a channel operator
-		//if (/*!server->isChannelInviteOnly(channel) || */sender->isOperator())
+		if (!sender->getChannelByName(channel)->getInviteOnly() || sender->getChannelByName(channel)->getOperator(sender))
 		{
 			server->getChannelByName(channel)->addUser(server->getUserByNickname(nickname));
 			server->getUserByNickname(nickname)->setCurrentChannel(server->getChannelByName(channel));
@@ -80,20 +95,14 @@ void handleInviteCommand(const char* message, Users *sender, Server *server)
 				RPL_INVITING(user_id(sender->getNickname(), sender->getUsername()), sender->getUsername(), sender->getNickname(), channel).length(), 0);
 			send(server->getUserByNickname(nickname)->getSocket(), RPL_JOIN(user_id(server->getUserByNickname(nickname)->getNickname(), server->getUserByNickname(nickname)->getUsername()), channel).c_str(), 
 				RPL_JOIN(user_id(server->getUserByNickname(nickname)->getNickname(), server->getUserByNickname(nickname)->getUsername()), channel).length(), 0);
-			
-			
-			// send(server->getUserByNickname(nickname)->getSocket(), RPL_TOPIC(nickname, channel, channel->getTopic()).c_str(), 
-			// 	RPL_TOPIC(nickname, channel, getChannelByName(channel)->getTopic()).length(), 0);
+			send(server->getUserByNickname(nickname)->getSocket(), RPL_TOPIC(server->getUserByNickname(nickname)->getNickname(), channel, server->getChannelByName(channel)->getTopic()).c_str(), 
+				RPL_TOPIC(server->getUserByNickname(nickname)->getNickname(), channel, server->getChannelByName(channel)->getTopic()).length(), 0);
 		}
-		//else
+		else
 		{
-			// Sender is not a channel operator, cannot invite other clients
-			// Handle error or send error message to the sender
+			send(sender->getSocket(), ERR_CHANOPRIVSNEEDED(user_id(sender->getNickname(), sender->getUsername()), channel).c_str(), 
+				ERR_CHANOPRIVSNEEDED(user_id(sender->getNickname(), sender->getUsername()), channel).length(), 0);
+			return;
 		}
-	}
-	else
-	{
-		// Sender is not a member of the channel, cannot invite other clients
-		// Handle error or send error message to the sender
 	}
 }

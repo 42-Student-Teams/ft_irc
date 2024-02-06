@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 14:08:40 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/24 15:17:23 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 13:48:43 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,8 @@ RFC 1459              Internet Relay Chat Protocol              May 1993
 
    Numeric Replies:
 
-           ERR_NEEDMOREPARAMS              RPL_YOUREOPER
-           ERR_NOOPERHOST                  ERR_NEEDMOREPARAMS
+           OK ERR_NEEDMOREPARAMS              OK RPL_YOUREOPER
+           ERR_NOOPERHOST                     OK ERR_NEEDMOREPARAMS
 
    Example:
 

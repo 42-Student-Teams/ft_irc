@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   part.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:42:49 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 17:58:30 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 14:07:11 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,8 @@ RFC 1459              Internet Relay Chat Protocol              May 1993
 
    Numeric Replies:
 
-           ERR_NEEDMOREPARAMS              ERR_NOSUCHCHANNEL
-           ERR_NOTONCHANNEL
+           OK ERR_NEEDMOREPARAMS              OK ERR_NOSUCHCHANNEL
+           OK ERR_NOTONCHANNEL
 
    Examples:
 
@@ -56,7 +56,8 @@ void handlePartCommand(const char* message, Users* sender, Server* server)
 	}
 	else
 	{
-		// Handle error: Invalid command format
+		send(sender->getFd().fd, ERR_NEEDMOREPARAMS(user_id(sender->getNickname(), sender->getUsername()), "PART").c_str(),
+			ERR_NEEDMOREPARAMS(user_id(sender->getNickname(), sender->getUsername()), "PART").size() + 1, 0);
 		std::cout << "Invalid command format" << std::endl;
 		return;
 	}
@@ -66,17 +67,15 @@ void handlePartCommand(const char* message, Users* sender, Server* server)
 	if (colonPos != std::string::npos)
 	{
 		reason = msg.substr(colonPos + 1);
-		std::cout << "Reason: " << reason << std::endl;
 	}
 	else
 	{
-		reason = "No reason specified"; // Default reason if none is provided
+		reason = "No reason specified";
 	}
 
 	Channels* channel = server->getChannelByName(channelName);
 	if (channel && channel->getUserByName(sender->getNickname()))
 	{
-		std::cout << "Channel found" << std::endl;
 		channel->getUserByName(sender->getNickname())->setCurrentChannel(nullptr);
 		sender->removeChannelByName(channelName);
 		channel->removeUserByName(sender->getNickname());
@@ -85,6 +84,11 @@ void handlePartCommand(const char* message, Users* sender, Server* server)
 	}
 	else
 	{
-		// Handle error: Channel not found
+		if (!channel)
+			send(sender->getFd().fd, ERR_NOSUCHCHANNEL(user_id(sender->getNickname(), sender->getUsername()), channelName).c_str(),
+				ERR_NOSUCHCHANNEL(user_id(sender->getNickname(), sender->getUsername()), channelName).size() + 1, 0);
+		else
+			send(sender->getFd().fd, ERR_NOTONCHANNEL(user_id(sender->getNickname(), sender->getUsername()), channelName).c_str(),
+				ERR_NOTONCHANNEL(user_id(sender->getNickname(), sender->getUsername()), channelName).size() + 1, 0);
 	}
 }

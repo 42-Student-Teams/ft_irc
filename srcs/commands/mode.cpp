@@ -6,13 +6,14 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:56:13 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/26 12:18:44 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 13:42:03 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Users.hpp"
 #include "../../includes/Server.hpp"
 #include "../../includes/Channels.hpp"
+#include "../../includes/replies.hpp"
 
 /*
 4.2.3 Mode message
@@ -86,11 +87,11 @@ flag, the attempt should be ignored.  There is no restriction,
 however, on anyone `deopping' themselves (using "-o").  Numeric
 Replies:
 
-		ERR_NEEDMOREPARAMS              RPL_CHANNELMODEIS
-		ERR_CHANOPRIVSNEEDED            ERR_NOSUCHNICK
-		ERR_NOTONCHANNEL                ERR_KEYSET
+		OK ERR_NEEDMOREPARAMS              OK RPL_CHANNELMODEIS
+		OK ERR_CHANOPRIVSNEEDED            
+		OK ERR_NOTONCHANNEL                ERR_KEYSET
 		RPL_BANLIST                     RPL_ENDOFBANLIST
-		ERR_UNKNOWNMODE                 ERR_NOSUCHCHANNEL
+		OK ERR_UNKNOWNMODE                 OK ERR_NOSUCHCHANNEL
 
 		ERR_USERSDONTMATCH              RPL_UMODEIS
 		ERR_UMODEUNKNOWNFLAG
@@ -115,6 +116,8 @@ void handleModeCommand(const char* message, Users *sender, Server *server)
 
 	if (!(iss >> command >> target >> mode))
 	{
+		send(sender->getSocket(), ERR_NEEDMOREPARAMS(sender->getNickname(), command).c_str(),
+			ERR_NEEDMOREPARAMS(sender->getNickname(), command).length(), 0);
 		std::cout << "Error: not enough parameters" << std::endl;
 		return;
 	}
@@ -124,12 +127,22 @@ void handleModeCommand(const char* message, Users *sender, Server *server)
 		Channels* channel = server->getChannelByName(target);
 		if (channel == NULL)
 		{
+			send(sender->getSocket(), ERR_NOSUCHCHANNEL(sender->getNickname(), target).c_str(),
+				ERR_NOSUCHCHANNEL(sender->getNickname(), target).length(), 0);
 			std::cout << "Error: channel not found" << std::endl;
 			return;
 		}
-
+		if (channel->getUserByName(sender->getNickname()) == NULL)
+		{
+			send(sender->getSocket(), ERR_NOTONCHANNEL(sender->getNickname(), target).c_str(),
+				ERR_NOTONCHANNEL(sender->getNickname(), target).length(), 0);
+			std::cout << "Error: user not on channel" << std::endl;
+			return;
+		}
 		if (channel->getOperator(sender) == NULL)
 		{
+			send(sender->getSocket(), ERR_CHANOPRIVSNEEDED(sender->getNickname(), target).c_str(),
+				ERR_CHANOPRIVSNEEDED(sender->getNickname(), target).length(), 0);
 			std::cout << "Error: user is not a channel operator" << std::endl;
 			return;
 		}
@@ -193,7 +206,8 @@ void handleModeCommand(const char* message, Users *sender, Server *server)
 					}
 					break;
 				default:
-					// Handle error: unknown mode
+					send(sender->getSocket(), ERR_UNKNOWNMODE(sender->getNickname(), mode).c_str(),
+						ERR_UNKNOWNMODE(sender->getNickname(), mode).length(), 0);
 					break;
 			}
 		}
@@ -201,9 +215,7 @@ void handleModeCommand(const char* message, Users *sender, Server *server)
 		// Send mode change confirmation to channel
 		std::string confirmationMsg = "MODE " + target + " " + mode + " " + param + "\r\n";
 		channel->broadcastMessage(confirmationMsg, *sender);
-	}
-	else
-	{
-		// Handle mode change for a user
+		send(sender->getSocket(), RPL_CHANNELMODEIS(sender->getNickname(), target, mode).c_str(),
+			RPL_CHANNELMODEIS(sender->getNickname(), target, mode).length(), 0);
 	}
 }

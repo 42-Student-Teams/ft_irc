@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   kick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 14:30:08 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 17:42:58 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 13:28:23 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ RFC 1459              Internet Relay Chat Protocol              May 1993
 
            OK ERR_NEEDMOREPARAMS              OK ERR_NOSUCHCHANNEL
            ERR_BADCHANMASK                 OK ERR_CHANOPRIVSNEEDED
-           ERR_NOTONCHANNEL
+           OK ERR_NOTONCHANNEL
 
    Examples:
 
@@ -57,8 +57,8 @@ void handleKickCommand(const char* message, Users *sender, Server *server)
 {
 	std::string kickMessage = message;
 	std::istringstream iss(kickMessage);
-	std::string command, channelName, username;
-	
+	std::string command, channelName, username, comment;
+
 	if (!(iss >> command >> channelName >> username))
 	{
 		send(sender->getSocket(), ERR_NEEDMOREPARAMS(sender->getNickname(), command).c_str(),
@@ -66,6 +66,9 @@ void handleKickCommand(const char* message, Users *sender, Server *server)
 		std::cout << "Not enough parameters" << std::endl;
 		return;
 	}
+	std::getline(iss >> std::ws, comment);
+	if (comment.empty())
+		comment = "You have been kicked";
 	Channels* channel = server->getChannelByName(channelName);
 	if (!channel)
 	{
@@ -92,6 +95,6 @@ void handleKickCommand(const char* message, Users *sender, Server *server)
 	channel->removeUser(user);
 	user->setCurrentChannel(nullptr);
 	user->removeChannelByName(channelName);
-	send(sender->getSocket(), RPL_KICK(user_id(sender->getNickname(), sender->getUsername()), channelName, username, "u suck").c_str(),
-		RPL_KICK(user_id(sender->getNickname(), sender->getUsername()), channelName, username, "u suck").length(), 0);
+	send(sender->getSocket(), RPL_KICK(user_id(sender->getNickname(), sender->getUsername()), channelName, username, comment).c_str(),
+		RPL_KICK(user_id(sender->getNickname(), sender->getUsername()), channelName, username, comment).length(), 0);
 }

@@ -6,13 +6,14 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:54:54 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/24 14:40:58 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 14:31:03 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Users.hpp"
 #include "../../includes/Server.hpp"
 #include "../../includes/Channels.hpp"
+#include "../../includes/replies.hpp"
 
 /*
       Command: TOPIC
@@ -25,9 +26,9 @@
 
    Numeric Replies:
 
-           ERR_NEEDMOREPARAMS              ERR_NOTONCHANNEL
-           RPL_NOTOPIC                     RPL_TOPIC
-           ERR_CHANOPRIVSNEEDED
+           OK ERR_NEEDMOREPARAMS              OK ERR_NOTONCHANNEL
+           OK RPL_NOTOPIC                     OK RPL_TOPIC
+           OK ERR_CHANOPRIVSNEEDED
 
 
 
@@ -48,30 +49,63 @@ RFC 1459              Internet Relay Chat Protocol              May 1993
 
 void handleTopicCommand(const char* message, Users *sender, Server *server)
 {
-	(void)message;
-	(void)sender;
-	(void)server;
-	std::string channel;
-	std::string topic;
+	std::string msg(message);
+	std::istringstream iss(msg);
+	std::string command, channelName, topic;
+	
+	iss >> command >> channelName;
+	std::getline(iss, topic);
+	if (!topic.empty() && topic[0] == ' ')
+	{
+		topic.erase(0, 1);
+	}
 
-	std::istringstream iss(message);
-	iss >> channel >> topic;
-	if (!channel.empty() && channel[channel.length() - 1] == '\n')
-		channel.erase(channel.length() - 1);
-	if (!topic.empty() && topic[topic.length() - 1] == '\n')
-		topic.erase(topic.length() - 1);
+	if (channelName.empty())
+	{
+		send(sender->getSocket(), ERR_NEEDMOREPARAMS(sender->getNickname(), "TOPIC").c_str(),
+			ERR_NEEDMOREPARAMS(sender->getNickname(), "TOPIC").length(), 0);
+		return;
+	}
+
+	Channels* channel = server->getChannelByName(channelName);
+	if (!channel)
+	{
+		send(sender->getSocket(), ERR_NOSUCHCHANNEL(sender->getNickname(), channelName).c_str(),
+			ERR_NOSUCHCHANNEL(sender->getNickname(), channelName).length(), 0);
+		return;
+	}
+
+	if (!channel->getUserByName(sender->getNickname()))
+	{
+		send(sender->getSocket(), ERR_NOTONCHANNEL(sender->getNickname(), channelName).c_str(),
+			ERR_NOTONCHANNEL(sender->getNickname(), channelName).length(), 0);
+		return;
+	}
+
 	if (topic.empty())
 	{
-		std::string toSend = server->getChannelByName(channel)->getTopic() + "\n";
-		send(sender->getSocket(), toSend.c_str(), toSend.size() + 1, 0);
-		std::cout << server->getChannelByName(channel)->getTopic() << std::endl;
-	}
-	else if (topic == "-")
-	{
-		server->getChannelByName(channel)->setTopic("");
+		const std::string& currentTopic = channel->getTopic();
+		if (currentTopic.empty())
+		{
+			send(sender->getSocket(), RPL_NOTOPIC(sender->getNickname(), channelName).c_str(),
+				RPL_NOTOPIC(sender->getNickname(), channelName).length(), 0);
+		}
+		else
+		{
+			send(sender->getSocket(), RPL_TOPIC(sender->getNickname(), channelName, currentTopic).c_str(),
+				RPL_TOPIC(sender->getNickname(), channelName, currentTopic).length(), 0);
+		}
 	}
 	else
 	{
-		server->getChannelByName(channel)->setTopic(topic);
+		if (!channel->getOperator(sender) && channel->getTopicRestrictions())
+		{
+			send(sender->getSocket(), ERR_CHANOPRIVSNEEDED(sender->getNickname(), channelName).c_str(),
+				ERR_CHANOPRIVSNEEDED(sender->getNickname(), channelName).length(), 0);
+			return;
+		}
+		channel->setTopic(topic);
+		send(sender->getSocket(), RPL_TOPIC(sender->getNickname(), channelName, topic).c_str(),
+			RPL_TOPIC(sender->getNickname(), channelName, topic).length(), 0);
 	}
 }

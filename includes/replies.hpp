@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/16 13:04:38 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/26 16:21:43 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 13:33:32 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@
 # define ERR_USERONCHANNEL(client, nick, channel) (":localhost 443 " + client + " " + nick + " " + channel + " :Is already on channel\r\n")
 # define RPL_INVITING(user_id, client, nick, channel) (user_id + " 341 " + client + " " + nick + " " + channel + "\r\n")
 # define RPL_INVITE(user_id, invited, channel) (user_id + " INVITE " + invited + " " + channel + "\r\n")
+# define ERR_INVITEONLYCHAN(client, channel) (":localhost 473 " + client + " " + channel + " :Cannot join channel (+i)\r\n")
 
 // JOIN
 # define RPL_JOIN(user_id, channel) (user_id + " JOIN :" +  channel + "\r\n")
@@ -63,7 +64,7 @@
 #define ERR_CHANOPRIVSNEEDED(client, channel) (":localhost 482 " + client + " " + channel + " :You're not channel operator\r\n")
 #define ERR_INVALIDMODEPARAM(client, channel, mode, password) ("696 " + client + " " + channel + " " + mode + " " + password + " : password must only contained alphabetic character\r\n")
 #define RPL_ADDVOICE(nickname, username, channel, mode, param) (":" + nickname + "!" + username + "@localhost MODE " + channel + " " + mode + " " + param + "\r\n")
-
+# define ERR_UNKNOWNMODE(client, mode) (":localhost 472 " + client + " " + mode + " :is unknown mode char to me for " + client + "\r\n")
 // MOTD
 #define ERR_NOSUCHSERVER(client, servername) (":localhost 402 " + client + " " + servername + " :No such server\r\n")
 #define ERR_NOMOTD(client) (":localhost 422 " + client + " :MOTD File is missing\r\n")

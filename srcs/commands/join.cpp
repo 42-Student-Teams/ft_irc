@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 12:13:07 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/02 16:04:28 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 14:42:24 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,46 +56,67 @@ RFC 1459              Internet Relay Chat Protocol              May 1993
 
    Numeric Replies:
 
-           ERR_NEEDMOREPARAMS              ERR_BANNEDFROMCHAN
-           ERR_INVITEONLYCHAN              ERR_BADCHANNELKEY
-           ERR_CHANNELISFULL               ERR_BADCHANMASK
-           ERR_NOSUCHCHANNEL               ERR_TOOMANYCHANNELS
-           RPL_TOPIC
+           OK ERR_NEEDMOREPARAMS              ERR_BANNEDFROMCHAN
+           OK ERR_INVITEONLYCHAN              ERR_BADCHANNELKEY
+           ERR_CHANNELISFULL                  ERR_BADCHANMASK
+           OK ERR_NOSUCHCHANNEL               ERR_TOOMANYCHANNELS
+           OK RPL_TOPIC
 */
 
-void handleJoinCommand(const char* message, Users *sender, Server *server)
+void handleJoinCommand(const char* message, Users* sender, Server* server)
 {
 	std::string joinMessage(message);
 	if (joinMessage.length() <= 6)
 	{
-		send(sender->getSocket(), ERR_NEEDMOREPARAMS(sender->getNickname(), "JOIN").c_str(), 
+		send(sender->getSocket(), ERR_NEEDMOREPARAMS(sender->getNickname(), "JOIN").c_str(),
 			ERR_NEEDMOREPARAMS(sender->getNickname(), "JOIN").length(), 0);
 		return;
 	}
-	std::string channelName = message + 5;
-	if (channelName[0] != '#')
+
+	std::istringstream iss(joinMessage.substr(5));
+	std::string channelName;
+	bool joinedAtLeastOneChannel = false;
+
+	while (getline(iss, channelName, ' '))
 	{
-		send(sender->getSocket(), ERR_NOSUCHCHANNEL(sender->getNickname(), channelName).c_str(), 
-			ERR_NOSUCHCHANNEL(sender->getNickname(), channelName).length(), 0);
-		return;
+		if (!channelName.empty() && channelName.back() == '\n')
+			channelName.erase(channelName.length() - 1);
+
+		if (channelName.empty() || channelName[0] != '#')
+		{
+			send(sender->getSocket(), ERR_NOSUCHCHANNEL(sender->getNickname(), channelName).c_str(),
+				ERR_NOSUCHCHANNEL(sender->getNickname(), channelName).length(), 0);
+			continue;
+		}
+
+		Channels* channel = server->getChannelByName(channelName);
+		if (!channel)
+		{
+			server->ensureChannelExists(channelName, sender);
+			channel = server->getChannelByName(channelName);
+		}
+		if (channel->getInviteOnly())
+		{
+			send(sender->getSocket(), ERR_INVITEONLYCHAN(sender->getNickname(), channelName).c_str(),
+				ERR_INVITEONLYCHAN(sender->getNickname(), channelName).length(), 0);
+			continue;
+		}
+
+		channel->addUser(sender);
+		if (channel->getUserByName(sender->getNickname()))
+		{
+			sender->setCurrentChannel(channel);
+			joinedAtLeastOneChannel = true;
+			send(sender->getSocket(), RPL_JOIN(user_id(sender->getNickname(), sender->getUsername()), channelName).c_str(),
+				RPL_JOIN(user_id(sender->getNickname(), sender->getUsername()), channelName).length(), 0);
+			send(sender->getSocket(), RPL_TOPIC(sender->getNickname(), channelName, channel->getTopic()).c_str(),
+				RPL_TOPIC(sender->getNickname(), channelName, channel->getTopic()).length(), 0);
+		}
 	}
-	if (!channelName.empty() && channelName[channelName.length() - 1] == '\n')
-		channelName.erase(channelName.length() - 1);
-	Channels* channel = server->getChannelByName(channelName);
-	if (!channel)
+
+	if (!joinedAtLeastOneChannel)
 	{
-		server->ensureChannelExists(channelName, sender);
-		channel = server->getChannelByName(channelName);
+		// Handle case where no valid channel was joined, e.g., by sending an error message to the user
 	}
-	channel->addUser(sender);
-	if (channel->getUserByName(sender->getNickname()))
-	{
-		sender->setCurrentChannel(channel);
-	}
-	else
-		return;
-	send(sender->getSocket(), RPL_JOIN(user_id(sender->getNickname(), sender->getUsername()), channelName).c_str(), 
-		RPL_JOIN(user_id(sender->getNickname(), sender->getUsername()), channelName).length(), 0);
-	send(sender->getSocket(), RPL_TOPIC(sender->getNickname(), channelName, channel->getTopic()).c_str(), 
-		RPL_TOPIC(sender->getNickname(), channelName, channel->getTopic()).length(), 0);
 }
+
