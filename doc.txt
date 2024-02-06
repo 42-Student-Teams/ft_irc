@@ -15,7 +15,7 @@ COMMANDS :
 
 - cap: functionality OK | replies OK						OK
 - invite: functionality OK | replies OK				    	OK
-- join: functionality OK | replies GOOD START		        		GOOD START
+- join: functionality OK | replies OK		        		OK
 - kick: functionality OK | replies OK		        		OK
 - message: functionality OK | replies GOOD START			        GOOD START
 - mode: functionality GOOD START | replies GOOD START				GOOD START
@@ -23,8 +23,8 @@ COMMANDS :
 - notice: functionality KO | replies KO						    KO
 - oper; functionality OK | replies OK				        OK
 - part: functionality OK | replies OK				    	OK
-- pass: functionality GOOD START | replies KO				    KO  NEED TO REMOVE ??
+- pass: functionality OK | replies OK				    	OK
 - ping: functionality OK | replies OK						OK
-- quit: functionality KO | replies KO						    KO
+- quit: functionality KO | replies KO						OK
 - topic: functionality OK | replies OK				    	OK
 - user: functionality OK | replies OK						OK

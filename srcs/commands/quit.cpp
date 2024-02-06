@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   quit.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 14:27:08 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 17:29:45 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 15:22:37 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Users.hpp"
 #include "../../includes/Server.hpp"
 #include "../../includes/Channels.hpp"
+#include "../../includes/replies.hpp"
 
 /*
       Command: QUIT
@@ -60,30 +61,33 @@ void handleQuitCommand(const char* message, Users* sender, Server* server)
 	(void)	message;
 	(void)	sender;
 	
-	// std::string quitMsg(message ? message : "");
-	// if (quitMsg.empty())
-	// {
-	// 	quitMsg = "Quit: Client exited";
-	// }
-	// else
-	// {
-	// 	if (quitMsg.front() == ':')
-	// 			quitMsg.erase(0, 1);
-	// }
+	std::string quitMsg(message ? message : "");
+	if (quitMsg.empty())
+	{
+		quitMsg = sender->getNickname();
+	}
+	else
+	{
+		if (quitMsg.front() == ':')
+				quitMsg.erase(0, 1);
+	}
 
-	// std::string broadcastMsg = ":" + sender->getNickname() + "!" + sender->getUsername() 
-	// 							+ "@localhost QUIT :" + quitMsg;
+	std::string broadcastMsg = ":" + sender->getNickname() + "!" + sender->getUsername() 
+								+ "@localhost QUIT :" + quitMsg;
 
-	// std::vector<Channels*> channels = sender->getChannels();
-	// for (size_t i = 0; i < channels.size(); ++i)
-	// {
-	// 	if (channels[i])
-	// 	{
-	// 			channels[i]->broadcastMessage(broadcastMsg, *sender);
-	// 			channels[i]->removeUser(sender);
-	// 	}
-	// }
+	std::vector<Channels*> channels = *(sender->getAllChannels());
+	for (size_t i = 0; i < channels.size(); ++i)
+	{
+		if (channels[i])
+		{
+				channels[i]->broadcastMessage(broadcastMsg, *sender);
+				channels[i]->removeUser(sender);
+		}
+	}
 
-	// server->closeConnection(sender);
+	server->closeConnection(sender);
+	send(sender->getSocket(), RPL_QUIT(user_id(sender->getNickname(), sender->getUsername()), quitMsg).c_str(), 
+		RPL_QUIT(user_id(sender->getNickname(), sender->getUsername()), quitMsg).length(), 0);
+	std::cout << RED << "Client disconnected" << RESET << std::endl;
 }
 

@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:58:29 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 14:11:34 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 15:12:42 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,17 +41,10 @@ void handlePassCommand(const char* message, Users *sender, Server *server)
 	// Extract the password from the message
 	std::string password = std::string(message).substr(5); // Assuming "PASS " is 5 characters
 
-	if (sender->isRegistered() == 0)
-	{
-		// Send error message for already registered users
-		std::string errMsg = "ERROR :You are already registered\r\n";
-		send(sender->getSocket(), errMsg.c_str(), errMsg.size(), 0);
-		return;
-	}
-
 	if (password != server->getPassword()) {
 		std::string errMsg = "ERROR :Incorrect password\r\n";
 		send(sender->getSocket(), errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
+	sender->setHasEnteredPassword(true);
 }

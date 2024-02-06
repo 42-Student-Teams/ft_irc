@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 12:13:07 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 14:42:24 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 16:06:54 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,13 +74,38 @@ void handleJoinCommand(const char* message, Users* sender, Server* server)
 	}
 
 	std::istringstream iss(joinMessage.substr(5));
-	std::string channelName;
-	bool joinedAtLeastOneChannel = false;
+	std::string channelsAndKeys;
+	getline(iss, channelsAndKeys);
+	size_t keyStart = channelsAndKeys.find(' ');
+	std::string channelPart = channelsAndKeys.substr(0, keyStart);
+	std::string keyPart = keyStart != std::string::npos ? channelsAndKeys.substr(keyStart + 1) : "";
 
-	while (getline(iss, channelName, ' '))
+	std::vector<std::string> channelNames;
+	std::vector<std::string> keys;
+	std::istringstream channelStream(channelPart);
+	std::istringstream keyStream(keyPart);
+	std::string channelName;
+	std::string key;
+
+	while (getline(channelStream, channelName, ','))
 	{
-		if (!channelName.empty() && channelName.back() == '\n')
-			channelName.erase(channelName.length() - 1);
+		if (!channelName.empty()) {
+			channelNames.push_back(channelName);
+		}
+	}
+
+	if (!keyPart.empty()) {
+		while (getline(keyStream, key, ','))
+		{
+			keys.push_back(key);
+		}
+	}
+
+	bool joinedAtLeastOneChannel = false;
+	for (size_t i = 0; i < channelNames.size(); ++i)
+	{
+		channelName = channelNames[i];
+		key = i < keys.size() ? keys[i] : "";
 
 		if (channelName.empty() || channelName[0] != '#')
 		{
@@ -88,7 +113,6 @@ void handleJoinCommand(const char* message, Users* sender, Server* server)
 				ERR_NOSUCHCHANNEL(sender->getNickname(), channelName).length(), 0);
 			continue;
 		}
-
 		Channels* channel = server->getChannelByName(channelName);
 		if (!channel)
 		{
@@ -101,22 +125,17 @@ void handleJoinCommand(const char* message, Users* sender, Server* server)
 				ERR_INVITEONLYCHAN(sender->getNickname(), channelName).length(), 0);
 			continue;
 		}
-
-		channel->addUser(sender);
-		if (channel->getUserByName(sender->getNickname()))
+		if (channel->getChannelKey() != "" && channel->getChannelKey() != key)
 		{
-			sender->setCurrentChannel(channel);
-			joinedAtLeastOneChannel = true;
-			send(sender->getSocket(), RPL_JOIN(user_id(sender->getNickname(), sender->getUsername()), channelName).c_str(),
-				RPL_JOIN(user_id(sender->getNickname(), sender->getUsername()), channelName).length(), 0);
-			send(sender->getSocket(), RPL_TOPIC(sender->getNickname(), channelName, channel->getTopic()).c_str(),
-				RPL_TOPIC(sender->getNickname(), channelName, channel->getTopic()).length(), 0);
+			send(sender->getSocket(), ERR_BADCHANNELKEY(sender->getNickname(), channelName).c_str(),
+				ERR_BADCHANNELKEY(sender->getNickname(), channelName).length(), 0);
+			continue;
 		}
-	}
-
-	if (!joinedAtLeastOneChannel)
-	{
-		// Handle case where no valid channel was joined, e.g., by sending an error message to the user
+		channel->addUser(sender);
+		joinedAtLeastOneChannel = true;
+		send(sender->getSocket(), RPL_JOIN(user_id(sender->getNickname(), sender->getUsername()), channelName).c_str(),
+			RPL_JOIN(user_id(sender->getNickname(), sender->getUsername()), channelName).length(), 0);
+		send(sender->getSocket(), RPL_TOPIC(sender->getNickname(), channelName, channel->getTopic()).c_str(),
+			RPL_TOPIC(sender->getNickname(), channelName, channel->getTopic()).length(), 0);
 	}
 }
-

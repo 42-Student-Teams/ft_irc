@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Users.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:18:30 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 17:42:35 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 15:02:14 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ class Users
 		int						_socket;
 		struct pollfd			_fd;
 		std::vector<Channels*>	_currentChannels;
-		//Channels*				_currentChannels;
+		bool					_hasEnteredPassword;
 		bool					_isOperator;
 		bool					_isRegistered;
 		std::string				_mode;
@@ -64,7 +64,8 @@ class Users
 		void			setOperator(bool isOperator);
 		bool			isRegistered() const;
 		bool			setRegistered(bool isRegistered);
-
+		bool			getHasEnteredPassword() const;
+		void			setHasEnteredPassword(bool hasEnteredPassword);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:57:28 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/01 13:05:05 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 15:17:54 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "../../includes/Server.hpp"
 #include "../../includes/Channels.hpp"
 #include "../../includes/replies.hpp"
+void handleQuitCommand(const char* message, Users* sender, Server* server);
 
 /*
       Command: USER
@@ -45,7 +46,13 @@
 void handleUserCommand(const char* message, Users *sender, Server *server)
 {
 	(void) server;
-	// Check if the user is already registered
+	if (sender->getHasEnteredPassword() == false)
+	{
+		std::string errMsg = "ERROR :You must enter a password first\r\n";
+		send(sender->getSocket(), errMsg.c_str(), errMsg.size(), 0);
+		handleQuitCommand("QUIT", sender, server);
+		return;
+	}
 	if (sender->isRegistered())
 	{
 		// Send error message for already registered users

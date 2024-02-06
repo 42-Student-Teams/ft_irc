@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:19:14 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 14:37:02 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/06 15:53:25 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 Channels::Channels(const std::string &name) : _name(name), _topic("default"),
 												_inviteOnly(false), _topicRestrictions(false),
-												_channelKey(NULL), _userLimit(0)
+												_channelKey(""), _userLimit(0)
 {
 }
 
