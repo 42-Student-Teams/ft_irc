@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channels.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:16:43 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 14:31:13 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/07 10:30:34 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,10 +69,12 @@ public:
 	void removeChannelKey();
 	void setUserLimit(int userLimit);
 	void removeUserLimit();
+	int	getUserLimit();
 	void printUsers();
 	bool getInviteOnly();
 	std::string getChannelKey();
 	bool getTopicRestrictions();
+	int getSizeUsers();
 };
 
 #endif

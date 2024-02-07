@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   oper.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 14:08:40 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 13:48:43 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/07 11:00:48 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,12 @@ void handleOperCommand(const char* message, Users *sender, Server *server)
 	{
 		send(sender->getSocket(), ERR_NEEDMOREPARAMS(std::to_string(sender->getSocket()), "OPER").c_str(),
 			ERR_NEEDMOREPARAMS(std::to_string(sender->getSocket()), "OPER").length(), 0);
+		return;
+	}
+	if (server->getUserByNickname(username) == nullptr)
+	{
+		send(sender->getSocket(), ERR_NOOPERHOST(std::to_string(sender->getSocket())).c_str(),
+			ERR_NOOPERHOST(std::to_string(sender->getSocket())).length(), 0);
 		return;
 	}
 	if (password != server->getPassword())

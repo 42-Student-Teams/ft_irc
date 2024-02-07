@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   join.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 12:13:07 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 16:06:54 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/07 10:31:02 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,12 @@ void handleJoinCommand(const char* message, Users* sender, Server* server)
 		{
 			server->ensureChannelExists(channelName, sender);
 			channel = server->getChannelByName(channelName);
+		}
+		if (channel->getUserLimit() != 0 && channel->getSizeUsers() >= channel->getUserLimit())
+		{
+			send(sender->getSocket(), ERR_CHANNELISFULL(sender->getNickname(), channelName).c_str(),
+				ERR_CHANNELISFULL(sender->getNickname(), channelName).length(), 0);
+			continue;
 		}
 		if (channel->getInviteOnly())
 		{

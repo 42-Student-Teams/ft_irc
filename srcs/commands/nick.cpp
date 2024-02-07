@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   nick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 13:53:30 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 13:43:58 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/07 11:05:06 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,9 +82,6 @@ void handleNickCommand(const char* message, Users *sender, Server *server)
 	}
 	
 	sender->setNickname(nickname);
-	// if (sender->getUsername() != "default")
-	// {
-	// 	sender->setRegistered(true);
-	// 	std::cout << "User registered" << std::endl;
-	// }
+	send(sender->getSocket(), RPL_NICK(std::to_string(sender->getSocket()), sender->getUsername(), sender->getNickname()).c_str(),
+		RPL_NICK(std::to_string(sender->getSocket()), sender->getUsername(), sender->getNickname()).length(), 0);
 }

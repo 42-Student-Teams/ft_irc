@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channels.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 11:19:14 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 15:53:25 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/07 10:58:17 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,12 +156,6 @@ const Users *Channels::getOperator(const Users *chanOperator) const
 
 void Channels::setOperator(const std::string operatorName, Server &server)
 {
-	// _channel_operators.push_back(getUserByName(operatorName));
-	// for (std::list<Users*>::iterator it = _channel_operators.begin(); it != _channel_operators.end(); ++it)
-	// {
-	// 	Users* user = *it;
-	// 	std::cout << "Channel operator: " << user->getNickname() << std::endl;
-	// }
 	std::string	opname = operatorName;
 	Users* user = server.getUserByNickname(opname);
 	if (!user)
@@ -243,4 +237,14 @@ std::string Channels::getChannelKey()
 bool Channels::getTopicRestrictions()
 {
 	return (_topicRestrictions);
+}
+
+int	Channels::getUserLimit()
+{
+	return (_userLimit);
+}
+
+int	Channels::getSizeUsers()
+{
+	return (_users.size());
 }

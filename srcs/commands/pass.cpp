@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   pass.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:58:29 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 15:12:42 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/07 11:03:42 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Users.hpp"
 #include "../../includes/Server.hpp"
 #include "../../includes/Channels.hpp"
+#include "../../includes/replies.hpp"
 
 /*
       Command: PASS
@@ -42,8 +43,8 @@ void handlePassCommand(const char* message, Users *sender, Server *server)
 	std::string password = std::string(message).substr(5); // Assuming "PASS " is 5 characters
 
 	if (password != server->getPassword()) {
-		std::string errMsg = "ERROR :Incorrect password\r\n";
-		send(sender->getSocket(), errMsg.c_str(), errMsg.size(), 0);
+		send(sender->getSocket(), ERR_PASSWDMISMATCH(sender->getNickname()).c_str(),
+                        ERR_PASSWDMISMATCH(sender->getNickname()).length(), 0);
 		return;
 	}
 	sender->setHasEnteredPassword(true);

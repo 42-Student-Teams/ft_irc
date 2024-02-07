@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   notice.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 19:02:33 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/01/16 12:59:00 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/07 10:56:30 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,47 @@
    See PRIVMSG for more details on replies and examples.
 s*/
 
-void handleNoticeCommand(const char* message, Users *sender, Server *server)
+void handleNoticeCommand(const char* message, Users* sender, Server* server)
 {
-	(void) message;
-	(void) sender;
-	(void) server;
+    std::string noticeMessage = message;
+    std::istringstream iss(noticeMessage);
+    std::string command, receivers, content;
+
+    if (!(iss >> command >> receivers))
+    {
+        return;
+    }
+
+    std::getline(iss, content);
+    if (content.empty() || content[0] != ':')
+    {
+        return;
+    }
+    content.erase(0, 1);
+
+    std::istringstream receiverStream(receivers);
+    std::string receiver;
+
+    while (std::getline(receiverStream, receiver, ','))
+    {
+        if (receiver.empty()) continue;
+
+        if (receiver[0] == '#' || receiver[0] == '&') // Channel message
+        {
+            Channels* channel = server->getChannelByName(receiver);
+            if (channel)
+            {
+                channel->broadcastMessage(content, *sender);
+            }
+        }
+        else // User message
+        {
+            Users* user = server->getUserByNickname(receiver);
+            if (user)
+            {
+                std::string formattedMessage = sender->getNickname() + " noticed you: " + content + "\r\n";
+                send(user->getSocket(), formattedMessage.c_str(), formattedMessage.size(), 0);
+            }
+        }
+    }
 }

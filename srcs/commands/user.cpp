@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   user.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:57:28 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 15:17:54 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/07 11:30:10 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 #include "../../includes/Server.hpp"
 #include "../../includes/Channels.hpp"
 #include "../../includes/replies.hpp"
+#include <ctime>
+#include <iomanip>
+
 void handleQuitCommand(const char* message, Users* sender, Server* server);
 
 /*
@@ -42,6 +45,20 @@ void handleQuitCommand(const char* message, Users* sender, Server* server);
    Numeric Replies:
            ERR_NEEDMOREPARAMS              ERR_ALREADYREGISTRED
 */
+
+std::string getCurrentDate()
+{
+    std::time_t now = std::time(0);
+    
+    std::tm* now_tm = std::localtime(&now);
+    
+    std::stringstream ss;
+    ss << (now_tm->tm_year + 1900) << '-' 
+       << std::setw(2) << std::setfill('0') << (now_tm->tm_mon + 1) << '-'
+       << std::setw(2) << std::setfill('0') << now_tm->tm_mday;
+
+    return ss.str();
+}
 
 void handleUserCommand(const char* message, Users *sender, Server *server)
 {
@@ -91,4 +108,8 @@ void handleUserCommand(const char* message, Users *sender, Server *server)
 	}
 	send(sender->getSocket(), RPL_WELCOME(user_id(sender->getNickname(), sender->getUsername()), sender->getNickname()).c_str(), 
 		RPL_WELCOME(user_id(user_id(sender->getNickname(), sender->getUsername()), sender->getUsername()), sender->getNickname()).length(), 0);
+	send(sender->getSocket(), RPL_YOURHOST(sender->getNickname(), "ft_irc", "1.1").c_str(), 
+		RPL_YOURHOST(sender->getNickname(), "ft_irc", "1.1").length(), 0);
+	send(sender->getSocket(), RPL_CREATED(sender->getNickname(), getCurrentDate()).c_str(),
+		RPL_CREATED(sender->getNickname(), getCurrentDate()).length(), 0);
 }

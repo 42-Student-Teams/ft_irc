@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 11:28:30 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 15:54:03 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/07 11:06:14 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,20 +86,6 @@ void Server::handleNewConnection(int client_socket)
 	nickname << "User" << rand();
 	_users.back().setNickname(nickname.str());
 }
-
-// void Server::handleMessage(int userIndex, const char* message)
-// {
-// 	std::list<Users>::iterator it = _users.begin();
-// 	std::advance(it, userIndex);
-
-// 	if (it != _users.end())
-// 	{
-// 		if (parseCommands(message, &(*it), this) == 1)
-// 			return;
-// 		if (it->getCurrentChannel())
-// 			it->getCurrentChannel()->broadcastMessage(message, *it);
-// 	}
-// }
 
 void Server::handleMessage(int userIndex, const char* message)
 {

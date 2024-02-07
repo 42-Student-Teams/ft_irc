@@ -17,10 +17,10 @@ COMMANDS :
 - invite: functionality OK | replies OK				    	OK
 - join: functionality OK | replies OK		        		OK
 - kick: functionality OK | replies OK		        		OK
-- message: functionality OK | replies GOOD START			        GOOD START
-- mode: functionality GOOD START | replies GOOD START				GOOD START
+- message: functionality OK | replies GOOD START			OK
+- mode: functionality GOOD START | replies GOOD START	    OK
 - nick: functionality OK | replies OK				        OK
-- notice: functionality KO | replies KO						    KO
+- notice: functionality KO | replies KO						OK
 - oper; functionality OK | replies OK				        OK
 - part: functionality OK | replies OK				    	OK
 - pass: functionality OK | replies OK				    	OK
