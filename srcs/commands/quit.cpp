@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 14:27:08 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/06 15:22:37 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/08 14:59:37 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,6 @@ void handleQuitCommand(const char* message, Users* sender, Server* server)
 		if (quitMsg.front() == ':')
 				quitMsg.erase(0, 1);
 	}
-
 	std::string broadcastMsg = ":" + sender->getNickname() + "!" + sender->getUsername() 
 								+ "@localhost QUIT :" + quitMsg;
 
@@ -84,10 +83,9 @@ void handleQuitCommand(const char* message, Users* sender, Server* server)
 				channels[i]->removeUser(sender);
 		}
 	}
-
+	std::string toSend = RPL_QUIT(user_id(sender->getNickname(), sender->getUsername()), quitMsg);
+	send(sender->getSocket(), toSend.c_str(), toSend.length(), 0);
 	server->closeConnection(sender);
-	send(sender->getSocket(), RPL_QUIT(user_id(sender->getNickname(), sender->getUsername()), quitMsg).c_str(), 
-		RPL_QUIT(user_id(sender->getNickname(), sender->getUsername()), quitMsg).length(), 0);
 	std::cout << RED << "Client disconnected" << RESET << std::endl;
 }
 
