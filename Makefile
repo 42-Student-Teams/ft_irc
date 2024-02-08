@@ -28,7 +28,7 @@ OBJ			=	$(SRC:srcs/%.cpp=objs/%.o)
 CC			=	c++
 RM			=	rm -f
 
-CPPFLAGS	=	-Wall -Wextra -Werror -std=c++98 -pedantic #-fsanitize=address -g3
+CPPFLAGS	=	-Wall -Wextra -Werror -std=c++98 -pedantic -fsanitize=address -g3
 
 OBJDIR		=	objs/
 
