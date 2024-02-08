@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:58:29 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/07 11:03:42 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/08 19:51:45 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "../../includes/Server.hpp"
 #include "../../includes/Channels.hpp"
 #include "../../includes/replies.hpp"
+
+void handleQuitCommand(const char* message, Users* sender, Server* server);
 
 /*
       Command: PASS
@@ -45,6 +47,8 @@ void handlePassCommand(const char* message, Users *sender, Server *server)
 	if (password != server->getPassword()) {
 		send(sender->getSocket(), ERR_PASSWDMISMATCH(sender->getNickname()).c_str(),
                         ERR_PASSWDMISMATCH(sender->getNickname()).length(), 0);
+                if (!sender->isRegistered())
+			handleQuitCommand("QUIT", sender, server);
 		return;
 	}
 	sender->setHasEnteredPassword(true);

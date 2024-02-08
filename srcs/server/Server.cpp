@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 11:28:30 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/07 11:06:14 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/08 19:47:32 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void Server::handleNewConnection(int client_socket)
 
 	srand(time(NULL));
 	std::stringstream nickname;
-	nickname << "User" << rand();
+	nickname << "user" << rand();
 	_users.back().setNickname(nickname.str());
 }
 

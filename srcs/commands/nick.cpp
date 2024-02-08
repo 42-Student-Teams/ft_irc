@@ -6,7 +6,7 @@
 /*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 13:53:30 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/07 11:05:06 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/08 19:52:29 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 #include "../../includes/Channels.hpp"
 #include "../../includes/replies.hpp"
 #include <regex>
+
+void handleQuitCommand(const char* message, Users* sender, Server* server);
 
 /*
 4.1.2 Nick message
@@ -59,18 +61,22 @@ void handleNickCommand(const char* message, Users *sender, Server *server)
 	{
 		send(sender->getSocket(), ERR_NONICKNAMEGIVEN(std::to_string(sender->getSocket())).c_str(), 
 			ERR_NONICKNAMEGIVEN(std::to_string(sender->getSocket())).length(), 0);
+		if (!sender->isRegistered())
+			handleQuitCommand("QUIT", sender, server);
 		return;
 	}
 	std::string nickname = nickMessage.substr(5);
 	nickname.erase(std::remove(nickname.begin(), nickname.end(), '\r'), nickname.end());
 	nickname.erase(std::remove(nickname.begin(), nickname.end(), '\n'), nickname.end());
 
-	std::regex nicknameRegex("^[a-zA-Z][a-zA-Z0-9\\[\\]\\-\\\\\\^\\{\\}\\|]*$");
+	std::regex nicknameRegex("^[a-zA-Z][a-zA-Z0-9\\[\\]\\{\\}\\|\\^`\\-_\\\\]{0,29}$");
 
 	if (!std::regex_match(nickname, nicknameRegex))
 	{
-		send(sender->getSocket(), ERR_ERRONEUSNICKNAME(std::to_string(sender->getSocket()), sender->getNickname()).c_str(),
-		ERR_ERRONEUSNICKNAME(std::to_string(sender->getSocket()), sender->getNickname()).length(), 0);
+		send(sender->getSocket(), ERR_ERRONEUSNICKNAME(std::to_string(sender->getSocket()), nickname).c_str(),
+		ERR_ERRONEUSNICKNAME(std::to_string(sender->getSocket()), nickname).length(), 0);
+		if (!sender->isRegistered())
+			handleQuitCommand("QUIT", sender, server);
 		return;
 	}
 
@@ -78,6 +84,8 @@ void handleNickCommand(const char* message, Users *sender, Server *server)
 	{
 		send(sender->getSocket(), ERR_NICKNAMEINUSE(std::to_string(sender->getSocket()), sender->getNickname()).c_str(),
 				ERR_NICKNAMEINUSE(std::to_string(sender->getSocket()), sender->getNickname()).length(), 0);
+		if (!sender->isRegistered())
+			handleQuitCommand("QUIT", sender, server);
 		return;
 	}
 	

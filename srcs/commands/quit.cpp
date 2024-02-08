@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   quit.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 14:27:08 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/08 14:59:37 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/08 19:48:18 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,4 +88,3 @@ void handleQuitCommand(const char* message, Users* sender, Server* server)
 	server->closeConnection(sender);
 	std::cout << RED << "Client disconnected" << RESET << std::endl;
 }
-

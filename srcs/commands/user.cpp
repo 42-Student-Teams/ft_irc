@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   user.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:57:28 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/08 14:38:28 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/08 19:51:13 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,10 +92,14 @@ void handleUserCommand(const char* message, Users *sender, Server *server)
 	}
 
 	// Check if all required parameters were provided
-	if (username.empty() || hostname.empty() || servername.empty() || realname.empty()) {
+	if (username.empty() || hostname.empty() || servername.empty() || realname.empty())
+	{
 		std::string errMsg = "ERROR :Not enough parameters\r\n";
 		send(sender->getSocket(), errMsg.c_str(), errMsg.size(), 0);
+		if (!sender->isRegistered())
+			handleQuitCommand("QUIT", sender, server);
 		return;
+	
 	}
 
 	// Set user details
