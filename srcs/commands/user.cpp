@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   user.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:57:28 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/07 11:30:10 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/08 14:38:28 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,16 +48,16 @@ void handleQuitCommand(const char* message, Users* sender, Server* server);
 
 std::string getCurrentDate()
 {
-    std::time_t now = std::time(0);
-    
-    std::tm* now_tm = std::localtime(&now);
-    
-    std::stringstream ss;
-    ss << (now_tm->tm_year + 1900) << '-' 
-       << std::setw(2) << std::setfill('0') << (now_tm->tm_mon + 1) << '-'
-       << std::setw(2) << std::setfill('0') << now_tm->tm_mday;
+	std::time_t now = std::time(0);
+	
+	std::tm* now_tm = std::localtime(&now);
+	
+	std::stringstream ss;
+	ss << (now_tm->tm_year + 1900) << '-' 
+	<< std::setw(2) << std::setfill('0') << (now_tm->tm_mon + 1) << '-'
+	<< std::setw(2) << std::setfill('0') << now_tm->tm_mday;
 
-    return ss.str();
+	return ss.str();
 }
 
 void handleUserCommand(const char* message, Users *sender, Server *server)
@@ -106,10 +106,10 @@ void handleUserCommand(const char* message, Users *sender, Server *server)
 		sender->setRegistered(true);
 		std::cout << "User registered" << std::endl;
 	}
-	send(sender->getSocket(), RPL_WELCOME(user_id(sender->getNickname(), sender->getUsername()), sender->getNickname()).c_str(), 
-		RPL_WELCOME(user_id(user_id(sender->getNickname(), sender->getUsername()), sender->getUsername()), sender->getNickname()).length(), 0);
-	send(sender->getSocket(), RPL_YOURHOST(sender->getNickname(), "ft_irc", "1.1").c_str(), 
-		RPL_YOURHOST(sender->getNickname(), "ft_irc", "1.1").length(), 0);
-	send(sender->getSocket(), RPL_CREATED(sender->getNickname(), getCurrentDate()).c_str(),
-		RPL_CREATED(sender->getNickname(), getCurrentDate()).length(), 0);
+	std::string toSend = RPL_WELCOME(user_id(sender->getNickname(), sender->getUsername()), sender->getNickname());
+	send(sender->getSocket(), toSend.c_str(), toSend.length(), 0);
+	toSend = RPL_YOURHOST(sender->getNickname(), "ft_irc", "1.1");
+	send(sender->getSocket(), toSend.c_str(), toSend.length(), 0);
+	toSend = RPL_CREATED(sender->getNickname(), getCurrentDate());
+	send(sender->getSocket(), toSend.c_str(), toSend.length(), 0);
 }
