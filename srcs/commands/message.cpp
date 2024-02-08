@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   message.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndiamant <ndiamant@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ndiamant <ndiamant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 18:59:42 by ndiamant          #+#    #+#             */
-/*   Updated: 2024/02/07 10:54:36 by ndiamant         ###   ########.fr       */
+/*   Updated: 2024/02/08 14:27:54 by ndiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,68 +45,71 @@
 
 void handleMessageCommand(const char* message, Users* sender, Server* server)
 {
-    std::string privmsg = message;
-    std::istringstream iss(privmsg);
-    std::string command, receivers, content;
-    
-    if (!(iss >> command >> receivers))
-    {
-        send(sender->getSocket(), ERR_NORECIPIENT(sender->getNickname()).c_str(),
+	std::string privmsg = message;
+	std::istringstream iss(privmsg);
+	std::string command, receivers, content;
+	
+	// if (!(iss >> command >> receivers))
+	// {
+	// 	send(sender->getSocket(), ERR_NORECIPIENT(sender->getNickname()).c_str(),
+	// 		ERR_NORECIPIENT(sender->getNickname()).length(), 0);
+	// 	return;
+	// }
+
+	// std::getline(iss, content);
+	// if (content.empty() || content[0] != ':')
+	// {
+	// 	send(sender->getSocket(), ERR_NOTEXTTOSEND(sender->getNickname()).c_str(),
+	// 		ERR_NOTEXTTOSEND(sender->getNickname()).length(), 0);
+	// 	return;
+	// }
+	content.erase(0, 1);
+
+	std::istringstream receiverStream(receivers);
+	std::string receiver;
+	bool messageSent = false;
+
+				std::cout << "0" << std::endl;
+	while (std::getline(receiverStream, receiver, ','))
+	{
+		std::cout << "00" << std::endl;
+		if (receiver.empty()) continue;
+
+		if (receiver[0] == '#' || receiver[0] == '&') // Channel message
+		{
+			Channels* channel = server->getChannelByName(receiver);
+			if (channel)
+			{
+				std::cout << "1" << std::endl;
+				channel->broadcastMessage(content, *sender);
+				messageSent = true;
+			}
+			else
+			{
+				send(sender->getSocket(), ERR_NOSUCHNICK(sender->getNickname(), receiver).c_str(),
+					ERR_NOSUCHNICK(sender->getNickname(), receiver).length(), 0);
+			}
+		}
+		else // User message
+		{
+			Users* user = server->getUserByNickname(receiver);
+			if (user)
+			{
+				std::string formattedMessage = sender->getNickname() + " messaged you: " + content + "\r\n";
+				send(user->getSocket(), formattedMessage.c_str(), formattedMessage.size(), 0);
+				messageSent = true;
+			}
+			else
+			{
+				send(sender->getSocket(), ERR_NOSUCHNICK(sender->getNickname(), receiver).c_str(),
+					ERR_NOSUCHNICK(sender->getNickname(), receiver).length(), 0);
+			}
+		}
+	}
+
+	if (!messageSent)
+	{
+		send(sender->getSocket(), ERR_NORECIPIENT(sender->getNickname()).c_str(),
 			ERR_NORECIPIENT(sender->getNickname()).length(), 0);
-        return;
-    }
-
-    std::getline(iss, content);
-    if (content.empty() || content[0] != ':')
-    {
-        send(sender->getSocket(), ERR_NOTEXTTOSEND(sender->getNickname()).c_str(),
-            ERR_NOTEXTTOSEND(sender->getNickname()).length(), 0);
-        return;
-    }
-    content.erase(0, 1);
-
-    std::istringstream receiverStream(receivers);
-    std::string receiver;
-    bool messageSent = false;
-
-    while (std::getline(receiverStream, receiver, ','))
-    {
-        if (receiver.empty()) continue;
-
-        if (receiver[0] == '#' || receiver[0] == '&') // Channel message
-        {
-            Channels* channel = server->getChannelByName(receiver);
-            if (channel)
-            {
-                channel->broadcastMessage(content, *sender);
-                messageSent = true;
-            }
-            else
-            {
-                send(sender->getSocket(), ERR_NOSUCHNICK(sender->getNickname(), receiver).c_str(),
-                    ERR_NOSUCHNICK(sender->getNickname(), receiver).length(), 0);
-            }
-        }
-        else // User message
-        {
-            Users* user = server->getUserByNickname(receiver);
-            if (user)
-            {
-                std::string formattedMessage = sender->getNickname() + " messaged you: " + content + "\r\n";
-                send(user->getSocket(), formattedMessage.c_str(), formattedMessage.size(), 0);
-                messageSent = true;
-            }
-            else
-            {
-                send(sender->getSocket(), ERR_NOSUCHNICK(sender->getNickname(), receiver).c_str(),
-                    ERR_NOSUCHNICK(sender->getNickname(), receiver).length(), 0);
-            }
-        }
-    }
-
-    if (!messageSent)
-    {
-        send(sender->getSocket(), ERR_NORECIPIENT(sender->getNickname()).c_str(),
-            ERR_NORECIPIENT(sender->getNickname()).length(), 0);
-    }
+	}
 }
