@@ -1,0 +1,4 @@
+- part quitter le channel part une fois rejoin 2 x problem
+
+
+checker pour segfault
