@@ -1,2 +1,2 @@
 # IRC
-A server IRC in C++
+An IRC Server in C++
