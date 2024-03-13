@@ -64,10 +64,16 @@ void Server::run()
             break;
         }
 
-        if (_fds[0].revents & POLLIN) 
-            acceptNewConnection();
-
-        // Gérer les entrées/sorties des clients ici
+       for (size_t i = 0; i < _fds.size(); i++) 
+       {
+            if (_fds[i].revents & POLLIN) 
+            {
+                if (_fds[i].fd == _socketFD)
+                    acceptNewConnection();
+                else 
+                    handleClient(_fds[i].fd);
+            }
+       }
     }
 }
 
@@ -77,12 +83,11 @@ void Server::acceptNewConnection()
     socklen_t clientAddrLen = sizeof(clientAddr);
     int clientSock = accept(_socketFD, (struct sockaddr *)&clientAddr, &clientAddrLen);
 
-    if (clientSock < 0) {
+    if (clientSock < 0) 
+    {
         std::cerr << "Erreur lors de l'acceptation d'une nouvelle connexion." << std::endl;
         return;
     }
-
-    // Configurer le socket client en mode non bloquant
     fcntl(clientSock, F_SETFL, O_NONBLOCK);
 
     struct pollfd pfd;
@@ -93,4 +98,32 @@ void Server::acceptNewConnection()
     std::cout << "Nouvelle connexion acceptée: FD=" << clientSock << std::endl;
 
     // ajouter les user ici via les contenaires ???
+}
+
+void Server::handleClient(int fd) 
+{
+    char buffer[512];
+    memset(buffer, 0, sizeof(buffer));
+
+    int nbytes = recv(fd, buffer, sizeof(buffer), 0);
+    if (nbytes <= 0) 
+    {
+        if (nbytes == 0) 
+            std::cout << "Client FD=" << fd << " déconnecté." << std::endl;
+         else
+            std::cerr << "Erreur de réception depuis le client FD=" << fd << std::endl;
+        close(fd); // Ferme le socket client
+        closeClient(fd); // Supprime le client de toutes les structures de données
+    }
+    else
+        std::cout << "Message reçu de FD=" << fd << ": " << buffer << std::endl;
+}
+
+
+void Server::closeClient(int fd)
+ {
+    // Supprime le fd de la liste fds utilisée pour poll
+    _fds.erase(std::remove_if(_fds.begin(), _fds.end(), [fd](const struct pollfd& pfd) { return pfd.fd == fd; }), _fds.end());
+
+    // a supprimer également le client + channel
 }
