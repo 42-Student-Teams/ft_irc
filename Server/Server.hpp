@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:59:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/12 15:50:19 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/03/13 09:42:54 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,21 @@
 
 #include <iostream>
 #include <string>
+#include <cstring> // Pour memset
+#include <unistd.h> // Pour close
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <poll.h>
 
 class Server
 {
     private: 
-        int socketFD; // Descripteur de fichier pour le socket d'écoute
-        int port; // Port d'écoute
+        int _socketFD; // Descripteur de fichier pour le socket d'écoute
+        int _port; // Port d'écoute
+        std::string _password;
 
-        std::vector<struct pollfd> fds; // Pour la gestion avec poll
+        std::vector<struct pollfd> _fds; // Pour la gestion avec poll
         //std::map<int, Client> clients; // Map des clients, clé = descripteur de fichier
        // std::map<std::string, Channel> channels; // Canaux disponibles sur le serveur
 
@@ -36,7 +43,7 @@ class Server
         Server & operator=(const Server& rhs);
 
     public:
-        Server(const std::string &port, const std::string &password); // construction du serveur par port et mot de pass
+        Server(const int &port, const std::string &password); // construction du serveur par port et mot de pass
         ~Server(); // destrucctor par defaut
         
         /*fonction membre*/
