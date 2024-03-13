@@ -60,7 +60,7 @@ void Server::run()
 
         if (ret < 0) 
         {
-            std::cerr << "Erreur poll." << std::endl;
+            std::cerr << "Error poll." << std::endl;
             break;
         }
 
@@ -92,5 +92,5 @@ void Server::acceptNewConnection()
 
     std::cout << "Nouvelle connexion acceptée: FD=" << clientSock << std::endl;
 
-    // À ce stade, vous ajouteriez le nouveau client à votre structure de données client
+    // ajouter les user ici via les contenaires ???
 }
