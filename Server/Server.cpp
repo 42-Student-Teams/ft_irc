@@ -77,7 +77,7 @@ void Server::run()
     }
 }
 
-void Server::acceptNewConnection() 
+void Server::acceptNewConnection()
 {
     struct sockaddr_in clientAddr;
     socklen_t clientAddrLen = sizeof(clientAddr);
@@ -85,7 +85,7 @@ void Server::acceptNewConnection()
 
     if (clientSock < 0) 
     {
-        std::cerr << "Erreur lors de l'acceptation d'une nouvelle connexion." << std::endl;
+        std::cerr << "Error: new connection denied." << std::endl;
         return;
     }
     fcntl(clientSock, F_SETFL, O_NONBLOCK);
@@ -95,35 +95,50 @@ void Server::acceptNewConnection()
     pfd.events = POLLIN;
     _fds.push_back(pfd);
 
-    std::cout << "Nouvelle connexion acceptée: FD=" << clientSock << std::endl;
+    // cree et ajoute un  client à la map des utilisateurs, test !!
+    Client* newClient = new Client(clientSock, "defaultNickname", "defaultUsername");
+    _users[clientSock] = newClient;
 
-    // ajouter les user ici via les contenaires ???
+    std::cout << "New connection accepted: FD=" << clientSock << std::endl;
 }
 
-void Server::handleClient(int fd) 
+
+
+void Server::handleClient(int fd)
 {
     char buffer[512];
     memset(buffer, 0, sizeof(buffer));
 
     int nbytes = recv(fd, buffer, sizeof(buffer), 0);
-    if (nbytes <= 0) 
+    if (nbytes <= 0)
     {
         if (nbytes == 0) 
-            std::cout << "Client FD=" << fd << " déconnecté." << std::endl;
-         else
-            std::cerr << "Erreur de réception depuis le client FD=" << fd << std::endl;
+            std::cout << "USER FD=" << fd << " déconnecté." << std::endl;
+        else 
+            std::cerr << "ERROR : user could not be reach FD=" << fd << std::endl;
         close(fd); // Ferme le socket client
         closeClient(fd); // Supprime le client de toutes les structures de données
-    }
-    else
-        std::cout << "Message reçu de FD=" << fd << ": " << buffer << std::endl;
+    } 
+    else 
+        std::cout << "Message received from FD=" << fd << ": " << buffer << std::endl;
+        
+        // rajout gestion de commandes ???
 }
 
 
-void Server::closeClient(int fd)
- {
-    // Supprime le fd de la liste fds utilisée pour poll
+
+void Server::closeClient(int fd) {
     _fds.erase(std::remove_if(_fds.begin(), _fds.end(), [fd](const struct pollfd& pfd) { return pfd.fd == fd; }), _fds.end());
 
-    // a supprimer également le client + channel
+    // Supprime le client des canaux
+    for (auto& channelPair : channels) 
+        channelPair.second->removeClient(fd);
+
+    // Supprime le client de la map des utilisateurs et libérer la mémoire
+    if (_users.find(fd) != _users.end()) {
+        delete _users[fd];
+        _users.erase(fd);
+    }
+
+    std::cout << "USER FD=" << fd << " correctly removed." << std::endl;
 }

@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:59:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/13 09:42:54 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/03/14 20:33:37 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@
 #include <netinet/in.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <map>
+#include "Client/Client.hpp"
+#include "Channel/Channel.hpp"
 
 class Server
 {
@@ -30,8 +33,8 @@ class Server
         std::string _password;
 
         std::vector<struct pollfd> _fds; // Pour la gestion avec poll
-        //std::map<int, Client> clients; // Map des clients, clé = descripteur de fichier
-       // std::map<std::string, Channel> channels; // Canaux disponibles sur le serveur
+        std::map<int, Client*> _users; // Map des clients, clé = descripteur de fichier
+        std::map<std::string, Channel*> channels; // Canaux disponibles sur le serveur
 
         void initServer(); // Initialisation du serveur
         void acceptNewConnection(); // Accepte une nouvelle connexion
