@@ -103,7 +103,6 @@ void Server::acceptNewConnection()
 }
 
 
-
 void Server::handleClient(int fd)
 {
     char buffer[512];
