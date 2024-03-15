@@ -126,19 +126,24 @@ void Server::handleClient(int fd)
 }
 
 
+void Server::closeClient(int fd)
+{
+    if (_users.find(fd) != _users.end())
+    {
+        Client* user = _users[fd];
 
-void Server::closeClient(int fd) {
-    _fds.erase(std::remove_if(_fds.begin(), _fds.end(), [fd](const struct pollfd& pfd) { return pfd.fd == fd; }), _fds.end());
+        // Fermeture de la connexion réseau
+        shutdown(fd, SHUT_RDWR);
+        close(fd);
+        std::cout << "User " << user->getNickname() << " disconnected." << std::endl;
 
-    // Supprime le client des canaux
-    for (auto& channelPair : channels) 
-        channelPair.second->removeClient(fd);
+        // Supprimerle client des channels
+        std::map<std::string, Channel*>::iterator it;
+        for (it = channels.begin(); it != channels.end(); ++it)
+            it->second->removeClient(fd);
 
-    // Supprime le client de la map des utilisateurs et libérer la mémoire
-    if (_users.find(fd) != _users.end()) {
+        // Supprime le client de la map des utilisateurs et libère la mémoire
         delete _users[fd];
         _users.erase(fd);
     }
-
-    std::cout << "USER FD=" << fd << " correctly removed." << std::endl;
 }

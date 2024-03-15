@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:59:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/14 20:33:37 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/03/15 10:36:49 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,11 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <map>
-#include "Client/Client.hpp"
-#include "Channel/Channel.hpp"
+#include "../Client/Client.hpp"
+#include "../Channel/Channel.hpp"
+
+class Client;
+class Channel;
 
 class Server
 {

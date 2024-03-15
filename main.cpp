@@ -6,11 +6,13 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:57:19 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/12 17:56:20 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/03/15 10:17:30 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server/Server.hpp"
+#include "Client/Client.hpp"
+#include "Channel/Channel.hpp"
 
 
 int main(int argc, char* argv[]) {

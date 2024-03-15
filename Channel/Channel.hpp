@@ -3,7 +3,9 @@
 
 #include <string>
 #include <map>
-#include "Client/Client.hpp"
+#include "../Client/Client.hpp"
+
+class Client;
 
 class Channel 
 {

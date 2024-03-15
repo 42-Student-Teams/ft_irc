@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 
+class Channel;
+
 class Client 
 {
     private:

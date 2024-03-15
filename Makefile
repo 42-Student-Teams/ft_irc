@@ -6,7 +6,7 @@
 #    By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/12 14:45:11 by inaranjo          #+#    #+#              #
-#    Updated: 2024/03/12 15:09:56 by inaranjo         ###   ########.fr        #
+#    Updated: 2024/03/15 10:12:13 by inaranjo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,11 +18,11 @@ RM			= rm -rf
 
 OBJDIR =	.objFiles
 
-FILES		= main Server/Server
+FILES		= main Server/Server Client/Client Channel/Channel
 
 SRC			= $(FILES:=.cpp)
 OBJ			= $(addprefix $(OBJDIR)/, $(FILES:=.o))
-HEADER		= Server/Server.hpp
+HEADER		= Server/Server.hpp Client/Client.hpp Channel/Channel.hpp
 
 #Colors:
 GREEN		=	\e[92;5;118m
