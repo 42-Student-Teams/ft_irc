@@ -5,49 +5,49 @@
 #                                                     +:+ +:+         +:+      #
 #    By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/03/12 14:45:11 by inaranjo          #+#    #+#              #
-#    Updated: 2024/03/15 10:12:13 by inaranjo         ###   ########.fr        #
+#    Created: 2024/03/24 12:13:57 by inaranjo          #+#    #+#              #
+#    Updated: 2024/03/24 12:18:31 by inaranjo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME		= IRC
+NAME = IRC
+
+SRCS = $(wildcard src/*.cpp src/scc/*.cpp src/command/*.cpp)
+OBJS = $(SRCS:.cpp=.o)
+
+CC = c++
+FLAGS = -Wall -Wextra -Werror -std=c++98
+INCLUDES = -I ./includes
+
+RM = rm -rf
+
+# Colors
+GREEN = \033[0;32m
+YELLOW = \033[0;33m
+RESET = \033[0m
+
+SRCDIR = src
+OBJDIR = .objFiles
+INCDIR = includes
+
+$(NAME): $(OBJS)
+	@$(CC) $(FLAGS) $(INCLUDES) $(OBJS) -o $(NAME)
+	@echo "$(GREEN)✅Executable $(NAME) ready.$(RESET)"
 	
-CC			= c++
-FLAGS		= -Wall -Wextra -Werror -std=c++98
-RM			= rm -rf
-
-OBJDIR =	.objFiles
-
-FILES		= main Server/Server Client/Client Channel/Channel
-
-SRC			= $(FILES:=.cpp)
-OBJ			= $(addprefix $(OBJDIR)/, $(FILES:=.o))
-HEADER		= Server/Server.hpp Client/Client.hpp Channel/Channel.hpp
-
-#Colors:
-GREEN		=	\e[92;5;118m
-YELLOW		=	\e[93;5;226m
-GRAY		=	\e[33;2;37m
-RESET		=	\e[0m
-CURSIVE		=	\e[33;3m
-
-all: $(NAME)
-
-$(NAME): $(OBJ) $(HEADER)
-	@$(CC) $(OBJ) -o $(NAME)
-	@printf "$(_SUCCESS) $(GREEN)✅...Executable ready.\n$(RESET)"
-
-$(OBJDIR)/%.o: %.cpp $(HEADER)
-	@mkdir -p $(dir $@)
-	@$(CC) $(FLAGS) -c $< -o $@
+%.o: %.cpp
+	@mkdir -p $(@D)
+	@echo "$(YELLOW)Compiling $<...$(RESET)"
+	@$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	@$(RM) $(OBJDIR) $(OBJ)
-	@printf "$(YELLOW) ❌...Object files removed.$(RESET)\n"
+	@echo "$(YELLOW)❌...Removing object files...$(RESET)"
+	@$(RM) $(OBJS)
+	@echo "Object files removed.$(RESET)"
 
 fclean: clean
+	@echo "$(YELLOW)❌...Removing executable $(NAME)...$(RESET)"
 	@$(RM) $(NAME)
-	@printf "$(YELLOW) ❌...Executable removed.$(RESET)\n"
+	@echo "Executable $(NAME) removed.$(RESET)"
 
 re: fclean all
 
