@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Reply.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/24 12:30:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 12:30:01 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/03/29 16:25:48 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,12 @@
 /*User file*/
 #define ERR_ALREADYREGISTERED(source)                   "462 " + source + " :You may not register"
 #define ERR_NEEDMOREPARAMS(source, command)             "461 " + source + " " + command + " : Not enough parameters"
+
+/*JOIN file*/
+#define ERR_BADCHANNELKEY(source, channel)              "475 " + source + " " + channel + " :Cannot join channel (+k) - bad key"
+
+/*LIST file*/
+#define RPL_LISTEND(source)                             "323 " + source + " :End of LIST"
 
 static inline void serverON(const std::string& message) 
 {

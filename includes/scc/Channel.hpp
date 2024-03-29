@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:20 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 12:03:57 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/03/29 16:36:00 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class Channel
 {
     private:
         std::string             _name;
+        std::string             _topic;
         Client*                 _admin;
         std::vector<Client *>   _clients;
 
@@ -44,6 +45,7 @@ class Channel
         size_t                      getSize() const;
         size_t                      getLimit() const;
         std::string                 getKey() const;
+        std::string                 getTopic() const; 
         std::vector<std::string>    getNicknames();
         bool                        extMsg() const;
 

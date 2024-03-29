@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:09 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 11:58:44 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/03/29 16:36:43 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ class Server
         /*Accesssors*/
         Client*         getClient(const std::string &nickname);
         Channel*        getChannel(const std::string &name);
+        std::vector<Channel*> getAllChannels();
         std::string     getPassword() const;
        
         /*Handle CLient network to the SERVER*/

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:16:38 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 12:31:10 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/03/29 16:35:46 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,11 @@ std::vector<std::string> Channel::getNicknames()
 
     return nicknames;
 }
+
+std::string Channel::getTopic() const {
+    return _topic;
+}
+
 bool                        Channel::extMsg() const { return _n; }
 
 void    Channel::setKey(std::string key) { _keyAcces = key; }

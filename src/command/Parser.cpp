@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:59:42 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 11:42:06 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/03/29 16:11:47 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,11 @@ Parser::Parser(Server* srv) : _srv(srv)
     _commands["NICK"] = new Nick(_srv, false);
     _commands["USER"] = new User(_srv, false);
     _commands["QUIT"] = new Quit(_srv, false);
+    _commands["NOTICE"] = new Notice(_srv, false);
+    _commands["PRIVMSG"] = new Privmsg(_srv, false);
+    _commands["PART"] = new Part(_srv, false);
+    _commands["LIST"] = new List(_srv, false);
+    _commands["JOIN"] = new Join(_srv, false);
 
 }
 

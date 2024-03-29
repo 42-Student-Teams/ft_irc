@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:13:14 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 11:56:07 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/03/29 16:36:09 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,10 @@ Channel* Server::getChannel(const std::string& name)
     }
 
     return nullptr;
+}
+
+std::vector<Channel*> getAllChannels() {
+    return _channels;
 }
 
 /*-----------------------------MANAGE NETWORK CONNECTIONS TO THE SERVER--------------------------*/
