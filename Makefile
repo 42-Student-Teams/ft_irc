@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME = IRC
+NAME = ircserv
 
 SRCS = $(wildcard src/*.cpp src/scc/*.cpp src/command/*.cpp)
 OBJS = $(SRCS:.cpp=.o)
