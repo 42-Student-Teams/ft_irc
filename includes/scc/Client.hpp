@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:15 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 12:29:43 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/05 16:27:56 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ class Client
         std::string     getHostname() const;
         std::string     getPrefix() const;
         Channel*        getChannel() const;
+        std::string     getInfo() const;
 
         void            setNickname(const std::string &nickname);
         void            setUsername(const std::string &username);

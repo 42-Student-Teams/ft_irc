@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:16:38 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/29 16:35:46 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/05 16:19:45 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,11 +44,25 @@ std::string Channel::getTopic() const {
     return _topic;
 }
 
+std::vector<Client*> Channel::getClients() const {
+    return _clients;
+}
+
 bool                        Channel::extMsg() const { return _n; }
 
 void    Channel::setKey(std::string key) { _keyAcces = key; }
 void    Channel::setLimit(size_t limit) { _maxUsers = limit; }
 void    Channel::setExtMsg(bool flag) { _n = flag; }
+
+bool Channel::isClientInChannel(Client* client) const {
+    for (std::vector<Client*>::const_iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        if (*it == client) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 /*------------------------------CHANNEL SETUP-------------------------------*/
 /*------------------------------UNDER CONSTRUCTION-------------------------------*/
@@ -108,4 +122,8 @@ void    Channel::kick(Client* client, Client* target, const std::string& cause)
 
     std::string message = client->getNickname() + " kicked " + target->getNickname() + " from channel " + _name;
     serverON(message);
+}
+
+void Channel::setTopic(const std::string& topic) {
+    this->_topic = topic;
 }

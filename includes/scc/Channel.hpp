@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:20 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/29 16:36:00 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/05 16:19:15 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,11 +47,14 @@ class Channel
         std::string                 getKey() const;
         std::string                 getTopic() const; 
         std::vector<std::string>    getNicknames();
+        std::vector<Client*>        getClients() const;
         bool                        extMsg() const;
+        bool                        isClientInChannel(Client* client) const;
 
         void                        setKey(std::string key);
         void                        setLimit(size_t limit);
         void                        setExtMsg(bool flag);
+        void                        setTopic(const std::string& topic);
 
         /*CHANNEL AVALABLE ACTIONS,under construction*/
         void                        addClient(Client* client);

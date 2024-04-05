@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:59:42 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/29 16:11:47 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/05 16:14:40 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,9 @@ Parser::Parser(Server* srv) : _srv(srv)
     _commands["PART"] = new Part(_srv, false);
     _commands["LIST"] = new List(_srv, false);
     _commands["JOIN"] = new Join(_srv, false);
+    _commands["TOPIC"] = new Topic(_srv, true);
+    _commands["WHO"] = new Who(_srv, false);
+
 
 }
 

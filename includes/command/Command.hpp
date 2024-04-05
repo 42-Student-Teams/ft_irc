@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:43:06 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 11:59:46 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/05 16:17:22 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,5 +72,65 @@ class Nick : public Command
         void    execute(Client* client, std::vector<std::string> args);
 };
 
+class Notice : public Command
+{
+    public:
+        Notice(Server* srv, bool auth = false); 
+        virtual ~Notice();
+        void execute(Client* client, std::vector<std::string> args);
+};
+
+class Privmsg : public Command
+{
+    public:
+        Privmsg(Server* srv, bool auth = false);
+        virtual ~Privmsg();
+
+        void execute(Client* client, std::vector<std::string> args);
+};
+
+class Part : public Command 
+{
+public:
+    Part(Server* srv, bool auth = false);
+    virtual ~Part();
+
+    void execute(Client* client, std::vector<std::string> args);
+};
+
+class List : public Command
+{
+    public:
+        List(Server* srv, bool auth = false);
+        virtual ~List();
+        void execute(Client* client, std::vector<std::string> args);
+};
+
+class Join : public Command {
+public:
+    Join(Server* srv, bool auth = false);
+    virtual ~Join();
+
+    void execute(Client* client, std::vector<std::string> args);
+
+private:
+    std::vector<std::string> split(const std::string& s, char delimiter);
+};
+
+class Topic : public Command {
+public:
+    Topic(Server* srv, bool auth = true);
+    virtual ~Topic();
+
+    void execute(Client* client, std::vector<std::string> args);
+};
+
+class Who : public Command {
+public:
+    Who(Server* srv, bool auth = false); 
+    virtual ~Who();
+
+    void execute(Client* client, std::vector<std::string> args);
+};
 
 #endif

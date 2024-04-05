@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:16:29 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 12:28:08 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/05 16:28:25 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,14 @@ std::string Client::getPrefix() const
     if (!_hostName.empty())
         prefix += "@" + _hostName;
     return prefix;
+}
+
+std::string Client::getInfo() const {
+    std::string info = "Nick: " + getNickname() + ", ";
+    info += "User: " + getUsername() + ", ";
+    info += "Real name: " + getRealname() + ", ";
+    info += "Host: " + getHostname();
+    return info;
 }
 
 void            Client::setNickname(const std::string &nickname) { _nickName = nickname; }

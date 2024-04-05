@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/24 12:30:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/29 16:25:48 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/05 16:29:26 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,25 @@
 
 /*LIST file*/
 #define RPL_LISTEND(source)                             "323 " + source + " :End of LIST"
+#define RPL_LIST(nickname, channelName, size, topic)    "322 " + nickname + " " + channelName + " " + std::to_string(size) + " :" + topic
+
+/*PART file*/
+#define ERR_NOSUCHCHANNEL(source, channel)              "403 " + source + " " + channel + " :No such channel"
+#define ERR_NOTONCHANNEL(source, channel)               "442 " + source + " " + channel + " :You're not on that channel"
+
+/*PRIVMSG file*/
+#define ERR_NOTENOUGHPARAMS(source, command)            "461 " + source + " " + command + " :Not enough parameters"
+#define ERR_CANNOTSENDTOCHAN(source, channel)           "404 " + source + " " + channel + " :Cannot send to channel"
+#define ERR_NOSUCHNICK(source, nickname)                "401 " + source + " " + nickname + " :No such nick/channel"
+
+/*TOPIC file*/
+#define RPL_NOTOPIC(source, channel)                    "331 " + source + " " + channel + " :No topic is set"
+#define RPL_TOPIC(source, channel, topic)               "332 " + source + " " + channel + " :" + topic
+#define ERR_NOSUCHCHANNEL(source, channel)              "403 " + source + " " + channel + " :No such channel"
+
+/*WHO file*/
+#define RPL_ENDOFWHO(nickname)                          "366 " + nickname + " :End of WHO list."
+#define RPL_WHOREPLY(source, channel, userInfo)         "352 " + source + " " + channel + " " + userInfo
 
 static inline void serverON(const std::string& message) 
 {
