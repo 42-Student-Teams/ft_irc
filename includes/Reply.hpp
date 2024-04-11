@@ -60,7 +60,7 @@
 
 /*User file*/
 #define ERR_ALREADYREGISTERED(source)                   "462 " + source + " :You may not register"
-#define ERR_NEEDMOREPARAMS(source, command)             "461 " + source + " " + command + " : Not enough parameters"
+#define ERR_NEEDMOREPARAMS(source, command)             "461 " + source + " " + command + " : <username> <hostname> <servername> <realname>"
 
 /*JOIN file*/
 #define ERR_BADCHANNELKEY(source, channel)              "475 " + source + " " + channel + " :Cannot join channel (+k) - bad key"
