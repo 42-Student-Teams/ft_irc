@@ -55,7 +55,7 @@ Création de sockets et liaison à une adresse IP et un port spécifiés : Serve
 
 ### Logic du Client :
 ```
-onstructeur et destructeur :
+Constructeur et destructeur :
 Constructeur : Client::Client(int fd, int port, const std::string &hostname)
 Destructeur : Client::~Client()
 Accesseurs :
