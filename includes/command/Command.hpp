@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:43:06 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/05 16:17:22 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/12 11:20:40 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,16 @@ public:
     virtual ~Who();
 
     void execute(Client* client, std::vector<std::string> args);
+};
+
+class Pass : public Command
+{
+    public:
+
+        Pass(Server* srv, bool auth);
+        ~Pass();
+
+        void    execute(Client* client, std::vector<std::string> args);
 };
 
 #endif
