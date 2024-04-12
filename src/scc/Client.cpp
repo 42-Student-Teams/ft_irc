@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:16:29 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/05 16:28:25 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/12 11:16:48 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,6 @@ void Client::reply(const std::string& reply)
 {
     this->write(std::string(BLUE) + ":" + getPrefix() + std::string(RESET) + " " + reply);
 }
-
 
 
 /*Envoie un message de bienvenue si le client et bien enregistrer*/
