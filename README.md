@@ -51,6 +51,7 @@ Conversion de l'ordre des octets réseau en l'ordre des octets de l'hôte : Dans
 Utilisation de la classe Parser pour analyser les messages des clients : Server::_parser->processMessage(client, message)
 Gestion des exceptions et des erreurs pour une expérience de serveur plus robuste : Présent dans toutes les fonctions avec l'utilisation de try, catch, et throw.
 Création de sockets et liaison à une adresse IP et un port spécifiés : Server::createSocket()
+```
 
 ### Logic du Client :
 ```
