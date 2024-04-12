@@ -51,3 +51,35 @@ Conversion de l'ordre des octets réseau en l'ordre des octets de l'hôte : Dans
 Utilisation de la classe Parser pour analyser les messages des clients : Server::_parser->processMessage(client, message)
 Gestion des exceptions et des erreurs pour une expérience de serveur plus robuste : Présent dans toutes les fonctions avec l'utilisation de try, catch, et throw.
 Création de sockets et liaison à une adresse IP et un port spécifiés : Server::createSocket()
+
+### Logic du Client :
+```
+onstructeur et destructeur :
+Constructeur : Client::Client(int fd, int port, const std::string &hostname)
+Destructeur : Client::~Client()
+Accesseurs :
+Récupération du descripteur de fichier (fd) : Client::getFd()
+Récupération du port : Client::getPort()
+Récupération du pseudonyme (nickname) : Client::getNickname()
+Récupération du nom d'utilisateur (username) : Client::getUsername()
+Récupération du nom réel (realname) : Client::getRealname()
+Récupération du nom d'hôte (hostname) : Client::getHostname()
+Récupération du canal auquel le client est connecté : Client::getChannel()
+Récupération du préfixe utilisé dans les messages : Client::getPrefix()
+Récupération des informations du client : Client::getInfo()
+Mutateurs :
+Définition du pseudonyme (nickname) : Client::setNickname(const std::string &nickname)
+Définition du nom d'utilisateur (username) : Client::setUsername(const std::string &username)
+Définition du nom réel (realname) : Client::setRealname(const std::string &realname)
+Définition de l'état du client : Client::setState(ClientState state)
+Définition du canal auquel le client est connecté : Client::setChannel(Channel *channel)
+Actions réseau du client :
+Vérification de l'enregistrement du client : Client::registrationCheck()
+Envoi d'un message au client : Client::write(const std::string& message)
+Actions du client dans le réseau :
+Réponse à un message : Client::reply(const std::string& reply)
+Envoi d'un message de bienvenue : Client::welcome()
+Rejoindre un canal : Client::join(Channel* channel)
+Quitter un canal : Client::leave()
+
+
