@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 16:12:19 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 11:50:11 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/12 11:29:40 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,5 +62,6 @@ void    User::execute(Client* client, std::vector<std::string> args)
 
     client->setUsername(args[0]);
     client->setRealname(args[3]);
+    client->reply("USER registered successfully. Please provide your PASSWORD and NICK.");
     client->welcome();
 }
