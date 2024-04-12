@@ -82,5 +82,35 @@ Réponse à un message : Client::reply(const std::string& reply)
 Envoi d'un message de bienvenue : Client::welcome()
 Rejoindre un canal : Client::join(Channel* channel)
 Quitter un canal : Client::leave()
+```
 
+### Logic des Commandes :
+```
+Classe de base abstraite Command :
+Cette classe est abstraite, ce qui signifie qu'elle ne peut pas être instanciée directement, mais elle sert de base pour d'autres classes.
+Elle contient un pointeur vers l'objet Server associé à la commande et un booléen _auth indiquant si l'authentification est requise pour exécuter cette commande.
+La fonction execute() est une méthode virtuelle pure, ce qui signifie qu'elle doit être redéfinie dans les classes dérivées.
+Classes dérivées pour les différentes commandes :
+Chaque classe dérivée de Command représente une commande spécifique du serveur (par exemple, Quit, User, Nick, etc.).
+Chaque classe dérivée redéfinit la fonction execute(), implémentant le comportement spécifique de la commande.
+Certaines classes dérivées ont des constructeurs et destructeurs propres pour effectuer des opérations spécifiques à la création et à la destruction de l'objet.
+Fonctionnement des commandes :
+Lorsqu'une commande est reçue par le serveur, le serveur détermine quelle classe de commande correspond à cette commande en fonction de son nom.
+Une instance de la classe correspondante est créée, et la fonction execute() de cette instance est appelée pour effectuer l'action associée à la commande.
+La fonction execute() reçoit un pointeur vers l'objet Client qui a émis la commande et un vecteur d'arguments contenant les paramètres de la commande.
+```
 
+### Logic des Status client : 
+```
+Initialisation du client :
+Le client est créé avec des informations de base telles que le descripteur de fichier, le port, le nom d'utilisateur, etc.
+Son état initial est défini comme CONNECTED.
+Changement d'état :
+Le serveur peut modifier l'état du client en appelant la méthode setState, en fonction des actions du client ou du serveur. Par exemple, lorsque le client se connecte avec succès, son état passe de CONNECTED à LOGIN.
+Les différents états possibles sont définis par l'énumération ClientState.
+Vérification de l'état :
+La méthode registrationCheck permet de vérifier si le client est enregistré ou non. Cela peut être utilisé par le serveur pour autoriser ou refuser certaines actions en fonction de l'état du client.
+Accès restreint aux fonctionnalités :
+Certaines fonctionnalités du serveur, telles que rejoindre ou quitter un canal (Channel), sont restreintes en fonction de l'état du client. Par exemple, la méthode join pour rejoindre un canal est accessible uniquement aux clients dans l'état REGISTERED.
+Si un client tente d'accéder à une fonctionnalité pour laquelle il n'est pas dans l'état approprié, le serveur peut refuser la demande en fonction de son état actuel.
+```
