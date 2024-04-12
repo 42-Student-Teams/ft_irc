@@ -23,7 +23,7 @@ nick lsaba
 user lsaba 0 * lsaba
 ```
 
-### Logic de serveur :
+### Logic du serveur :
 ```
 Initialisation et fermeture du serveur :
 Initialisation du serveur : Server::Server(const std::string &port, const std::string &pass)
