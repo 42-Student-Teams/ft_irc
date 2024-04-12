@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:16:29 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/12 11:16:48 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/12 13:45:30 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 /*--------------------------CONSTRUCT && DESTRUCT----------------------------*/
 
-Client::Client(int fd, int port, const std::string &hostname): _fd(fd), _port(port), _hostName(hostname), _state(HANDSHAKE), _channel(NULL) {}
+Client::Client(int fd, int port, const std::string &hostname): _fd(fd), _port(port), _hostName(hostname), _state(CONNECTED), _channel(NULL) {}
 
 Client::~Client() {}
 
