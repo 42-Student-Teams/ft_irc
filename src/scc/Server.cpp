@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:13:14 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/12 11:16:16 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/12 14:20:19 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,7 +162,11 @@ void Server::handleClientConnection()
     _clients.insert(std::make_pair(fd, client));
 
     int numClients = _clients.size();
-    std::string connectMessage = client->getHostname() + ":" + std::to_string(client->getPort()) + " has connected. There are now " + std::to_string(numClients) + " clients connected.";
+    std::string connectMessage = BLUE + client->getHostname() + RESET + ":\n" +
+                             VIOLET + std::to_string(client->getPort()) + RESET +
+                             " has connected. There are now " +
+                             YELLOW + std::to_string(numClients) + RESET +
+                             " user connected::press enter";
 
     for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
         sendMessage(it->first, connectMessage);
@@ -187,7 +191,7 @@ void Server::handleClientDisconnect(int fd)
         _clients.erase(fd);
 
         // Informer tous les autres clients
-        int numClients = _clients.size(); // Obtenir le nombre de clients restants
+       int numClients = _clients.size(); // Obtenir le nombre de clients restants
         disconnectMessage += "There are now " + std::to_string(numClients) + " clients connected..\n";
 
         for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
@@ -215,6 +219,10 @@ void Server::handleClientDisconnect(int fd)
     }
 }
 
+/*
+message.rfind("NICK", 0) == 0 vérifie si "NICK" est trouvé au début de la chaîne message. 
+Si c'est le cas, l'expression sera évaluée à true. 
+Sinon, elle sera évaluée à false. Cela est utile pour vérifier si une commande commence par un certain mot-clé.*/
 void Server::handleClientMessage(int fd)
 {
     try

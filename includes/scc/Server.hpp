@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:09 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/12 11:16:08 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/12 14:15:59 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class Server;
 #include "command/Parser.hpp"
 
 #define MAX_USER 500
+#define YELLOW "\e[93;5;226m"
 
 class Server
 {
