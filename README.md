@@ -100,7 +100,7 @@ Une instance de la classe correspondante est créée, et la fonction execute() d
 La fonction execute() reçoit un pointeur vers l'objet Client qui a émis la commande et un vecteur d'arguments contenant les paramètres de la commande.
 ```
 
-### Logic des Status client : 
+### Logic des Status client : CONNECTED/LOGIN/REGISTERED/DISCONNECTED 
 ```
 Initialisation du client :
 Le client est créé avec des informations de base telles que le descripteur de fichier, le port, le nom d'utilisateur, etc.
