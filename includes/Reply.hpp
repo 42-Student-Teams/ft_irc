@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Reply.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/24 12:30:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/05 16:29:26 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/12 11:24:01 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,9 @@
 /*WHO file*/
 #define RPL_ENDOFWHO(nickname)                          "366 " + nickname + " :End of WHO list."
 #define RPL_WHOREPLY(source, channel, userInfo)         "352 " + source + " " + channel + " " + userInfo
+
+/*PASS file*/
+#define ERR_PASSREJECT(source)                           "464 " + source + " :Password is incorrect"
 
 static inline void serverON(const std::string& message) 
 {

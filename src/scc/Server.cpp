@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:13:14 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/02 14:32:34 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/12 14:20:19 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,7 @@ std::string Server::getPassword() const
     return _pass;
 }
 
+
 Client* Server::getClient(const std::string& nickname)
 {
     std::map<int, Client *>::iterator it_b = _clients.begin();
@@ -111,6 +112,7 @@ Client* Server::getClient(const std::string& nickname)
     return nullptr;
 }
 
+//OK MAIS STOCKER DIFF 
 Channel* Server::getChannel(const std::string& name)
 {
     for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it)
@@ -127,88 +129,149 @@ std::vector<Channel*> Server::getAllChannels() const
     return _channels;
 }
 
+int Server::getClientCount() const {
+    return _clients.size();
+}
+
+
 /*-----------------------------MANAGE NETWORK CONNECTIONS TO THE SERVER--------------------------*/
 
 /*Le server accepte les connections : OK 
 et il mentionne que le localhost et bien connecté ou pas
-Manage Connections*/
+Manage Connections
+ Il accepte la connexion du client, récupère son nom d'hôte, crée un objet Client pour représenter le client connecté, envoie un message de bienvenue au client et notifie le serveur de la connexion du client.*/
 void Server::handleClientConnection()
 {
-    // Accepter une connexion
-    int         fd;
+    int fd;
     sockaddr_in addr = {};
-    socklen_t   size = sizeof(addr);
+    socklen_t size = sizeof(addr);
 
-    fd = accept(_socketFD, (sockaddr *) &addr, &size);
+    fd = accept(_socketFD, (sockaddr *)&addr, &size);
     if (fd < 0)
-        throw std::runtime_error("ERROR : Client connection failed!");
+        throw std::runtime_error("ERROR: Client connection failed!");
 
-    // Ajouter le descripteur du client dans le poll
-    pollfd  pfd = {fd, POLLIN, 0};
+    pollfd pfd = {fd, POLLIN, 0};
     _pfds.push_back(pfd);
 
-    // Obtenir le nom d'hôte à partir de l'adresse du client
     char hostname[NI_MAXHOST];
-    int res = getnameinfo((struct sockaddr *) &addr, sizeof(addr), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV);
+    int res = getnameinfo((struct sockaddr *)&addr, size, hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV);
     if (res != 0)
-        throw std::runtime_error("ERROR : hosting_name setup failed!");
+        throw std::runtime_error("ERROR: hosting_name setup failed!");
 
-    // Crée et enregistre un nouveau client
     Client* client = new Client(fd, ntohs(addr.sin_port), hostname);
     _clients.insert(std::make_pair(fd, client));
 
-    //message de connexion pour le serveur
-    std::string message = client->getHostname() + ":" + std::to_string(client->getPort()) + " has connected.";
-    serverON(message);
+    int numClients = _clients.size();
+    std::string connectMessage = BLUE + client->getHostname() + RESET + ":\n" +
+                             VIOLET + std::to_string(client->getPort()) + RESET +
+                             " has connected. There are now " +
+                             YELLOW + std::to_string(numClients) + RESET +
+                             " user connected::press enter";
+
+    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        sendMessage(it->first, connectMessage);
+    }
+
+    std::cout << connectMessage << std::endl;
 }
 
-/*Manage disconnection*/
+
 void Server::handleClientDisconnect(int fd)
 {
     try
     {
-        //cherche le client et supprime if leave
+        // Cherche le client et supprime s'il quitte
         Client* client = _clients.at(fd); 
         client->leave();
 
-        // Journalisation de la déconnexion
-        std::string message = client->getHostname() + ":" + std::to_string(client->getPort()) + " Successfully connected!"; 
+        // Préparer le message de déconnexion
+        std::string disconnectMessage = client->getHostname() + ":" + std::to_string(client->getPort()) + " Successfully disconnected! ";
 
+        // Suppression du client de la liste
         _clients.erase(fd);
 
-        // Suppression du descripteur de fichier client du poll
-        std::vector<pollfd>::iterator it;
-        for (it = _pfds.begin(); it != _pfds.end(); ++it)
-        {
-            if (it->fd == fd) 
-            {
-                _pfds.erase(it);
-                break;
+        // Informer tous les autres clients
+       int numClients = _clients.size(); // Obtenir le nombre de clients restants
+        disconnectMessage += "There are now " + std::to_string(numClients) + " clients connected..\n";
+
+        for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+            sendMessage(it->first, disconnectMessage); // Envoyer le message à chaque client actif
+        }
+
+        // Suppression du descripteur de fichier du poll
+        for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); ) {
+            if (it->fd == fd) {
+                it = _pfds.erase(it);
+            } else {
+                ++it;
             }
         }
-        close(fd);
-        delete client;
+
+        close(fd); // Fermer le descripteur de fichier
+        delete client; // Libérer la mémoire du client
+
+        // Journalisation de la déconnexion
+        std::cout << disconnectMessage << std::endl;
     }
     catch (const std::exception &e)
     {
-        std::cout << "ERROR : The connection has been forcibly terminated!" << e.what() << std::endl;
+        std::cout << "ERROR: The connection has been forcibly terminated! " << e.what() << std::endl;
     }
 }
 
-/*ATTENTION: parsing nécessaire pour la gestion des messages intra client,server,channel
-Manage message/cmd reception*/
+/*
+message.rfind("NICK", 0) == 0 vérifie si "NICK" est trouvé au début de la chaîne message. 
+Si c'est le cas, l'expression sera évaluée à true. 
+Sinon, elle sera évaluée à false. Cela est utile pour vérifier si une commande commence par un certain mot-clé.*/
 void Server::handleClientMessage(int fd)
 {
     try
     {
         Client *client = _clients.at(fd);
         std::string message = this->recvMsgFrom(fd);
-        
-        _parser->processMessage(client, message);
+
+        if (client->registrationCheck()) {
+            // Si le client est enregistré, traiter n'importe quelle commande
+            _parser->processMessage(client, message);
+        } else {
+            // Si le client n'est pas enregistré, limiter les commandes à NICK, PASS, et USER
+            if (message.rfind("NICK", 0) == 0 || message.rfind("PASS", 0) == 0 || message.rfind("USER", 0) == 0) {
+                _parser->processMessage(client, message);
+            } else {
+                // Envoyer un message d'erreur si le client tente d'autres commandes
+                sendMessage(fd, "Vous devez vous enregistrer (NICK/PASS/USER) pour accéder aux cmds serveur\n");
+            }
+        }
+    }
+    catch (const std::out_of_range&) 
+    {
+        // Gestion spécifique pour les cas où le client n'est pas trouvé dans le map
+        std::cout << "Error: Client not found for file descriptor " << fd << std::endl;
     }
     catch (const std::exception& e) 
     {
-        std::cout << "Error : message/command not receve ! " << e.what() << std::endl;
+        // Autres erreurs générales
+        std::cout << "Error: message/command not received! " << e.what() << std::endl;
+    }
+}
+
+void Server::sendMessage(int fd, const std::string& message)
+{
+    // Vérifie si le descripteur de fichier est valide
+    if (fd < 0)
+    {
+        std::cerr << "Invalid file descriptor." << std::endl;
+        return;
+    }
+
+    // Envoie le message au client
+    ssize_t sentBytes = send(fd, message.c_str(), message.length(), 0);
+
+    // Vérifie s'il y a eu des erreurs lors de l'envoi du message
+    if (sentBytes == -1)
+    {
+        std::cerr << "Error sending message to client." << std::endl;
+        // Vous pouvez ajouter ici des actions supplémentaires en cas d'erreur
     }
 }
 
@@ -219,15 +282,16 @@ std::string Server::recvMsgFrom(int fd)
     char buffer[100];
     bzero(buffer, 100);
 
-    for (;;)
+    while (!strstr(buffer, "\n"))
     {
-        if (strstr(buffer, "\n"))
-            break;
         bzero(buffer, 100);
+
         if ((recv(fd, buffer, 100, 0) < 0) and (errno != EWOULDBLOCK))
-            throw std::runtime_error("ERROR : Buffer msg issue!");
+            throw std::runtime_error("Error while reading buffer from a client!");
+
         message.append(buffer);
     }
+
     return message;
 }
 
