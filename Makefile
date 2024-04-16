@@ -30,6 +30,8 @@ SRCDIR = src
 OBJDIR = .objFiles
 INCDIR = includes
 
+all: $(NAME)
+
 $(NAME): $(OBJS)
 	@$(CC) $(FLAGS) $(INCLUDES) $(OBJS) -o $(NAME)
 	@echo "$(GREEN)✅Executable $(NAME) ready.$(RESET)"
