@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:43:06 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/17 11:57:02 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 14:43:13 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,30 @@ class Pass : public Command
         ~Pass();
 
         void    execute(Client* client, std::vector<std::string> args);
+};
+
+class Ping : public Command {
+public:
+    Ping(Server* srv, bool auth = false);
+    virtual ~Ping();
+
+    virtual void execute(Client* client, std::vector<std::string> args);
+};
+
+class Pong : public Command {
+public:
+    Pong(Server* srv, bool auth = false);
+    virtual ~Pong();
+
+    virtual void execute(Client* client, std::vector<std::string> args);
+};
+
+class Mode : public Command {
+public:
+    Mode(Server* srv, bool auth = false);
+    virtual ~Mode();
+
+    virtual void execute(Client* client, std::vector<std::string> args);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:20 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/17 11:44:50 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 15:03:16 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ class Channel;
 class Channel 
 {
     private:
+        Server*                 _srv;
         std::string             _name;
         std::string             _topic;
         Client*                 _admin;
@@ -55,6 +56,8 @@ class Channel
         bool                        isClientInChannel(Client* client) const;
         bool                        isOperator(Client* client) const;
 
+        void                        setInviteOnly(bool flag);
+        void                        setTopicControl(bool flag);
         void                        setKey(std::string key);
         void                        setLimit(size_t limit);
         void                        setExtMsg(bool flag);
@@ -70,6 +73,8 @@ class Channel
         void                        broadcast(const std::string& message, Client* remove);
         void                        removeClient(Client* client);                   
         void                        kick(Client* client, Client* target, const std::string& cause);
+        void                        changeOperatorStatus(Client* client, const std::string& targetNick, bool adding);
+        void                        broadcastModeChange(const std::string& prefix, const std::string& modes, const std::string& param);
 };
 
 #endif

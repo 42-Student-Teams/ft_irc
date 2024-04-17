@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:59:42 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/12 11:28:34 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/17 14:39:57 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@ Parser::Parser(Server* srv) : _srv(srv)
     _commands["JOIN"] = new Join(_srv);
     _commands["TOPIC"] = new Topic(_srv);
     _commands["WHO"] = new Who(_srv);
+    _commands["MODE"] = new Mode(_srv);
+    _commands["PING"] = new Ping(_srv);
+    _commands["PONG"] = new Pong(_srv);
 
 
 }

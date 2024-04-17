@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/24 12:30:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/17 11:55:17 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 14:46:27 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,11 +88,15 @@
 #define RPL_WHOREPLY(source, channel, userInfo)         "352 " + source + " " + channel + " " + userInfo
 
 /*PASS FILE*/
-#define ERR_PASSWDMISMATCH(source)                      "464 " + source + " :Password incorrect"
+// #define ERR_PASSWDMISMATCH(source)                      "464 " + source + " :Password incorrect"
+#define ERR_PASSREJECT(source)                           "464 " + source + " :Password is incorrect"
 
 /*MODE FILE*/
 #define ERR_CHANOPRIVSNEEDED(source, channel)           "482 " + source + " " + channel + " :You're not channel operator"
 #define ERR_UNKNOWNMODE(source, mode)                   "472 " + source + " " + mode + " :is unknown mode char to me"
+
+/*PONG FILE*/
+#define ERR_NOORIGIN(source)                            "409 " + source + " :No origin specified"
 
 static inline void serverON(const std::string& message) 
 {

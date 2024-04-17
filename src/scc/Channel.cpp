@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:16:38 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/17 11:49:25 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 14:54:42 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,20 @@ bool                        Channel::extMsg() const { return _n; }
 void    Channel::setKey(std::string key) { _keyAcces = key; }
 void    Channel::setLimit(size_t limit) { _maxUsers = limit; }
 void    Channel::setExtMsg(bool flag) { _n = flag; }
+
+void Channel::setTopic(const std::string& topic) {
+    this->_topic = topic;
+}
+
+// Set the channel to invite-only mode
+void Channel::setInviteOnly(bool flag) {
+    _inviteOnly = flag;
+}
+
+// Set whether the topic is controllable by operators only
+void Channel::setTopicControl(bool flag) {
+    _topicSettableByOpOnly = flag;
+}
 
 bool Channel::isClientInChannel(Client* client) const {
     for (std::vector<Client*>::const_iterator it = _clients.begin(); it != _clients.end(); ++it) {
@@ -137,45 +151,27 @@ void    Channel::kick(Client* client, Client* target, const std::string& cause)
     serverON(message);
 }
 
-void Channel::setTopic(const std::string& topic) {
-    this->_topic = topic;
-}
-
-void Channel::setMode(Client* client, const std::string& modes, const std::string& param, Server* server) {
+void Channel::changeOperatorStatus(Client* client, const std::string& targetNick, bool adding) {
     if (!isOperator(client)) {
         client->reply(ERR_CHANOPRIVSNEEDED(client->getNickname(), _name));
         return;
     }
 
-    bool adding = modes[0] == '+'; // + ca veut dire ajoutés - retirés
-    // i++ a travers les modes apres + ou -
-    for (size_t i = 1; i < modes.size(); ++i) {
-        char mode = modes[i];
-
-        if (mode == 'i') { //activer ou desactiver mode invitation 
-            _inviteOnly = adding;
-        } else if (mode == 't') { //topic modifications
-            _topicSettableByOpOnly = adding;
-        } else if (mode == 'k') { //mdp du canal
-            if (adding) setKey(param);
-            else setKey("");
-        } else if (mode == 'o') { //add ou retirer operateur 
-            Client* target = server->getClient(param);
-            if (target) {
-                if (adding) addOperator(target);
-                else removeOperator(target);
-            } else {
-                client->reply(ERR_NOSUCHNICK(client->getNickname(), param));
-            }
-        } else if (mode == 'l') { //limite user 
-            if (adding) setLimit(std::stoi(param));
-            else setLimit(0);
+    Client* target = _srv->getClient(targetNick);
+    if (target && isClientInChannel(target)) {
+        if (adding) {
+            addOperator(target);
         } else {
-            client->reply(ERR_UNKNOWNMODE(client->getNickname(), std::string(1, mode)));
+            removeOperator(target);
         }
+    } else {
+        client->reply(ERR_NOSUCHNICK(client->getNickname(), targetNick));
     }
-
-    // msg de confirmation des changements de mode
-    broadcast(":" + client->getPrefix() + " MODE " + _name + " " + modes + " " + param);
 }
 
+
+// Broadcast mode changes to the channel
+void Channel::broadcastModeChange(const std::string& prefix, const std::string& modes, const std::string& param) {
+    std::string message = ":" + prefix + " MODE " + _name + " " + modes + " " + param;
+    broadcast(message);
+}
