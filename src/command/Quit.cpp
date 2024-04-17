@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 16:11:41 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 11:51:56 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/17 12:20:59 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,13 +56,31 @@ Quit::Quit(Server* srv, bool auth) : Command(srv, auth) {}
 
 Quit::~Quit() {}
 
-void    Quit::execute(Client* client, std::vector<std::string> args)
+void Quit::execute(Client* client, std::vector<std::string> args)
 {
-    std::string reason = args.empty() ? "Leaving..." : args.at(0);
+    std::string reason;
+    if (!args.empty()) {
+        reason = args.at(0);
+    } else {
+        reason = "Leaving...";
+    }
 
     if (reason.at(0) == ':')
+    {
         reason = reason.substr(1);
+    }
 
     client->write(RPL_QUIT(client->getPrefix(), reason));
-	_srv->handleClientDisconnect(client->getFd());
+    _srv->handleClientDisconnect(client->getFd());
 }
+
+// void    Quit::execute(Client* client, std::vector<std::string> args)
+// {
+//     std::string reason = args.empty() ? "Leaving..." : args.at(0);
+
+//     if (reason.at(0) == ':')
+//         reason = reason.substr(1);
+
+//     client->write(RPL_QUIT(client->getPrefix(), reason));
+// 	_srv->handleClientDisconnect(client->getFd());
+// }

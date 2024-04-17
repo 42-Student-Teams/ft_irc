@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:59:42 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/12 11:28:34 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/17 12:17:30 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ std::string     Parser::checkWhitespace(const std::string& str)
     return result;
 }
 
-void            Parser::processMessage(Client* client, const std::string& message)
+void            Parser::excInput(Client* client, const std::string& message)
 {
     std::stringstream   iss(message);
     std::string         syntax;

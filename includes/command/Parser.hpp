@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:56:21 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 12:29:31 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/13 13:48:31 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class Parser
         Parser(Server* srv);
         ~Parser();
 
-        void    processMessage(Client* client, const std::string& message);
+        void    excInput(Client* client, const std::string& message);
 };
 
 #endif

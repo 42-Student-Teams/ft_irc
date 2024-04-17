@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:13:14 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/12 14:20:19 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/17 13:38:05 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,23 +175,29 @@ void Server::handleClientConnection()
     std::cout << connectMessage << std::endl;
 }
 
-
 void Server::handleClientDisconnect(int fd)
 {
+    if (fd == 0) {
+        std::cout << "fd -> 0 ignored from handleClientDisconnect" << std::endl; // debug
+        return;
+    }
+
+    if (_clients.find(fd) == _clients.end()) {
+        std::cout << "Tentative de déconnexion d'un client inexistant avec le descripteur de fichier= " << fd << std::endl; // debug
+        return;
+    }
+
     try
     {
-        // Cherche le client et supprime s'il quitte
         Client* client = _clients.at(fd); 
         client->leave();
 
-        // Préparer le message de déconnexion
         std::string disconnectMessage = client->getHostname() + ":" + std::to_string(client->getPort()) + " Successfully disconnected! ";
 
-        // Suppression du client de la liste
         _clients.erase(fd);
 
-        // Informer tous les autres clients
-       int numClients = _clients.size(); // Obtenir le nombre de clients restants
+        // Informer tous les autres clients, de l déco des autres user
+        int numClients = _clients.size();
         disconnectMessage += "There are now " + std::to_string(numClients) + " clients connected..\n";
 
         for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
@@ -206,18 +212,17 @@ void Server::handleClientDisconnect(int fd)
                 ++it;
             }
         }
-
-        close(fd); // Fermer le descripteur de fichier
-        delete client; // Libérer la mémoire du client
-
-        // Journalisation de la déconnexion
+        close(fd);
+        delete client;
+        
         std::cout << disconnectMessage << std::endl;
     }
     catch (const std::exception &e)
     {
-        std::cout << "ERROR: The connection has been forcibly terminated! " << e.what() << std::endl;
+        std::cout << "Connection LOST -  handleClientDisconnect issue related " << e.what() << std::endl;
     }
 }
+
 
 /*
 message.rfind("NICK", 0) == 0 vérifie si "NICK" est trouvé au début de la chaîne message. 
@@ -225,35 +230,50 @@ Si c'est le cas, l'expression sera évaluée à true.
 Sinon, elle sera évaluée à false. Cela est utile pour vérifier si une commande commence par un certain mot-clé.*/
 void Server::handleClientMessage(int fd)
 {
-    try
-    {
-        Client *client = _clients.at(fd);
-        std::string message = this->recvMsgFrom(fd);
+    // ne traite pas stdin fd ---> 0
+    if (fd == 0) {
+        std::cout << "fd -> 0 ignored from handleClientMessage " << std::endl; //debug
+        return;
+    }
 
-        if (client->registrationCheck()) {
-            // Si le client est enregistré, traiter n'importe quelle commande
-            _parser->processMessage(client, message);
-        } else {
-            // Si le client n'est pas enregistré, limiter les commandes à NICK, PASS, et USER
-            if (message.rfind("NICK", 0) == 0 || message.rfind("PASS", 0) == 0 || message.rfind("USER", 0) == 0) {
-                _parser->processMessage(client, message);
+    // Vérifier si le client existe dans le conteneur _clients
+    if (_clients.find(fd) != _clients.end())
+    {
+        try
+        {
+            Client *client = _clients.at(fd);
+            std::string message = this->recvMsgFrom(fd);
+
+            if (client->registrationCheck()) {
+                // Si le client est enregistré, traiter n'importe quelle commande
+                _parser->excInput(client, message);
             } else {
-                // Envoyer un message d'erreur si le client tente d'autres commandes
-                sendMessage(fd, "Vous devez vous enregistrer (NICK/PASS/USER) pour accéder aux cmds serveur\n");
+                // Si le client n'est pas enregistré, limiter les commandes à NICK, PASS, USER et QUIT
+                if (message.rfind("NICK", 0) == 0 || message.rfind("PASS", 0) == 0 || message.rfind("USER", 0) == 0 || message.rfind("QUIT", 0) == 0) {
+                    _parser->excInput(client, message);
+                } else {
+                    // Envoyer un message d'erreur si le client tente d'autres commandes
+                    sendMessage(fd, "Vous devez vous enregistrer (NICK/PASS/USER) pour accéder aux commandes serveur\n");
+                }
             }
         }
+        catch (const std::out_of_range&) 
+        {
+            // Gestion spécifique pour les cas où le client n'est pas trouvé dans le map
+            std::cout << "Error: Client not found for file descriptor " << fd << std::endl;
+        }
+        catch (const std::exception& e) 
+        {
+            // Autres erreurs générales
+            std::cout << "Error: message/command not received! " << e.what() << std::endl;
+        }
     }
-    catch (const std::out_of_range&) 
-    {
-        // Gestion spécifique pour les cas où le client n'est pas trouvé dans le map
-        std::cout << "Error: Client not found for file descriptor " << fd << std::endl;
-    }
-    catch (const std::exception& e) 
-    {
-        // Autres erreurs générales
-        std::cout << "Error: message/command not received! " << e.what() << std::endl;
-    }
+    // else
+    // {
+    //     std::cout << "Error: Client with file descriptor " << fd << " not found." << std::endl;
+    // }
 }
+
 
 void Server::sendMessage(int fd, const std::string& message)
 {
