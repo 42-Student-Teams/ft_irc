@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:13:14 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/12 14:20:19 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/13 13:48:52 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,11 +232,11 @@ void Server::handleClientMessage(int fd)
 
         if (client->registrationCheck()) {
             // Si le client est enregistré, traiter n'importe quelle commande
-            _parser->processMessage(client, message);
+            _parser->excInput(client, message);
         } else {
             // Si le client n'est pas enregistré, limiter les commandes à NICK, PASS, et USER
             if (message.rfind("NICK", 0) == 0 || message.rfind("PASS", 0) == 0 || message.rfind("USER", 0) == 0) {
-                _parser->processMessage(client, message);
+                _parser->excInput(client, message);
             } else {
                 // Envoyer un message d'erreur si le client tente d'autres commandes
                 sendMessage(fd, "Vous devez vous enregistrer (NICK/PASS/USER) pour accéder aux cmds serveur\n");
