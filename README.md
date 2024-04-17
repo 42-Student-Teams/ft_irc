@@ -7,6 +7,17 @@ git clone <repository_url>
 cd ft_irc
 make
 ```
+
+### git cmds
+``` 
+Procédure pour push sur la branche main
+Commit et Push sa branche
+Pull la dernière version du main
+Aller dans sa branche merge avec le main
+Test si ça fonctionne toujours
+Go sur la branche Main et merge sa branche dessus
+```
+
 ## Usage example
 #### Run this cmd in the terminal
 ```

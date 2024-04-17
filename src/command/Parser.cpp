@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:59:42 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/17 14:39:57 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 15:20:48 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ std::string     Parser::checkWhitespace(const std::string& str)
     return result;
 }
 
-void            Parser::processMessage(Client* client, const std::string& message)
+void            Parser::excInput(Client* client, const std::string& message)
 {
     std::stringstream   iss(message);
     std::string         syntax;
