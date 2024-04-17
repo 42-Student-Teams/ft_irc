@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:59:42 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/17 07:42:28 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/17 12:17:30 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Parser::Parser(Server* srv) : _srv(srv)
 {
     _commands["PASS"] = new Pass(_srv, false);
-    _commands["NICK"] = new Nick(_srv, true);
+    _commands["NICK"] = new Nick(_srv, false);
     _commands["USER"] = new User(_srv, false);
     _commands["QUIT"] = new Quit(_srv, false);
    
