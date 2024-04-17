@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:15 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/05 16:27:56 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 10:01:03 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class Client
         std::string     _userName;
         std::string     _realName;
         std::string     _hostName;
+        bool            _passwordAuthenticated;
 
         ClientState     _state;
         Channel*        _channel;
@@ -71,6 +72,9 @@ class Client
         void            setRealname(const std::string &realname);
         void            setState(ClientState state);
         void            setChannel(Channel *channel);
+        void            setPasswordAuthenticated(bool authenticated);
+
+        bool            isPasswordAuthenticated() const;
 
         /*CHEKC IF CLIENT IS STOCK IN MAP */
         bool            registrationCheck() const;

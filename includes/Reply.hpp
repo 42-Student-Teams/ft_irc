@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/24 12:30:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/05 16:29:26 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 11:41:24 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,13 @@
 /*WHO file*/
 #define RPL_ENDOFWHO(nickname)                          "366 " + nickname + " :End of WHO list."
 #define RPL_WHOREPLY(source, channel, userInfo)         "352 " + source + " " + channel + " " + userInfo
+
+/*PASS FILE*/
+#define ERR_PASSWDMISMATCH(source)                      "464 " + source + " :Password incorrect"
+
+/*MODE FILE*/
+#define ERR_CHANOPRIVSNEEDED(source, channel)           "482 " + source + " " + channel + " :You're not channel operator"
+#define ERR_UNKNOWNMODE(source, mode)                   "472 " + source + " " + mode + " :is unknown mode char to me"
 
 static inline void serverON(const std::string& message) 
 {

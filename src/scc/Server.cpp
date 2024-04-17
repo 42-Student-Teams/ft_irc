@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:13:14 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/02 14:32:34 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 10:03:55 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,10 @@ Channel* Server::getChannel(const std::string& name)
 std::vector<Channel*> Server::getAllChannels() const 
 {
     return _channels;
+}
+
+bool Server::checkPassword(const std::string& password) const {
+    return _pass == password;
 }
 
 /*-----------------------------MANAGE NETWORK CONNECTIONS TO THE SERVER--------------------------*/

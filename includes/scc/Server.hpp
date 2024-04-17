@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:09 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/02 14:30:26 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 10:04:12 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ class Server
         Channel*        getChannel(const std::string &name);
         std::string     getPassword() const;
         std::vector<Channel*> getAllChannels() const;
+        bool            checkPassword(const std::string& password) const;
        
         /*Handle CLient network to the SERVER*/
         void            handleClientMessage(int fd);

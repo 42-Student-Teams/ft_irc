@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:16:38 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/05 16:19:45 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 11:49:25 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,11 +63,24 @@ bool Channel::isClientInChannel(Client* client) const {
     return false;
 }
 
+bool Channel::isOperator(Client* client) const {
+    return std::find(_operators.begin(), _operators.end(), client) != _operators.end();
+}
 
 /*------------------------------CHANNEL SETUP-------------------------------*/
 /*------------------------------UNDER CONSTRUCTION-------------------------------*/
 
 void    Channel::addClient(Client* client){ _clients.push_back(client); }
+
+void Channel::addOperator(Client* client) {
+    if (std::find(_operators.begin(), _operators.end(), client) == _operators.end()) {
+        _operators.push_back(client);
+    }
+}
+
+void Channel::removeOperator(Client* client) {
+    _operators.erase(std::remove(_operators.begin(), _operators.end(), client), _operators.end());
+}
 
 void Channel::broadcast(const std::string& message)
 {
@@ -127,3 +140,42 @@ void    Channel::kick(Client* client, Client* target, const std::string& cause)
 void Channel::setTopic(const std::string& topic) {
     this->_topic = topic;
 }
+
+void Channel::setMode(Client* client, const std::string& modes, const std::string& param, Server* server) {
+    if (!isOperator(client)) {
+        client->reply(ERR_CHANOPRIVSNEEDED(client->getNickname(), _name));
+        return;
+    }
+
+    bool adding = modes[0] == '+'; // + ca veut dire ajoutés - retirés
+    // i++ a travers les modes apres + ou -
+    for (size_t i = 1; i < modes.size(); ++i) {
+        char mode = modes[i];
+
+        if (mode == 'i') { //activer ou desactiver mode invitation 
+            _inviteOnly = adding;
+        } else if (mode == 't') { //topic modifications
+            _topicSettableByOpOnly = adding;
+        } else if (mode == 'k') { //mdp du canal
+            if (adding) setKey(param);
+            else setKey("");
+        } else if (mode == 'o') { //add ou retirer operateur 
+            Client* target = server->getClient(param);
+            if (target) {
+                if (adding) addOperator(target);
+                else removeOperator(target);
+            } else {
+                client->reply(ERR_NOSUCHNICK(client->getNickname(), param));
+            }
+        } else if (mode == 'l') { //limite user 
+            if (adding) setLimit(std::stoi(param));
+            else setLimit(0);
+        } else {
+            client->reply(ERR_UNKNOWNMODE(client->getNickname(), std::string(1, mode)));
+        }
+    }
+
+    // msg de confirmation des changements de mode
+    broadcast(":" + client->getPrefix() + " MODE " + _name + " " + modes + " " + param);
+}
+

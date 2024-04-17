@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:16:29 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/05 16:28:25 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 09:57:04 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,15 @@ std::string Client::getInfo() const {
     info += "Host: " + getHostname();
     return info;
 }
+
+void Client::setPasswordAuthenticated(bool authenticated) {
+    _passwordAuthenticated = authenticated;
+}
+
+bool Client::isPasswordAuthenticated() const {
+    return _passwordAuthenticated;
+}
+
 
 void            Client::setNickname(const std::string &nickname) { _nickName = nickname; }
 void            Client::setUsername(const std::string &username) { _userName = username; }

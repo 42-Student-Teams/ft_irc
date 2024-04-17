@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:20 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/05 16:19:15 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 11:44:50 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,14 @@ class Channel
         std::string             _topic;
         Client*                 _admin;
         std::vector<Client *>   _clients;
+        std::vector<Client*>    _operators;
 
         /* Modes => work in progress */
         std::string             _keyAcces; // channel key
         size_t                  _maxUsers; // limit of users
         bool                    _n; // yes/no external messages
+        bool                    _inviteOnly;
+        bool                    _topicSettableByOpOnly;
 
         Channel();
         Channel(const Channel& src);
@@ -50,13 +53,18 @@ class Channel
         std::vector<Client*>        getClients() const;
         bool                        extMsg() const;
         bool                        isClientInChannel(Client* client) const;
+        bool                        isOperator(Client* client) const;
 
         void                        setKey(std::string key);
         void                        setLimit(size_t limit);
         void                        setExtMsg(bool flag);
         void                        setTopic(const std::string& topic);
+        void                        setMode(Client* client, const std::string& modes, const std::string& param, Server* server);
+
 
         /*CHANNEL AVALABLE ACTIONS,under construction*/
+        void                        addOperator(Client* client);
+        void                        removeOperator(Client* client);
         void                        addClient(Client* client);
         void                        broadcast(const std::string& message);
         void                        broadcast(const std::string& message, Client* remove);

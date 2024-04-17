@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:43:06 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/05 16:17:22 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 09:54:30 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,6 +129,14 @@ class Who : public Command {
 public:
     Who(Server* srv, bool auth = false); 
     virtual ~Who();
+
+    void execute(Client* client, std::vector<std::string> args);
+};
+
+class Pass : public Command {
+public:
+    Pass(Server* srv, bool auth = false) : Command(srv, auth) {}
+    virtual ~Pass() {}
 
     void execute(Client* client, std::vector<std::string> args);
 };
