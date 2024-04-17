@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:09 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/17 10:04:12 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 11:57:51 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class Server;
 #include "command/Parser.hpp"
 
 #define MAX_USER 500
+#define YELLOW "\e[93;5;226m"
 
 class Server
 {
@@ -48,7 +49,7 @@ class Server
 
         std::vector<pollfd>     _pfds;
         std::vector<Channel *>  _channels;
-        std::map<int, Client *> _clients;
+        std::map<int, Client *> _clients;//------// stock les clients a leur arrivée _on_connection 
 
         Parser*                 _parser;
 
@@ -67,12 +68,13 @@ class Server
         Channel*        getChannel(const std::string &name);
         std::string     getPassword() const;
         std::vector<Channel*> getAllChannels() const;
-        bool            checkPassword(const std::string& password) const;
+        int             getClientCount() const;
        
         /*Handle CLient network to the SERVER*/
         void            handleClientMessage(int fd);
         void            handleClientConnection();
         void            handleClientDisconnect(int fd);
+        void            sendMessage(int fd, const std::string& message);
         std::string     recvMsgFrom(int fd);
 
         /* Etablish connection to the NET*/

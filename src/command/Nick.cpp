@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 16:11:13 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/03/24 11:47:52 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/12 11:25:30 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,5 +70,6 @@ void    Nick::execute(Client* client, std::vector<std::string> args)
     }
 
     client->setNickname(nickname);
+    client->reply("NICK registered successfully. Please provide your PASSWORD and USER.");
     client->welcome();
 }

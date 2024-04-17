@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:59:42 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/05 16:14:40 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/12 11:28:34 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,19 @@
 
 Parser::Parser(Server* srv) : _srv(srv)
 {
+    _commands["PASS"] = new Pass(_srv, false);
     _commands["NICK"] = new Nick(_srv, false);
     _commands["USER"] = new User(_srv, false);
     _commands["QUIT"] = new Quit(_srv, false);
-    _commands["NOTICE"] = new Notice(_srv, false);
-    _commands["PRIVMSG"] = new Privmsg(_srv, false);
-    _commands["PART"] = new Part(_srv, false);
-    _commands["LIST"] = new List(_srv, false);
-    _commands["JOIN"] = new Join(_srv, false);
-    _commands["TOPIC"] = new Topic(_srv, true);
-    _commands["WHO"] = new Who(_srv, false);
+   
+    
+    _commands["NOTICE"] = new Notice(_srv);
+    _commands["PRIVMSG"] = new Privmsg(_srv);
+    _commands["PART"] = new Part(_srv);
+    _commands["LIST"] = new List(_srv);
+    _commands["JOIN"] = new Join(_srv);
+    _commands["TOPIC"] = new Topic(_srv);
+    _commands["WHO"] = new Who(_srv);
 
 
 }
@@ -61,15 +64,15 @@ void            Parser::processMessage(Client* client, const std::string& messag
     {
         syntax = checkWhitespace(syntax);
 
-        std::string name = syntax.substr(0, syntax.find(' '));
+        std::string input = syntax.substr(0, syntax.find(' '));
 
         try
         {
             std::vector<std::string>    args;
-            std::stringstream           line(syntax.substr(name.length(), syntax.length()));
+            std::stringstream           line(syntax.substr(input.length(), syntax.length()));
             std::string                 buf;
 
-            Command *cmd = _commands.at(name);
+            Command *cmd = _commands.at(input);
 
             while (line >> buf)
                 args.push_back(buf);
@@ -84,7 +87,7 @@ void            Parser::processMessage(Client* client, const std::string& messag
         }
         catch (const std::exception& e)
         {
-            client->reply(ERR_UNKNOWNCOMMAND(client->getNickname(), name));
+            client->reply(ERR_UNKNOWNCOMMAND(client->getNickname(), input));
         }
     }
 }

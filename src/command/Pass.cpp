@@ -1,23 +1,43 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Pass.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/12 11:22:15 by inaranjo          #+#    #+#             */
+/*   Updated: 2024/04/17 11:58:12 by Probook          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "command/Command.hpp"
 
-//PASS sert à identifier l'utilisateur au serveur ou une auth supplementaire pour qqch
+Pass::Pass(Server* srv, bool auth) : Command(srv, auth) {}
 
-void Pass::execute(Client* client, std::vector<std::string> args) {
-    if (args.empty()) {
+Pass::~Pass() {}
+
+// syntax: PASS <password>
+
+void    Pass::execute(Client* client, std::vector<std::string> args)
+{
+    if (args.empty())
+    {
         client->reply(ERR_NEEDMOREPARAMS(client->getNickname(), "PASS"));
         return;
     }
 
-    std::string password = args[0]; // arg 0 = mdp
-    if (!this->_srv->checkPassword(password)) {
-        client->reply(ERR_PASSWDMISMATCH(client->getNickname()));
+    if (client->registrationCheck())
+    {
+        client->reply(ERR_ALREADYREGISTERED(client->getNickname()));
         return;
     }
 
-    // Marquer le client comme ayant passé l'authentification par mdp
-    if (!client->isPasswordAuthenticated()) {
-        client->setPasswordAuthenticated(true);
-    } else {
-        client->reply("ERR_ALREADYAUTHENTICATED : You are already authenticated.");
+    if (_srv->getPassword() != args[0].substr(args[0][0] == ':' ? 1 : 0))
+    {
+        client->reply(ERR_PASSREJECT(client->getNickname()));
+        return;
     }
+
+    client->setState(LOGIN);
+    client->reply("PASSWORD accepted. Please provide your USER information.\n");
 }

@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:16:29 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/17 09:57:04 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 11:58:19 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 /*--------------------------CONSTRUCT && DESTRUCT----------------------------*/
 
-Client::Client(int fd, int port, const std::string &hostname): _fd(fd), _port(port), _hostName(hostname), _state(HANDSHAKE), _channel(NULL) {}
+Client::Client(int fd, int port, const std::string &hostname): _fd(fd), _port(port), _hostName(hostname), _state(CONNECTED), _channel(NULL) {}
 
 Client::~Client() {}
 
@@ -79,7 +79,6 @@ void Client::reply(const std::string& reply)
 {
     this->write(std::string(BLUE) + ":" + getPrefix() + std::string(RESET) + " " + reply);
 }
-
 
 
 /*Envoie un message de bienvenue si le client et bien enregistrer*/

@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:15 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/17 10:01:03 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/17 11:57:22 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Client;
 
 enum ClientState
 {
-    HANDSHAKE,// Iinitialisation between server/client status
+    CONNECTED,// Iinitialisation between server/client status
     LOGIN,// Connection status client
     REGISTERED,// Regirstration status client 
     DISCONNECTED// Disconnection status client

@@ -13,13 +13,18 @@
 NAME = ircserv
 
 SRCS = $(wildcard src/*.cpp src/scc/*.cpp src/command/*.cpp)
-OBJS = $(SRCS:.cpp=.o)
+SRC_DIR = src
 
 CC = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98
 INCLUDES = -I ./includes
 
 RM = rm -rf
+
+BUILD_DIR   = .build
+# OBJS = $(SRCS:.cpp=.o)
+OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
+
 
 # Colors
 GREEN = \033[0;32m
@@ -30,18 +35,20 @@ SRCDIR = src
 OBJDIR = .objFiles
 INCDIR = includes
 
+all: $(NAME)
+
 $(NAME): $(OBJS)
 	@$(CC) $(FLAGS) $(INCLUDES) $(OBJS) -o $(NAME)
 	@echo "$(GREEN)✅Executable $(NAME) ready.$(RESET)"
 	
-%.o: %.cpp
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
 	@echo "$(YELLOW)Compiling $<...$(RESET)"
 	@$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 	@echo "$(YELLOW)❌...Removing object files...$(RESET)"
-	@$(RM) $(OBJS)
+	@$(RM) $(OBJS) $(BUILD_DIR)
 	@echo "Object files removed.$(RESET)"
 
 fclean: clean
