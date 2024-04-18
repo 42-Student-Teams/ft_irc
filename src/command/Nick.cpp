@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Nick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 16:11:13 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/12 11:25:30 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/18 17:12:53 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void    Nick::execute(Client* client, std::vector<std::string> args)
 
     std::string nickname = args[0];
 
-    if (_srv->getClient(nickname))
+    if (_srv->getClientStr(nickname))
     {
         client->reply(ERR_NICKNAMEINUSE(client->getNickname()));
         return;

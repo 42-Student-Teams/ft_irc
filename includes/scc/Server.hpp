@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:09 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/18 15:35:26 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/18 17:12:50 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ class Server
         void            run();
 
         /*Accesssors*/
-        Client*         getClient(const std::string &nickname);
+        Client*         getClientStr(const std::string &nickname);
         Channel*        getChannel(const std::string &name);
         std::string     getPassword() const;
         std::vector<Channel*> getAllChannels() const;
@@ -84,7 +84,7 @@ class Server
         std::string     recvMsgFrom(int fd);
 
         /* Etablish connection to the NET*/
-        int             createSocket();
+        void             createSocket();
 
         /* Generate a New CHANNEL, under construction*/
         Channel*         createChannel(const std::string &name, const std::string &key, Client *client);

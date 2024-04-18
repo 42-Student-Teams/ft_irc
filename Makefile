@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+         #
+#    By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/24 12:13:57 by inaranjo          #+#    #+#              #
-#    Updated: 2024/03/24 12:18:31 by inaranjo         ###   ########.fr        #
+#    Updated: 2024/04/18 17:14:10 by inaranjo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ SRCS = $(wildcard src/*.cpp src/scc/*.cpp src/command/*.cpp)
 SRC_DIR = src
 
 CC = c++
-FLAGS = -Wall -Wextra -Werror -std=c++98
+FLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 INCLUDES = -I ./includes
 
 RM = rm -rf

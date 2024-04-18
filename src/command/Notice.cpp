@@ -14,7 +14,7 @@ void Notice::execute(Client* client, std::vector<std::string> args) {
 
     std::string targetNick = args[0];
     std::string message = args[1];
-    Client* targetClient = _srv->getClient(targetNick);
+    Client* targetClient = _srv->getClientStr(targetNick);
     if (targetClient) {
         targetClient->write(":" + client->getPrefix() + " NOTICE " + targetNick + " :" + message);
     }

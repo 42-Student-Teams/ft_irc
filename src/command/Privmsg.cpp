@@ -27,7 +27,7 @@ void Privmsg::execute(Client* client, std::vector<std::string> args) {
     }
 
     // destinataire utilisateur
-    Client* targetClient = this->_srv->getClient(target);
+    Client* targetClient = this->_srv->getClientStr(target);
     if (targetClient) {
         targetClient->write(":" + client->getPrefix() + " PRIVMSG " + target + " :" + message);
     } else {
