@@ -1,5 +1,6 @@
 #include "command/Command.hpp"
-#include "Reply.hpp"
+
+// syntax: PING :<server>
 
 Ping::Ping(Server* srv, bool auth) : Command(srv, auth) {}
 

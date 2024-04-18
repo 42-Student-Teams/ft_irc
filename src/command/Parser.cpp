@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:59:42 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/17 15:20:48 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/18 13:07:37 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ Parser::Parser(Server* srv) : _srv(srv)
     _commands["WHO"] = new Who(_srv);
     _commands["MODE"] = new Mode(_srv);
     _commands["PING"] = new Ping(_srv);
-    _commands["PONG"] = new Pong(_srv);
 
 
 }
