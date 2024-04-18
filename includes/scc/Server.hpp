@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:09 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/12 14:15:59 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/18 15:35:26 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,11 @@ class Server
         Server();
         Server(const Server& src);
 
+        //new version 
+        struct sockaddr_in serv_addr;
+	    struct sockaddr_in adduser; //  struct sockaddr_in cliadd
+	    struct pollfd new_cli;
+
     public:
         Server(const std::string &port, const std::string &pass);
         ~Server();
@@ -70,6 +75,7 @@ class Server
         std::vector<Channel*> getAllChannels() const;
         int             getClientCount() const;
        
+    
         /*Handle CLient network to the SERVER*/
         void            handleClientMessage(int fd);
         void            handleClientConnection();
@@ -83,7 +89,9 @@ class Server
         /* Generate a New CHANNEL, under construction*/
         Channel*         createChannel(const std::string &name, const std::string &key, Client *client);
 
-       
+       //new version function
+        void setFD(int fd);
+        Client*         getClient(int fd);
 };
 
 #endif

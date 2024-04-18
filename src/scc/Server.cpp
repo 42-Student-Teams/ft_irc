@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:13:14 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/17 13:38:05 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/18 15:54:00 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,11 @@ Server::~Server()
         delete it->second;
 }
 
-
 /*-----------------------------MAIN LOOP SERVER--------------------------*/
 
-/*Le server s ouvre avec le port initialisé = OK
-il mentionne que le serveur et ON*/
+//old version
 void Server::run()
 {
-    // Ajoute le serveur au tableau de poll
     pollfd srv = {_socketFD, POLLIN, 0};
     _pfds.push_back(srv);
 
@@ -57,7 +54,6 @@ void Server::run()
     std::string message = "Server is listening on port " + std::to_string(port) + "...";
     serverON(message.c_str());
 
-    // Exécution de la boucle principale en attendant les connexions
     while (_serverStatus)
     {
         if (poll(_pfds.data(), _pfds.size(), -1) < 0)
@@ -89,12 +85,36 @@ void Server::run()
     }
 }
 
+//new version
+void Server::run()
+{
+    this->createSocket();
+    
+    std::cout << "Waiting to accept a connection...\n";
+    while (_serverStatus)
+    {
+        if (poll(_pfds.data(), _pfds.size(), -1) < 0)
+            throw std::runtime_error("ERROR: POLLING fd issue!");
+
+        for (size_t i = 0; i < _pfds.size(); i++)
+        {
+			if (_pfds[i].revents & POLLIN)
+			{
+				if (_pfds[i].fd == _socketFD)
+					this->handleClientConnection();
+				else
+					this->reciveNewData(fds[i].fd);
+			}
+		}
+    }
+
+}
+
 /*-----------------------------ACCESSORS--------------------------*/
 std::string Server::getPassword() const 
 {
     return _pass;
 }
-
 
 Client* Server::getClient(const std::string& nickname)
 {
@@ -112,7 +132,16 @@ Client* Server::getClient(const std::string& nickname)
     return nullptr;
 }
 
-//OK MAIS STOCKER DIFF 
+Client* Server::getClient(int fd)
+{
+    for(std::map<int, Client *> ::iterator it = _clients.begin(); it != _clients.end();it++)
+    {
+      if (it->first == fd) // Vérifie si le descripteur de fichier correspond
+            return it->second; // Retourne le pointeur vers le client
+    }
+    return nullptr;
+}
+
 Channel* Server::getChannel(const std::string& name)
 {
     for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it)
@@ -121,7 +150,7 @@ Channel* Server::getChannel(const std::string& name)
             return (*it);
     }
 
-    return nullptr;
+    return nullptr; 
 }
 
 std::vector<Channel*> Server::getAllChannels() const 
@@ -132,7 +161,6 @@ std::vector<Channel*> Server::getAllChannels() const
 int Server::getClientCount() const {
     return _clients.size();
 }
-
 
 /*-----------------------------MANAGE NETWORK CONNECTIONS TO THE SERVER--------------------------*/
 
@@ -149,7 +177,7 @@ void Server::handleClientConnection()
     fd = accept(_socketFD, (sockaddr *)&addr, &size);
     if (fd < 0)
         throw std::runtime_error("ERROR: Client connection failed!");
-
+    
     pollfd pfd = {fd, POLLIN, 0};
     _pfds.push_back(pfd);
 
@@ -175,6 +203,29 @@ void Server::handleClientConnection()
     std::cout << connectMessage << std::endl;
 }
 
+//new version
+void Server::handleClientConnection()
+{
+    Client *user;
+    memset(&adduser,0,sizeof(adduser)); // link to struct sockaddr
+    socklen_t len = sizeof(adduser);
+    int fd = accept(_socketFD, (sockaddr *)&(adduser), &len);
+    if(fd == -1)
+        {std::cout << "accept() failed" << std::endl; return;}
+    if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
+		{std::cout << "fcntl() failed" << std::endl; return;}
+    new_cli.fd = fd;
+	new_cli.events = POLLIN;
+	new_cli.revents = 0;
+	user->setFD(fd);
+	user->setIpAdd(inet_ntoa((adduser.sin_addr)));
+    _clients[fd] = user;
+	_pfds.push_back(new_cli);
+	std::cout << GREEN << "Client <" << fd << "> Connected" << RESET << std::endl; 
+}
+
+void Server::setFD(int fd) {this->_socketFD = fd;}
+
 void Server::handleClientDisconnect(int fd)
 {
     if (fd == 0) {
@@ -198,7 +249,7 @@ void Server::handleClientDisconnect(int fd)
 
         // Informer tous les autres clients, de l déco des autres user
         int numClients = _clients.size();
-        disconnectMessage += "There are now " + std::to_string(numClients) + " clients connected..\n";
+         disconnectMessage += "There are now " + std::to_string(numClients) + " clients connected..\n";
 
         for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
             sendMessage(it->first, disconnectMessage); // Envoyer le message à chaque client actif
@@ -228,51 +279,51 @@ void Server::handleClientDisconnect(int fd)
 message.rfind("NICK", 0) == 0 vérifie si "NICK" est trouvé au début de la chaîne message. 
 Si c'est le cas, l'expression sera évaluée à true. 
 Sinon, elle sera évaluée à false. Cela est utile pour vérifier si une commande commence par un certain mot-clé.*/
-void Server::handleClientMessage(int fd)
-{
-    // ne traite pas stdin fd ---> 0
-    if (fd == 0) {
-        std::cout << "fd -> 0 ignored from handleClientMessage " << std::endl; //debug
-        return;
-    }
+// void Server::handleClientMessage(int fd)
+// {
+//     // ne traite pas stdin fd ---> 0
+//     if (fd == 0) {
+//         std::cout << "fd -> 0 ignored from handleClientMessage " << std::endl; //debug
+//         return;
+//     }
 
-    // Vérifier si le client existe dans le conteneur _clients
-    if (_clients.find(fd) != _clients.end())
-    {
-        try
-        {
-            Client *client = _clients.at(fd);
-            std::string message = this->recvMsgFrom(fd);
+//     // Vérifier si le client existe dans le conteneur _clients
+//     if (_clients.find(fd) != _clients.end())
+//     {
+//         try
+//         {
+//             Client *client = _clients.at(fd);
+//             std::string message = this->recvMsgFrom(fd);
 
-            if (client->registrationCheck()) {
-                // Si le client est enregistré, traiter n'importe quelle commande
-                _parser->excInput(client, message);
-            } else {
-                // Si le client n'est pas enregistré, limiter les commandes à NICK, PASS, USER et QUIT
-                if (message.rfind("NICK", 0) == 0 || message.rfind("PASS", 0) == 0 || message.rfind("USER", 0) == 0 || message.rfind("QUIT", 0) == 0) {
-                    _parser->excInput(client, message);
-                } else {
-                    // Envoyer un message d'erreur si le client tente d'autres commandes
-                    sendMessage(fd, "Vous devez vous enregistrer (NICK/PASS/USER) pour accéder aux commandes serveur\n");
-                }
-            }
-        }
-        catch (const std::out_of_range&) 
-        {
-            // Gestion spécifique pour les cas où le client n'est pas trouvé dans le map
-            std::cout << "Error: Client not found for file descriptor " << fd << std::endl;
-        }
-        catch (const std::exception& e) 
-        {
-            // Autres erreurs générales
-            std::cout << "Error: message/command not received! " << e.what() << std::endl;
-        }
-    }
-    // else
-    // {
-    //     std::cout << "Error: Client with file descriptor " << fd << " not found." << std::endl;
-    // }
-}
+//             if (client->registrationCheck()) {
+//                 // Si le client est enregistré, traiter n'importe quelle commande
+//                 _parser->excInput(client, message);
+//             } else {
+//                 // Si le client n'est pas enregistré, limiter les commandes à NICK, PASS, USER et QUIT
+//                 if (message.rfind("NICK", 0) == 0 || message.rfind("PASS", 0) == 0 || message.rfind("USER", 0) == 0 || message.rfind("QUIT", 0) == 0) {
+//                     _parser->excInput(client, message);
+//                 } else {
+//                     // Envoyer un message d'erreur si le client tente d'autres commandes
+//                     sendMessage(fd, "Vous devez vous enregistrer (NICK/PASS/USER) pour accéder aux commandes serveur\n");
+//                 }
+//             }
+//         }
+//         catch (const std::out_of_range&) 
+//         {
+//             // Gestion spécifique pour les cas où le client n'est pas trouvé dans le map
+//             std::cout << "Error: Client not found for file descriptor " << fd << std::endl;
+//         }
+//         catch (const std::exception& e) 
+//         {
+//             // Autres erreurs générales
+//             std::cout << "Error: message/command not received! " << e.what() << std::endl;
+//         }
+//     }
+//     // else
+//     // {
+//     //     std::cout << "Error: Client with file descriptor " << fd << " not found." << std::endl;
+//     // }
+// }
 
 
 void Server::sendMessage(int fd, const std::string& message)
@@ -295,26 +346,31 @@ void Server::sendMessage(int fd, const std::string& message)
     }
 }
 
-std::string Server::recvMsgFrom(int fd)
+void    Server::handleClientMessage(int fd)
 {
-    std::string message;
+   
     
-    char buffer[100];
-    bzero(buffer, 100);
+    char buffer[1024];
+    bzero(buffer, 1024);
 
-    while (!strstr(buffer, "\n"))
+    Client *user = getClient(fd);
+    Parser *bigPars;
+    ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1 , 0);
+    if(bytes <= 0)
+	{
+		this->handleClientDisconnect(fd);
+	}
+    else
     {
-        bzero(buffer, 100);
-
-        if ((recv(fd, buffer, 100, 0) < 0) and (errno != EWOULDBLOCK))
-            throw std::runtime_error("Error while reading buffer from a client!");
-
-        message.append(buffer);
+        bigPars->excInput(user,buffer);
+        
     }
+        
+   
 
-    return message;
 }
 
+// old version
 int Server::createSocket()
 {
     // ouverture d'un socket
@@ -347,6 +403,32 @@ int Server::createSocket()
         throw std::runtime_error("ERROR : listen socket request failed!");
 
     return sock_fd;
+}
+//new version
+int Server::createSocket()
+{
+    int optval = 1;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(atoi(_port.c_str()));
+    int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    if(sock_fd == -1)
+		throw(std::runtime_error("faild to create socket"));
+	if(setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &optval , sizeof(optval)) == -1)
+		throw(std::runtime_error("faild to set option (SO_REUSEADDR) on socket"));
+	 if (fcntl(sock_fd, F_SETFL, O_NONBLOCK) == -1)
+		throw(std::runtime_error("faild to set option (O_NONBLOCK) on socket"));
+	if (bind(sock_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1)
+		throw(std::runtime_error("faild to bind socket"));
+	if (listen(sock_fd, SOMAXCONN) == -1)
+		throw(std::runtime_error("listen() faild"));
+
+    new_cli.fd = sock_fd;
+	new_cli.events = POLLIN;
+	new_cli.revents = 0;
+	_pfds.push_back(new_cli);
+        
 }
 
 //under construction, stock the new Channel in the std::vector<Channel *>  _channels

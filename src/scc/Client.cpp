@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:16:29 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/12 13:45:30 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/18 14:40:45 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,9 @@ void            Client::setRealname(const std::string &realname) { _realName = r
 void            Client::setState(ClientState state) { _state = state; }
 void            Client::setChannel(Channel *channel) { _channel = channel; }
 
+//new version
+void            Client::setIpAdd(std::string addIP){this->_addIP = addIP;}
+void            Client::setFD(int fd){this->_fd = fd;}
 
 /*--------------------------CLIENT NETWORK ACTIONS SETUP----------------------------*/
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 23:17:15 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/12 13:45:20 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/18 14:36:25 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,13 +45,19 @@ class Client
         std::string     _realName;
         std::string     _hostName;
 
+        //new version
+        std::string     _addIP;
+
         ClientState     _state;
         Channel*        _channel;
 
-        Client();
-        Client(const Client &src);
+        
+        
+
 
     public:
+        Client(const Client &src);
+        Client();
         Client(int fd, int port, const std::string &hostname);
         ~Client();
         
@@ -71,6 +77,10 @@ class Client
         void            setRealname(const std::string &realname);
         void            setState(ClientState state);
         void            setChannel(Channel *channel);
+
+        /*new setter*/
+        void            setIpAdd(std::string addIP);
+        void            setFD(int fd);
 
         /*CHEKC IF CLIENT IS STOCK IN MAP */
         bool            registrationCheck() const;
