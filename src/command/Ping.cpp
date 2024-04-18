@@ -1,6 +1,7 @@
 #include "command/Command.hpp"
 
 // syntax: PING :<server>
+// command ping for IRC clients to check the connection's liveness and latency
 
 Ping::Ping(Server* srv, bool auth) : Command(srv, auth) {}
 
@@ -12,6 +13,6 @@ void Ping::execute(Client* client, std::vector<std::string> args) {
         return;
     }
 
-    // Répondre avec PONG + paramètre reçu pour maintenir la connexion
+    // Répondre avec PONG echoing back the argument it received
     client->write("PONG :" + args[0]);
 }

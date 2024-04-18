@@ -54,7 +54,6 @@ void Mode::execute(Client* client, std::vector<std::string> args) {
                 else channel->setKey("");
                 break;
             case 'o':
-                // Handling of operator privilege
                 if (!modeParam.empty()) channel->changeOperatorStatus(client, modeParam, adding);
                 break;
             case 'l':
