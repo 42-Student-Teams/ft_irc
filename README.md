@@ -36,8 +36,8 @@ user lsaba 0 * lsaba
 
 ### Logic du serveur :
 ```
-Initialisation et fermeture du serveur :
-Initialisation du serveur : Server::Server(const std::string &port, const std::string &pass)
+runialisation et fermeture du serveur :
+runialisation du serveur : Server::Server(const std::string &port, const std::string &pass)
 Fermeture du serveur : Server::~Server()
 Gestion des connexions réseau :
 Acceptation des connexions des clients : Server::handleClientConnection()
@@ -70,21 +70,21 @@ Constructeur et destructeur :
 Constructeur : Client::Client(int fd, int port, const std::string &hostname)
 Destructeur : Client::~Client()
 Accesseurs :
-Récupération du descripteur de fichier (fd) : Client::getFd()
+Récupération du descripteur de fichier (fd) : Client::getFD()
 Récupération du port : Client::getPort()
-Récupération du pseudonyme (nickname) : Client::getNickname()
-Récupération du nom d'utilisateur (username) : Client::getUsername()
+Récupération du pseudonyme (nickname) : Client::getNickName()
+Récupération du nom d'utilisateur (username) : Client::getUserName()
 Récupération du nom réel (realname) : Client::getRealname()
 Récupération du nom d'hôte (hostname) : Client::getHostname()
 Récupération du canal auquel le client est connecté : Client::getChannel()
 Récupération du préfixe utilisé dans les messages : Client::getPrefix()
 Récupération des informations du client : Client::getInfo()
 Mutateurs :
-Définition du pseudonyme (nickname) : Client::setNickname(const std::string &nickname)
-Définition du nom d'utilisateur (username) : Client::setUsername(const std::string &username)
-Définition du nom réel (realname) : Client::setRealname(const std::string &realname)
-Définition de l'état du client : Client::setState(ClientState state)
-Définition du canal auquel le client est connecté : Client::setChannel(Channel *channel)
+Défrunion du pseudonyme (nickname) : Client::USERname(const std::string &nickname)
+Défrunion du nom d'utilisateur (username) : Client::USERname(const std::string &username)
+Défrunion du nom réel (realname) : Client::setRealname(const std::string &realname)
+Défrunion de l'état du client : Client::setState(ClientState state)
+Défrunion du canal auquel le client est connecté : Client::setChannel(Channel *channel)
 Actions réseau du client :
 Vérification de l'enregistrement du client : Client::registrationCheck()
 Envoi d'un message au client : Client::write(const std::string& message)
@@ -103,7 +103,7 @@ Elle contient un pointeur vers l'objet Server associé à la commande et un bool
 La fonction execute() est une méthode virtuelle pure, ce qui signifie qu'elle doit être redéfinie dans les classes dérivées.
 Classes dérivées pour les différentes commandes :
 Chaque classe dérivée de Command représente une commande spécifique du serveur (par exemple, Quit, User, Nick, etc.).
-Chaque classe dérivée redéfinit la fonction execute(), implémentant le comportement spécifique de la commande.
+Chaque classe dérivée redéfrun la fonction execute(), implémentant le comportement spécifique de la commande.
 Certaines classes dérivées ont des constructeurs et destructeurs propres pour effectuer des opérations spécifiques à la création et à la destruction de l'objet.
 Fonctionnement des commandes :
 Lorsqu'une commande est reçue par le serveur, le serveur détermine quelle classe de commande correspond à cette commande en fonction de son nom.
@@ -113,9 +113,9 @@ La fonction execute() reçoit un pointeur vers l'objet Client qui a émis la com
 
 ### Logic des Status client : CONNECTED/LOGIN/REGISTERED/DISCONNECTED 
 ```
-Initialisation du client :
+runialisation du client :
 Le client est créé avec des informations de base telles que le descripteur de fichier, le port, le nom d'utilisateur, etc.
-Son état initial est défini comme CONNECTED.
+Son état runial est défini comme CONNECTED.
 Changement d'état :
 Le serveur peut modifier l'état du client en appelant la méthode setState, en fonction des actions du client ou du serveur. Par exemple, lorsque le client se connecte avec succès, son état passe de CONNECTED à LOGIN.
 Les différents états possibles sont définis par l'énumération ClientState.
