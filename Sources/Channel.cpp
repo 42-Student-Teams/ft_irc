@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:18 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/19 20:11:59 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/19 20:30:58 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,60 +109,56 @@ std::string Channel::getChannelList() {
     return list;
 }
 Client *Channel::getClientFd(int fd) {
-    for (auto &client : _clients) {
-        if (client.getFD() == fd)
-            return &client;
-    }
-    return nullptr;
+    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it){
+		if (it->getFD() == fd)
+			return &(*it);
+	}
+	return NULL;
 }
 Client *Channel::getAdminFd(int fd) {
-    for (auto &admin : _admins) {
-        if (admin.getFD() == fd)
-            return &admin;
-    }
-    return nullptr;
+   for (std::vector<Client>::iterator it = _admins.begin(); it != _admins.end(); ++it){
+		if (it->getFD() == fd)
+			return &(*it);
+	}
+	return NULL;
 }
 Client *Channel::getClientInChannel(std::string name) {
-    for (auto &client : _clients) {
-        if (client.getNickName() == name)
-            return &client;
-    }
-    for (auto &admin : _admins) {
-        if (admin.getNickName() == name)
-            return &admin;
-    }
-    return nullptr;
+    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it){
+		if (it->getNickName() == name)
+			return &(*it);
+	}
+	for (std::vector<Client>::iterator it = _admins.begin(); it != _admins.end(); ++it){
+		if (it->getNickName() == name)
+			return &(*it);
+	}
+	return NULL;
 }
 
 bool Channel::isClientInChannel(std::string &nick) {
-    for (auto &client : _clients) {
-        if (client.getNickName() == nick)
-            return true;
-    }
-    for (auto &admin : _admins) {
-        if (admin.getNickName() == nick)
-            return true;
-    }
-    return false;
+    for(size_t i = 0; i < _clients.size(); i++){
+		if(_clients[i].getNickName() == nick)
+			return true;
+	}
+	for(size_t i = 0; i < _admins.size(); i++){
+		if(_admins[i].getNickName() == nick)
+			return true;
+	}
+	return false;
 }
 void Channel::storeClient(Client newClient) { _clients.push_back(newClient);}
 void Channel::storeAdmin(Client newClient) {_admins.push_back(newClient);}
 
 void Channel::rmClientFd(int fd) {
-    for (auto it = _clients.begin(); it != _clients.end(); ++it) {
-        if (it->getFD() == fd) {
-            _clients.erase(it);
-            break;
-        }
-    }
+   for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it){
+		if (it->getFD() == fd)
+			{_clients.erase(it); break;}
+	}
 }
 void Channel::rmAdminFd(int fd) {
-    for (auto it = _admins.begin(); it != _admins.end(); ++it) {
-        if (it->getFD() == fd) {
-            _admins.erase(it);
-            break;
-        }
-    }
+   for (std::vector<Client>::iterator it = _admins.begin(); it != _admins.end(); ++it){
+		if (it->getFD() == fd)
+			{_admins.erase(it); break;}
+	}
 }
 
 bool Channel::clientTOadmin(std::string &nick) {
