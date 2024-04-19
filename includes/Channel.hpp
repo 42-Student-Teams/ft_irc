@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:55 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/19 17:20:06 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/19 20:35:33 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,19 +72,19 @@ public:
 	Client 				*getClientInChannel(std::string name);
 
 
-	bool isClientInChannel(std::string &nick);
+	bool				isClientInChannel(std::string &nick);
 
 	
-	void storeClient(Client newClient);
-	void storeAdmin(Client newClient);
-	void rmClientFd(int fd);
-	void rmAdminFd(int fd);
-	bool clientTOadmin(std::string& nick);
-	bool adminTOclient(std::string& nick);
+	void				storeClient(Client newClient);
+	void 				storeAdmin(Client newClient);
+	void				rmClientFd(int fd);
+	void				rmAdminFd(int fd);
+	bool				clientTOadmin(std::string& nick);
+	bool				adminTOclient(std::string& nick);
 
 
-	void sendMsgToAll(std::string rpl1);
-	void sendMsgToAll(std::string rpl1, int fd);
+	void				sendMsgToAll(std::string rpl1);
+	void				sendMsgToAll(std::string rpl1, int fd);
 };
 
 #endif

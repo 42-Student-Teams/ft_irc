@@ -6,15 +6,11 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:12 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/19 19:57:14 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/19 20:34:01 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/Server.hpp"
-
-/* 
-*   PASS COMMAND
-*/
 
 void Server::PASS(int fd, std::string cmd)
 {
@@ -40,11 +36,6 @@ void Server::PASS(int fd, std::string cmd)
 	else
         sendMsg(ERR_ALREADYREGISTERED(getClient(fd)->getNickName()), fd);
 }
-
-
-/* 
-*    NICK COMMAND
-*/
 
 bool Server::checkNickname(std::string& nickname)
 {
@@ -125,10 +116,6 @@ void Server::NICK(std::string cmd, int fd)
 		sendMsg(RPL_CONNECTED(cli->getNickName()), fd);
 	}
 }
-
-/* 
-    USER COMMAND
-*/
 
 void	Server::USER(std::string& cmd, int fd)
 {
