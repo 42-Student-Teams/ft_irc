@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/22 20:02:05 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/22 20:41:53 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ void Commands::handleCommand(int fd,std::string& command)
     
 }
 
-
 void Commands::handlePASS(int fd, std::string& cmd) {
     std::vector<std::string> tokens = _server.parseCmd(cmd);
     Client* cli = _server.getClient(fd);
@@ -43,7 +42,7 @@ void Commands::handlePASS(int fd, std::string& cmd) {
         return;
     }
 
-    std::string& password = tokens[1];  // Le mot de passe devrait être le second token.
+    std::string& password = tokens[1];  // Mot de passe positionné à l'index 1
 
     if (!cli->getRegistered()) {
         if (password == _server.getPass()) {
@@ -59,37 +58,48 @@ void Commands::handlePASS(int fd, std::string& cmd) {
 
 
 
-
-
 void Commands::handleNICK(int fd, std::string& command) {
-    std::string trimmedCommand = command.substr(4); // Assuming command is prefixed with "NICK "
-    size_t pos = trimmedCommand.find_first_not_of("\t\v ");
-    if(pos != std::string::npos) {
-        trimmedCommand = trimmedCommand.substr(pos);
-        if(trimmedCommand[0] == ':') {
-            trimmedCommand.erase(0, 1);
-        }
+    std::vector<std::string> tokens = _server.parseCmd(command);
+
+    // check si  NICK a suffisamment de paramètres
+    if (tokens.size() < 2) {
+        _server.sendMsg(ERR_NONICKNAME2("*"), fd);
+        return;
     }
 
+    std::string newNick = tokens[1];
     Client* cli = _server.getClient(fd);
-    if(trimmedCommand.empty()) {
-        _server.sendMsg("Error: No nickname provided.", fd);
+
+    // Vérifie si le pseudonyme est valide
+    if (!checkNickname(newNick)) {
+        _server.sendMsg(ERR_ERRONEUSNICK(newNick), fd);
         return;
     }
 
-    if(!checkNickname(trimmedCommand)) {
-        _server.sendMsg("Error: Invalid nickname.", fd);
+    // Ignorer le paramètre <hopcount> s'il est fourni
+
+    // Vérifie les collisions de pseudonyme
+    if (_server.isNicknameInUse(newNick) && cli->getNickName() != newNick) {
+        // En cas de changement de pseudonyme, gére la collision
+        if (!cli->getNickName().empty()) {
+            _server.handleNickCollision(newNick);
+            return;
+        }
+        // Pour un nouveau pseudonyme
+        _server.sendMsg(ERR_NICKNAMEINUSE(newNick), fd);
         return;
     }
 
-    if(areDuplicateNames(trimmedCommand) && (cli->getNickName() != trimmedCommand)) {
-        _server.sendMsg("Error: Nickname already in use.", fd);
-        return;
-    }
-
+    // Définir le nouveau pseudonyme et notifier le changement si nécessaire
     std::string oldNick = cli->getNickName();
-    cli->setNickName(trimmedCommand);
-    _server.sendMsg("Nickname changed successfully.", fd);
+    cli->setNickName(newNick);
+
+    // Si c'est un changement de pseudonyme
+    if (!oldNick.empty() && oldNick != newNick) {
+        _server.sendMsg(RPL_NICKCHANGE(oldNick, newNick), fd);
+    } else if (oldNick.empty()) { // Si c'est la première fois que le client est enregistré
+        _server.sendMsg(RPL_CONNECTED(newNick), fd); // Bienvenue au nouvel utilisateur
+    }
 }
 
 bool Commands::checkNickname(std::string& nickname) {
@@ -113,58 +123,3 @@ bool Commands::areDuplicateNames(std::string& nickname) {
 
 
 
-
-
-
-// void Commands::handleNICK(int fd, std::string& cmd) {
-//     std::vector<std::string> tokens = _server.parseCmd(cmd);
-//     if (tokens.size() < 2) {
-//         _server.sendMsg(ERR_NOTENOUGHPARAM2("*"), fd);
-//         return;
-//     }
-
-//     std::string nickname = tokens[1];
-//     Client *cli = _server.getClient(fd);
-//     if (nickname.empty() || (areDuplicateNames(nickname) && cli->getNickName() != nickname)) {
-//         _server.sendMsg(ERR_NICKINUSE(nickname), fd);
-//         return;
-//     }
-
-//     if (!checkNickname(nickname)) {
-//         _server.sendMsg(ERR_ERRONEUSNICK(nickname), fd);
-//         return;
-//     }
-
-//     if (cli && cli->getRegistered()) {
-//         std::string oldnick = cli->getNickName();
-//         cli->setNickName(nickname);
-//         _server.sendMsg(RPL_NICKCHANGE(oldnick, nickname), fd);
-//     } else {
-//         _server.sendMsg(ERR_NOTREGISTERED(nickname), fd);
-//     }
-// }
-
-
-// bool Commands::checkNickname(std::string& nickname)
-// {
-		
-// 	if(!nickname.empty() && (nickname[0] == '&' || nickname[0] == '#' || nickname[0] == ':'))
-// 		return false;
-// 	for(size_t i = 1; i < nickname.size(); i++)
-// 	{
-// 		if(!std::isalnum(nickname[i]) && nickname[i] != '_')
-// 			return false;
-// 	}
-// 	return true;
-// }
-
-
-// bool Commands::areDuplicateNames(std::string& nickname)
-// {
-// 	for (size_t i = 0; i < _client.getNickName(); i++)
-// 	{
-// 		if (this->_clients[i].getNickName() == nickname)
-// 			return true;
-// 	}
-// 	return false;
-// }

@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:04:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/22 20:03:20 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/22 20:26:23 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,9 @@
 #define ERR_CMDNOTFOUND(nickname, command) (": 421 " + nickname + " " + command + " :Unknown command" + CRLF)
 
 
-
+#define ERR_NONICKNAME2(nickname) (std::string(": 431 ") + (nickname) + " :No nickname given\r\n")
 #define ERR_NOTENOUGHPARAM2(nickname) (std::string(": 461 ") + std::string(nickname) + " :Not enough parameters." + std::string(CRLF))
 #define ERR_INCORPASS2(nickname) (std::string(": 464 ") + std::string(nickname) + " :Password incorrect !" + std::string(CRLF))
+
+#define ERR_NICKNAMEINUSE(nickname) (": 433 " + nickname + " :Nickname is already in use\r\n")
+#define ERR_NICKCOLLISION(nickname) (": 436 " + nickname + " :Nickname collision KILL sent\r\n")

@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/22 19:51:28 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/22 20:24:46 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,6 +284,19 @@ bool Server::isNicknameInUse( std::string& nickname){
     }
     return false;
 }
+
+void Server::handleNickCollision(std::string& nickname) {
+    // Parcourir la liste des clients et trouver tous ceux avec le pseudonyme en collision
+    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ) {
+        if (it->getNickName() == nickname) {
+            sendMsg(ERR_NICKCOLLISION(nickname), it->getFD());
+            it = _clients.erase(it);  // Supprimer le client du vecteur et avancer l'itérateur
+        } else {
+            ++it;
+        }
+    }
+}
+
 
 void Server::execCmd( std::string& cmd, int fd)
 {

@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:48 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/22 19:49:16 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/22 20:25:41 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,7 @@ class Server
        
        /*-------------------------COMMANDES SETTINGS-----------------------------------*/
         bool isNicknameInUse(std::string& nickname);
+        void handleNickCollision(std::string& nickname);
         
 
         void                        PASS(int fd, std::string pass);
