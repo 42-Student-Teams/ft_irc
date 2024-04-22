@@ -33,6 +33,7 @@
 #include "Channel.hpp"
 #include "Reply.hpp"
 
+
 #define RED "\e[1;31m"
 #define RESET "\e[0;37m"
 #define GREEN "\e[1;32m"
