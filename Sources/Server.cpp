@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/22 12:35:35 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/22 19:51:28 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,6 +274,15 @@ std::vector<std::string> Server::parseCmd(std::string& cmd)
 		token.clear();
 	}
 	return vec;
+}
+
+bool Server::isNicknameInUse( std::string& nickname){
+    for (size_t i = 0; i < _clients.size(); i++)
+    {
+        if (_clients[i].getNickName() == nickname)
+            return true;
+    }
+    return false;
 }
 
 void Server::execCmd( std::string& cmd, int fd)

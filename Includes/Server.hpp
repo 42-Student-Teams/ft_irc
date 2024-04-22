@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:48 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/22 12:35:30 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/22 19:49:16 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,10 +107,8 @@ class Server
         void                        execCmd(std::string &cmd, int fd);
        
        /*-------------------------COMMANDES SETTINGS-----------------------------------*/
-
-        bool areDuplicateNames(std::string& nickname);
-	    bool checkNickname(std::string& nickname);
-       
+        bool isNicknameInUse(std::string& nickname);
+        
 
         void                        PASS(int fd, std::string pass);
         void                        NICK(std::string cmd, int fd);
