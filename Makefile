@@ -6,7 +6,7 @@
 #    By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/24 12:13:57 by inaranjo          #+#    #+#              #
-#    Updated: 2024/04/19 20:21:55 by inaranjo         ###   ########.fr        #
+#    Updated: 2024/04/22 12:36:19 by inaranjo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -64,7 +64,7 @@ NAME = ircserv
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRCS = main.cpp Sources/Registration.cpp Sources/Channel.cpp Sources/Client.cpp Sources/Server.cpp 
+SRCS = main.cpp Sources/Commands.cpp Sources/Channel.cpp Sources/Client.cpp Sources/Server.cpp 
 
 OBJS = $(SRCS:.cpp=.o)
 
@@ -76,7 +76,7 @@ $(NAME): $(OBJS)
 bonus: $(OBJS_BONUS)
 	@$(CC) $(CFLAGS) -o $(NAME_BOUNUS) $(OBJS_BONUS)
 
-%.o: %.cpp Includes/Server.hpp Includes/Client.hpp Includes/Channel.hpp Includes/Reply.hpp 
+%.o: %.cpp Includes/Server.hpp Includes/Client.hpp Includes/Channel.hpp Includes/Reply.hpp  Includes/Commands.hpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

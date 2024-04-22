@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/19 19:37:51 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/22 12:35:35 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,44 +276,49 @@ std::vector<std::string> Server::parseCmd(std::string& cmd)
 	return vec;
 }
 
-
-
-void Server::execCmd(std::string &cmd, int fd)
+void Server::execCmd( std::string& cmd, int fd)
 {
-	if(cmd.empty())
-		return ;
-	std::vector<std::string> splited_cmd = parseCmd(cmd);
-	size_t found = cmd.find_first_not_of(" \t\v");
-	if(found != std::string::npos)
-		cmd = cmd.substr(found);
-    if(splited_cmd.size() && (splited_cmd[0] == "PASS" || splited_cmd[0] == "pass"))
-        PASS(fd, cmd);
-	else if (splited_cmd.size() && (splited_cmd[0] == "NICK" || splited_cmd[0] == "nick"))
-		NICK(cmd,fd);
-	else if(splited_cmd.size() && (splited_cmd[0] == "USER" || splited_cmd[0] == "user"))
-		USER(cmd, fd);
-	// else if (splited_cmd.size() && (splited_cmd[0] == "QUIT" || splited_cmd[0] == "quit"))
-	// 	QUIT(cmd,fd);
-	else if(notRegistered(fd))
-	{
-		// if (splited_cmd.size() && (splited_cmd[0] == "KICK" || splited_cmd[0] == "kick"))
-		// 	KICK(cmd, fd);
-		// else if (splited_cmd.size() && (splited_cmd[0] == "JOIN" || splited_cmd[0] == "join"))
-		// 	JOIN(cmd, fd);
-		// else if (splited_cmd.size() && (splited_cmd[0] == "TOPIC" || splited_cmd[0] == "topic"))
-		// 	Topic(cmd, fd);
-		// else if (splited_cmd.size() && (splited_cmd[0] == "MODE" || splited_cmd[0] == "mode"))
-		// 	MODE(cmd, fd);
-		// else if (splited_cmd.size() && (splited_cmd[0] == "PART" || splited_cmd[0] == "part"))
-		// 	PART(cmd, fd);
-		// else if (splited_cmd.size() && (splited_cmd[0] == "PRIVMSG" || splited_cmd[0] == "privmsg"))
-		// 	PRIVMSG(cmd, fd);
-		// else if (splited_cmd.size() && (splited_cmd[0] == "INVITE" || splited_cmd[0] == "invite"))
-		// 	Invite(cmd,fd);
-		// else if (splited_cmd.size())
-		// 	sendMsg(ERR_CMDNOTFOUND(getClient(fd)->getNickName(),splited_cmd[0]),fd);
-	}
-	else if (!notRegistered(fd))
-		sendMsg(ERR_NOTREGISTERED(std::string("*")),fd);
+    Commands cmdHandler(*this);
+    cmdHandler.handleCommand(fd,cmd);
 }
-//---------------//Parsing Methods
+
+
+// void Server::execCmd(std::string &cmd, int fd)
+// {
+// 	if(cmd.empty())
+// 		return ;
+// 	std::vector<std::string> splited_cmd = parseCmd(cmd);
+// 	size_t found = cmd.find_first_not_of(" \t\v");
+// 	if(found != std::string::npos)
+// 		cmd = cmd.substr(found);
+//     if(splited_cmd.size() && (splited_cmd[0] == "PASS" || splited_cmd[0] == "pass"))
+//         PASS(fd, cmd);
+// 	else if (splited_cmd.size() && (splited_cmd[0] == "NICK" || splited_cmd[0] == "nick"))
+// 		NICK(cmd,fd);
+// 	else if(splited_cmd.size() && (splited_cmd[0] == "USER" || splited_cmd[0] == "user"))
+// 		USER(cmd, fd);
+// 	// else if (splited_cmd.size() && (splited_cmd[0] == "QUIT" || splited_cmd[0] == "quit"))
+// 	// 	QUIT(cmd,fd);
+// 	else if(notRegistered(fd))
+// 	{
+// 		// if (splited_cmd.size() && (splited_cmd[0] == "KICK" || splited_cmd[0] == "kick"))
+// 		// 	KICK(cmd, fd);
+// 		// else if (splited_cmd.size() && (splited_cmd[0] == "JOIN" || splited_cmd[0] == "join"))
+// 		// 	JOIN(cmd, fd);
+// 		// else if (splited_cmd.size() && (splited_cmd[0] == "TOPIC" || splited_cmd[0] == "topic"))
+// 		// 	Topic(cmd, fd);
+// 		// else if (splited_cmd.size() && (splited_cmd[0] == "MODE" || splited_cmd[0] == "mode"))
+// 		// 	MODE(cmd, fd);
+// 		// else if (splited_cmd.size() && (splited_cmd[0] == "PART" || splited_cmd[0] == "part"))
+// 		// 	PART(cmd, fd);
+// 		// else if (splited_cmd.size() && (splited_cmd[0] == "PRIVMSG" || splited_cmd[0] == "privmsg"))
+// 		// 	PRIVMSG(cmd, fd);
+// 		// else if (splited_cmd.size() && (splited_cmd[0] == "INVITE" || splited_cmd[0] == "invite"))
+// 		// 	Invite(cmd,fd);
+// 		// else if (splited_cmd.size())
+// 		// 	sendMsg(ERR_CMDNOTFOUND(getClient(fd)->getNickName(),splited_cmd[0]),fd);
+// 	}
+// 	else if (!notRegistered(fd))
+// 		sendMsg(ERR_NOTREGISTERED(std::string("*")),fd);
+// }
+// //---------------//Parsing Methods

@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:48 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/19 19:08:24 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/22 12:35:30 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Reply.hpp"
+#include "Commands.hpp"
 
 
 #define RED "\e[1;31m"
