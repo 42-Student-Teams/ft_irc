@@ -235,6 +235,7 @@ void Server::handleClientInput(int fd) {
         if (cli->getBuffer().find_first_of("\r\n") == std::string::npos)
             return;
         cmd = parseBuffer(cli->getBuffer());
+        std::cout << "Debug: " << cli->getBuffer();
         for (size_t i = 0; i < cmd.size(); i++)
             execCmd(cmd[i], fd);
         if (getClient(fd))
