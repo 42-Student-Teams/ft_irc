@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/23 15:34:59 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/24 14:18:11 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ void Commands::handleCommand(int fd,std::string& command)
         handlePASS(fd, command);
     } else if (cmdType == "NICK" || cmdType == "nick") {
         handleNICK(fd, command);
+    } else if (cmdType == "USER" || cmdType == "user"){
+        handleUSER(fd, command);    
     }
     
 }
