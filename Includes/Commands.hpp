@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:51:34 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/22 19:52:30 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/23 15:15:25 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class Commands
         void handleCommand( int fd,std::string& command);
         void handlePASS( int fd,std::string& cmd);
         void handleNICK(int fd, std::string& command);
+        void handleUSER(int fd, std::string& command);
     
 };
 
