@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:45:41 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 02:36:57 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/25 14:33:08 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,9 @@ std::string Client::getBuffer() { return _buffer; }
 std::string Client::getClientIP() { return _clientIP; }
 std::string Client::getHostname() {std::string hostname = getNickName() + "!" + getUserName();return hostname; }
 std::string Client::getInfo() const {
-    std::stringstream info;
-    info << this->getNickName() << " " << this->getUserName() << " " << this->_clientIP;
-    return info.str();
+	std::stringstream info;
+	info << this->_nickName << " " << this->_userName << " " << this->_clientIP;
+	return info.str();
 }
 
 void Client::setPasswordAuthenticated(bool authenticated) { _passwordAuthenticated = authenticated; }

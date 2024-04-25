@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 03:27:45 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/25 16:18:34 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,13 +78,13 @@ Channel *Server::getChannel(std::string name) {
     return nullptr;
 }
 
-std::vector<Channel*> Server::getAllChannels() {
-    std::vector<Channel*> allChannels;
-    for (Channel& channel : _channels) {
-        allChannels.push_back(&channel);
-    }
-    return allChannels;
-}
+// std::vector<Channel*> Server::getAllChannels() {
+//     std::vector<Channel*> allChannels;
+//     for (Channel& channel : _channels) {
+//         allChannels.push_back(&channel);
+//     }
+//     return allChannels;
+// }
 
 void Server::setFD(int fd) { this->_socketFD = fd; }
 void Server::setPort(int port) { this->_port = port; }
@@ -122,6 +122,24 @@ void Server::rmPfds(int fd) {
         }
     }
 }
+
+void	Server::RmChannels(int fd){
+	for (size_t i = 0; i < this->channels.size(); i++){
+		int flag = 0;
+		if (channels[i].get_client(fd))
+			{channels[i].remove_client(fd); flag = 1;}
+		else if (channels[i].get_admin(fd))
+			{channels[i].remove_admin(fd); flag = 1;}
+		if (channels[i].GetClientsNumber() == 0)
+			{channels.erase(channels.begin() + i); i--; continue;}
+		if (flag){
+			// std::string rpl = ":" + GetClient(fd)->GetNickName() + "!~" + GetClient(fd)->GetUserName() + "@localhost QUIT Quit\r\n";
+			// channels[i].sendTo_all(rpl);
+		}
+	}
+}
+
+
 void Server::rmClientFromChan(int fd) {
     for (size_t i = 0; i < this->_channels.size(); i++) {
         int flag = 0;

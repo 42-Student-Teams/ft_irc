@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:55 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 03:30:15 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/25 15:44:11 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "Server.hpp"
 
 class Client;
+class Server;
 class Channel
 {
 	private:
@@ -32,13 +33,15 @@ class Channel
 		std::string 						_created_at;
 		std::string 						_topicName;
 		std::vector<Client> 				_clients;
+		Server 								&_srv;
 		std::vector<Client> 				_admins;
-		std::vector<std::pair<char, bool> > _modes;
+		std::vector<std::pair<char, bool> >	_modes;
 		
 public:
 	Channel();
+	Channel(Server &server);
 	~Channel();
-	Channel(Channel const &src);
+	// Channel(Channel const &src);
 	Channel &operator=(Channel const &src);
 	
 
@@ -74,10 +77,9 @@ public:
 	Client 				*getClientInChannel(std::string name);
 	size_t 				getSize() const;
 	std::vector<Client*> getClients() const;
-
-
+	
 	bool				isClientInChannel(std::string &nick);
-	bool                isOperator(Client* client) const;
+	bool                isOperator(std::string const nickname);
 
 
 	void                setInviteOnly(bool flag);

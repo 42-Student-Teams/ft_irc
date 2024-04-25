@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:04:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 03:36:16 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/25 12:44:15 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,13 +53,13 @@
 #define ERR_NICKNAMEINUSE(nickname) (": 433 " + nickname + " :Nickname is already in use\r\n")
 #define ERR_NICKCOLLISION(nickname) (": 436 " + nickname + " :Nickname collision KILL sent\r\n")
 
-/*MODE PING PASS*/
+/* COMMANDE */
 #define ERR_PASSREJECT(source)                           "464 " + source + " :Password is incorrect"
 #define ERR_CHANOPRIVSNEEDED(source, channel)           "482 " + source + " " + channel + " :You're not channel operator"
 #define ERR_NOORIGIN(source)                            "409 " + source + " :No origin specified"
 #define ERR_NOSUCHCHANNEL(source, channel)              "403 " + source + " " + channel + " :No such channel"
 #define ERR_NOTONCHANNEL(source, channel)               "442 " + source + " " + channel + " :You're not on that channel"
-#define RPL_LIST(nickname, channel, users, topic)       "322 " + nickname + " " + channel + " " + std::to_string(users) + " :" + topic
+#define RPL_LIST(nickname, channel, users, topic)       ("322 " + std::string(nickname) + " " + std::string(channel) + " " + std::to_string(users) + " :" + std::string(topic))
 #define RPL_LISTEND(nickname)                           "323 " + nickname + " :End of LIST"
 #define ERR_NOTENOUGHPARAMS(source, command)            "461 " + source + " " + command + " :Not enough parameters"
 #define ERR_CANNOTSENDTOCHAN(source, channel)           "404 " + source + " " + channel + " :Cannot send to channel"

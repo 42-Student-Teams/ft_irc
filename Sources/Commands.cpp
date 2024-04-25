@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 03:40:09 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/25 15:12:59 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,10 +192,13 @@ void Commands::handlePART(int fd, std::string& command) {
             continue;
         }
 
-        if (!channel->isClientInChannel(client->getNickName())) {
-    _server.sendMsg(ERR_NOTONCHANNEL(client->getNickName(), channelName), fd);
-    continue;
-}
+        // Store the nickname in a variable to avoid temporary string issue
+        std::string nickName = client->getNickName();
+        if (!channel->isClientInChannel(nickName)) {
+            _server.sendMsg(ERR_NOTONCHANNEL(client->getNickName(), channelName), fd);
+            continue;
+        }
+
         channel->removeClient(client);
         channel->sendMsgToAll(":" + client->getHostname() + " PART " + channelName + " :" + partMessage);
     }
@@ -282,30 +285,30 @@ void Commands::handleNOTICE(int fd, std::string& command) {
 }
 
 
-void Commands::handleLIST(int fd, std::string& command) {
-    std::vector<std::string> tokens = _server.parseCmd(command);
-    Client* client = _server.getClient(fd);
+// void Commands::handleLIST(int fd, std::string& command) {
+//     std::vector<std::string> tokens = _server.parseCmd(command);
+//     Client* client = _server.getClient(fd);
 
-    std::vector<Channel*> channels;
-    if (tokens.size() == 1) {
-        channels = _server.getAllChannels(); // List all channels if no specific channel is mentioned
-    } else {
-        std::stringstream ss(tokens[1]);
-        std::string channelName;
-        while (std::getline(ss, channelName, ',')) {
-            Channel* channel = _server.getChannel(channelName);
-            if (channel) {
-                channels.push_back(channel);
-            }
-        }
-    }
+//     std::vector<Channel*> channels;
+//     if (tokens.size() == 1) {
+//         channels = _server.getAllChannels(); // List all channels if no specific channel is mentioned
+//     } else {
+//         std::stringstream ss(tokens[1]);
+//         std::string channelName;
+//         while (std::getline(ss, channelName, ',')) {
+//             Channel* channel = _server.getChannel(channelName);
+//             if (channel) {
+//                 channels.push_back(channel);
+//             }
+//         }
+//     }
 
-    for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
-    Channel* channel = *it;
-    _server.sendMsg(RPL_LIST(client->getNickName(), channel->getName(), channel->getSize(), channel->getTopic()), fd);
-    _server.sendMsg(RPL_LISTEND(client->getNickName()), fd);
-}
-}
+//     for (Channel* channel : channels) {
+//         _server.sendMsg(RPL_LIST(client->getNickName(), channel->getName(), std::to_string(channel->getSize()), channel->getTopic()), fd);
+//     }
+//     _server.sendMsg(RPL_LISTEND(client->getNickName()), fd);
+// }
+
 
 void Commands::handleQUIT(int fd, std::string& command) {
     std::vector<std::string> tokens = _server.parseCmd(command);
@@ -394,7 +397,7 @@ void Commands::handleWHO(int fd, std::string& command) {
         channels = _server.getAllChannels();
     }
 
-     for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
+    for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
         std::vector<Client*> clients = (*it)->getClients();
         for (std::vector<Client*>::iterator cit = clients.begin(); cit != clients.end(); ++cit) {
             _server.sendMsg(RPL_WHOREPLY(client->getNickName(), (*it)->getName(), (*cit)->getInfo()), fd);
@@ -422,7 +425,7 @@ void Commands::handleMODE(int fd, std::string& command) {
         return;
     }
 
-    if (!channel->isOperator(client)) {
+    if (!channel->isOperator(client->getNickName())) {
         _server.sendMsg(ERR_CHANOPRIVSNEEDED(client->getNickName(), channelName), fd);
         return;
     }
