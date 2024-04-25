@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 16:14:02 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 17:06:59 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,6 +236,7 @@ void Server::handleClientInput(int fd) {
         if (cli->getBuffer().find_first_of("\r\n") == std::string::npos)
             return;
         cmd = parseBuffer(cli->getBuffer());
+        std::cout << "Debug: " << cli->getBuffer();
         for (size_t i = 0; i < cmd.size(); i++)
             execCmd(cmd[i], fd);
         if (getClient(fd))
