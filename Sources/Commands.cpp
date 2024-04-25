@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/24 14:18:11 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 16:09:33 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,9 @@ void Commands::handleCommand(int fd,std::string& command)
         handleNICK(fd, command);
     } else if (cmdType == "USER" || cmdType == "user"){
         handleUSER(fd, command);    
+    }
+    else if (cmdType == "QUIT" || cmdType == "quit"){
+        handleQUIT(fd, command);
     }
     
 }
@@ -152,7 +155,38 @@ void Commands::handleUSER(int fd, std::string& command) {
 }
 
 
+void Commands::handleQUIT(int fd, std::string& command) {
+    std::string quitMessage = "no reason provide";  // Message par défaut
+    size_t pos = command.find(':');
+    if (pos != std::string::npos) {
+        quitMessage = command.substr(pos + 1);
+    }
 
+    Client* client = _server.getClient(fd);
+    if (!client) {
+        return; // Si le client n'existe pas, arrêtez la méthode ici
+    }
+
+    std::string clientInfo = ":" + client->getNickName() + "!~" + client->getUserName() + "@localhost";
+    std::string message = clientInfo + " QUIT :" + quitMessage + "\r\n";
+    
+    std::vector<Channel>& channels = _server.getChannels();
+    std::string clientNickName = client->getNickName();
+    for (size_t i = 0; i < channels.size(); ++i) {
+        if (channels[i].isClientInChannel(clientNickName)) {
+            channels[i].sendMsgToAll(message, fd); // Envoyer le message de QUIT à tous sauf au client qui quitte
+            channels[i].rmClientFd(fd); // Supprimer le client du canal
+            if (channels[i].getClientsNumber() == 0) {
+                channels.erase(channels.begin() + i--); // Supprimer le canal s'il est vide
+            }
+        }
+    }
+
+    std::cout << "Client <" << fd << "> disconnected: " << quitMessage << std::endl;
+    _server.rmClient(fd);
+    _server.rmPfds(fd);
+    close(fd);
+}
 
 
 

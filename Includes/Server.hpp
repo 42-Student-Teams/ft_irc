@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:48 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/22 20:25:41 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 16:10:24 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ class Server
         Client                      *getClient(int fd);
         Client                      *getNickClient(std::string nickname);
         Channel                     *getChannel(std::string name);
+        std::vector<Channel>&        getChannels();
        
 
         void                        setFD(int server_fdsocket);
