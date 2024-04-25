@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 17:36:38 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/25 17:10:19 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,9 +74,7 @@ Client *Server::getNickClient(std::string nickname) {
     return nullptr;
 }
 Channel *Server::getChannel(std::string name) {
-    std::cout << "Channel name input: " << name << std::endl;
     for (size_t i = 0; i < this->_channels.size(); i++) {
-        std::cout << "Channel name data: " << this->_channels[i].getName() << std::endl;
         if (this->_channels[i].getName() == name)
             return &this->_channels[i];
     }
@@ -90,6 +88,7 @@ Channel *Server::getChannel(std::string name) {
 //     }
 //     return allChannels;
 // }
+std::vector<Channel>& Server::getChannels() { return _channels; }
 
 void Server::setFD(int fd) { this->_socketFD = fd; }
 void Server::setPort(int port) { this->_port = port; }
@@ -168,7 +167,7 @@ void Server::rmClientFromChan(int fd) {
 }
 
 void Server::sendMsg(std::string msg, int fd) {
-    std::cout << "msg:\n" << msg;
+    // std::cout << "msg:\n" << msg;
     if (send(fd, msg.c_str(), msg.size(), 0) == -1)
         std::cerr << "msg send() failed" << std::endl;
 }
@@ -277,7 +276,7 @@ void Server::handleClientInput(int fd) {
         if (cli->getBuffer().find_first_of("\r\n") == std::string::npos)
             return;
         cmd = parseBuffer(cli->getBuffer());
-        std::cout << "Debug: " << cli->getBuffer();
+        std::cout << "Client <" << cli->getFD() << "> Debug: " << cli->getBuffer();
         for (size_t i = 0; i < cmd.size(); i++)
             execCmd(cmd[i], fd);
         if (getClient(fd))
