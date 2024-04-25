@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 16:18:34 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/25 17:36:38 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,14 +161,15 @@ void Server::rmClientFromChan(int fd) {
         }
     }
 }
-void Server::rmChannel(std::string name) {
-    for (size_t i = 0; i < this->_channels.size(); i++) {
-        if (this->_channels[i].getName() == name) {
-            this->_channels.erase(this->_channels.begin() + i);
-            return;
-        }
-    }
-}
+
+// void Server::rmChannel(std::string name) {
+//     for (size_t i = 0; i < this->_channels.size(); i++) {
+//         if (this->_channels[i].getName() == name) {
+//             this->_channels.erase(this->_channels.begin() + i);
+//             return;
+//         }
+//     }
+// }
 
 
 void Server::sendMsg(std::string msg, int fd) {
