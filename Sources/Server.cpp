@@ -43,11 +43,14 @@ void Server::handleSignal(int signum) {
 
 Channel* Server::createChannel(const std::string& name, const std::string& key, Client* client) {
     Channel newChannel;
-    newChannel.setName(name);
+    // remove first character # of string name
+    newChannel.setName(name.substr(1));
     newChannel.setPass(key);
 
-    newChannel.addClient(client);
+    // When a client creates a channel, they are automatically an operator
+    newChannel.addOperator(client);
     
+    newChannel.addClient(client);
     _channels.push_back(newChannel);
 
     return &_channels.back();
@@ -71,7 +74,9 @@ Client *Server::getNickClient(std::string nickname) {
     return nullptr;
 }
 Channel *Server::getChannel(std::string name) {
+    std::cout << "Channel name input: " << name << std::endl;
     for (size_t i = 0; i < this->_channels.size(); i++) {
+        std::cout << "Channel name data: " << this->_channels[i].getName() << std::endl;
         if (this->_channels[i].getName() == name)
             return &this->_channels[i];
     }
@@ -123,21 +128,21 @@ void Server::rmPfds(int fd) {
     }
 }
 
-void	Server::RmChannels(int fd){
-	for (size_t i = 0; i < this->channels.size(); i++){
-		int flag = 0;
-		if (channels[i].get_client(fd))
-			{channels[i].remove_client(fd); flag = 1;}
-		else if (channels[i].get_admin(fd))
-			{channels[i].remove_admin(fd); flag = 1;}
-		if (channels[i].GetClientsNumber() == 0)
-			{channels.erase(channels.begin() + i); i--; continue;}
-		if (flag){
-			// std::string rpl = ":" + GetClient(fd)->GetNickName() + "!~" + GetClient(fd)->GetUserName() + "@localhost QUIT Quit\r\n";
-			// channels[i].sendTo_all(rpl);
-		}
-	}
-}
+// void	Server::RmChannels(int fd){
+// 	for (size_t i = 0; i < this->channels.size(); i++){
+// 		int flag = 0;
+// 		if (channels[i].get_client(fd))
+// 			{channels[i].remove_client(fd); flag = 1;}
+// 		else if (channels[i].get_admin(fd))
+// 			{channels[i].remove_admin(fd); flag = 1;}
+// 		if (channels[i].GetClientsNumber() == 0)
+// 			{channels.erase(channels.begin() + i); i--; continue;}
+// 		if (flag){
+// 			// std::string rpl = ":" + GetClient(fd)->GetNickName() + "!~" + GetClient(fd)->GetUserName() + "@localhost QUIT Quit\r\n";
+// 			// channels[i].sendTo_all(rpl);
+// 		}
+// 	}
+// }
 
 
 void Server::rmClientFromChan(int fd) {
@@ -161,16 +166,6 @@ void Server::rmClientFromChan(int fd) {
         }
     }
 }
-
-// void Server::rmChannel(std::string name) {
-//     for (size_t i = 0; i < this->_channels.size(); i++) {
-//         if (this->_channels[i].getName() == name) {
-//             this->_channels.erase(this->_channels.begin() + i);
-//             return;
-//         }
-//     }
-// }
-
 
 void Server::sendMsg(std::string msg, int fd) {
     std::cout << "msg:\n" << msg;

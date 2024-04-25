@@ -12,6 +12,23 @@
 
 #include "../Includes/Channel.hpp"
 
+Channel::Channel() : _srv(*new Server())
+{
+    _VIP = 0;
+    _topic = 0;
+    _key = 0;
+    _maxClients = 0;
+    _isTopicRestricted = false;
+    _name = "";
+    _password = "";
+    _created_at = "";
+    _topicName = "";
+    char charaters[5] = {'i', 't', 'k', 'o', 'l'};
+    for (int i = 0; i < 5; i++)
+        _modes.push_back(std::make_pair(charaters[i], false));
+
+}
+
 Channel::Channel(Server &server) : _srv(server)
 {
     _VIP = 0;
@@ -28,13 +45,17 @@ Channel::Channel(Server &server) : _srv(server)
         _modes.push_back(std::make_pair(charaters[i], false));
 }
 
+
+
 Channel::~Channel()
 {
 }
 
-// Channel::Channel(Channel const &src){
-//     *this = src;
-// }
+Channel::Channel(Channel const &src) : _srv(src._srv)
+{
+
+    *this = src;
+}
 
 Channel &Channel::operator=(Channel const &src)
 {
@@ -74,7 +95,7 @@ int Channel::getVIP() { return _VIP; }
 int Channel::getTopic() { return _topic; }
 int Channel::getKey() { return _key; }
 int Channel::getMaxClients() { return _maxClients; }
-int Channel::getClientsNumber() { return _clients.size() + _admins.size(); }
+int Channel::getClientsNumber() { return this->_clients.size() + this->_admins.size(); }
 bool Channel::getTopicRestric() const { return _isTopicRestricted; }
 bool Channel::getModeAtindex(size_t index) { return _modes[index].second; }
 std::string Channel::getTopicName() { return _topicName; }
@@ -279,9 +300,12 @@ void Channel::addOperator(Client *client)
 //     _admins.erase(std::remove(_admins.begin(), _admins.end(), client), _admins.end());
 // }
 
-void Channel::removeOperator(Client* client) {
-    for (std::vector<Client>::iterator it = _admins.begin(); it != _admins.end(); ++it) {
-        if (it->getFD() == client->getFD()) {
+void Channel::removeOperator(Client *client)
+{
+    for (std::vector<Client>::iterator it = _admins.begin(); it != _admins.end(); ++it)
+    {
+        if (it->getFD() == client->getFD())
+        {
             _admins.erase(it);
             break;
         }
@@ -337,10 +361,20 @@ void Channel::addClient(Client *client)
     _clients.push_back(*client); // Dereference pointer and store the object
 }
 
-void Channel::removeClient(Client *client)
+void Channel::removeClient(int fd)
 {
+    // new
+    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        if (it->getFD() == fd)
+        {
+            _clients.erase(it);
+            break;
+        }
+    }
+
     // Erase from clients vector
-    _clients.erase(std::remove(_clients.begin(), _clients.end(), client), _clients.end());
+    // _clients.erase(std::remove(_clients.begin(), _clients.end(), client), _clients.end());
     // Optionally, also check and erase from admins if you have different roles
     // _admins.erase(std::remove(_admins.begin(), _admins.end(), client), _admins.end());
 }

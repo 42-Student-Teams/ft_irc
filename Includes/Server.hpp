@@ -74,7 +74,7 @@ class Server
         Client                      *getClient(int fd);
         Client                      *getNickClient(std::string nickname);
         Channel                     *getChannel(std::string name);
-        std::vector<Channel*>       getAllChannels();
+        // std::vector<Channel*>       getAllChannels();
        
 
         void                        setFD(int server_fdsocket);
@@ -122,12 +122,9 @@ class Server
         void                        USER(std::string &username, int fd);
         void                        QUIT(std::string cmd, int fd);
 
-
         //---------------------------//JOIN CMD
         void JOIN(std::string cmd, int fd);
         int SplitJoin(std::vector<std::pair<std::string, std::string> > &token, std::string cmd, int fd);
-        void ExistCh(std::vector<std::pair<std::string, std::string> > &token, int i, int j, int fd);
-        void NotExistCh(std::vector<std::pair<std::string, std::string> > &token, int i, int fd);
         int SearchForClients(std::string nickname);
         //---------------------------//PART CMD
         void PART(std::string cmd, int fd);

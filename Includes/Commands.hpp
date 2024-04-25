@@ -39,13 +39,13 @@ class Commands
         void handleJOIN(int fd, std::string& command);
         void handlePART(int fd, std::string& command);
         void handlePRIVMSG(int fd, std::string& command);
-        void handleLIST(int fd, std::string& command);
         void handleWHO(int fd, std::string& command);
         void handleNOTICE(int fd, std::string& command);
         void handleMODE(int fd, std::string& command);
         void handleTOPIC(int fd, std::string& command);
         void handleQUIT(int fd, std::string& command);
         void handlePING(int fd, std::string& command);
+        // void handleLIST(int fd, std::string& command);
 
         std::vector<std::string> split(const std::string& s, char delimiter);
 };
