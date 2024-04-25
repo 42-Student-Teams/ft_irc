@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:48 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/22 20:25:41 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 03:26:57 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@
 #include "Channel.hpp"
 #include "Reply.hpp"
 #include "Commands.hpp"
+#include <string>
 
 
 #define RED "\e[1;31m"
@@ -65,12 +66,15 @@ class Server
     
         static void                  handleSignal(int signum);
 
+        Channel*                     createChannel(const std::string& name, const std::string& key, Client* client);
+
         int                          getFD();
         int                          getPort();
         std::string                  getPass();
         Client                      *getClient(int fd);
         Client                      *getNickClient(std::string nickname);
         Channel                     *getChannel(std::string name);
+        std::vector<Channel*>       getAllChannels();
        
 
         void                        setFD(int server_fdsocket);
@@ -100,6 +104,8 @@ class Server
         void                        handleClientConnection();
         void                        handleClientInput(int fd);
         bool                        notRegistered(int fd);
+        void                        handleClientDisconnect(int fd);
+
         
 
         std::vector<std::string>    parseBuffer(std::string str);

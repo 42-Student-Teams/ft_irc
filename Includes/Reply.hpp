@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Reply.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:04:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/23 15:33:04 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 03:36:16 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,3 +52,20 @@
 
 #define ERR_NICKNAMEINUSE(nickname) (": 433 " + nickname + " :Nickname is already in use\r\n")
 #define ERR_NICKCOLLISION(nickname) (": 436 " + nickname + " :Nickname collision KILL sent\r\n")
+
+/*MODE PING PASS*/
+#define ERR_PASSREJECT(source)                           "464 " + source + " :Password is incorrect"
+#define ERR_CHANOPRIVSNEEDED(source, channel)           "482 " + source + " " + channel + " :You're not channel operator"
+#define ERR_NOORIGIN(source)                            "409 " + source + " :No origin specified"
+#define ERR_NOSUCHCHANNEL(source, channel)              "403 " + source + " " + channel + " :No such channel"
+#define ERR_NOTONCHANNEL(source, channel)               "442 " + source + " " + channel + " :You're not on that channel"
+#define RPL_LIST(nickname, channel, users, topic)       "322 " + nickname + " " + channel + " " + std::to_string(users) + " :" + topic
+#define RPL_LISTEND(nickname)                           "323 " + nickname + " :End of LIST"
+#define ERR_NOTENOUGHPARAMS(source, command)            "461 " + source + " " + command + " :Not enough parameters"
+#define ERR_CANNOTSENDTOCHAN(source, channel)           "404 " + source + " " + channel + " :Cannot send to channel"
+#define RPL_NOTOPIC(source, channel)                    "331 " + source + " " + channel + " :No topic is set"
+#define RPL_TOPIC(source, channel, topic)               "332 " + source + " " + channel + " :" + topic
+#define RPL_WHOREPLY(source, channel, user_info)        "352 " + source + " " + channel + " " + user_info
+#define RPL_ENDOFWHO(nickname)                          "366 " + nickname + " :End of WHO list"
+#define ERR_BADCHANNELKEY(source, channel)              "475 " + source + " " + channel + " :Cannot join channel (+k)"
+#define ERR_NEEDMOREPARAMS(source, command)             ("461 " + std::string(source) + " " + std::string(command) + " :Not enough parameters")

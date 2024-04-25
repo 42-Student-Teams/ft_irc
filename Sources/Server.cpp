@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/22 20:24:46 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 03:27:45 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,18 @@ void Server::handleSignal(int signum) {
     Server::_signal = true;
 }
 
+Channel* Server::createChannel(const std::string& name, const std::string& key, Client* client) {
+    Channel newChannel;
+    newChannel.setName(name);
+    newChannel.setPass(key);
+
+    newChannel.addClient(client);
+    
+    _channels.push_back(newChannel);
+
+    return &_channels.back();
+}
+
 int Server::getFD() { return this->_socketFD; }
 int Server::getPort() { return this->_port; }
 std::string Server::getPass() { return this->_pass; }
@@ -66,6 +78,13 @@ Channel *Server::getChannel(std::string name) {
     return nullptr;
 }
 
+std::vector<Channel*> Server::getAllChannels() {
+    std::vector<Channel*> allChannels;
+    for (Channel& channel : _channels) {
+        allChannels.push_back(&channel);
+    }
+    return allChannels;
+}
 
 void Server::setFD(int fd) { this->_socketFD = fd; }
 void Server::setPort(int port) { this->_port = port; }
@@ -175,6 +194,15 @@ void Server::run(int port, std::string pass) {
     }
     rmFds();
 }
+
+void Server::handleClientDisconnect(int fd) {
+    std::cout << RED << "Client <" << fd << "> Disconnected" << RESET << std::endl;
+    rmClientFromChan(fd);  
+    rmClient(fd);
+    rmPfds(fd);
+    close(fd);
+}
+
 void Server::createSocket() {
     int en = 1;
     _serverAddr.sin_family = AF_INET;

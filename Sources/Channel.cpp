@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:18 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/19 20:30:58 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 03:30:34 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,11 @@ void Channel::setTimeCreation() {
     oss << _time;
     _created_at = std::string(oss.str());
 }
+
+void Channel::setTopic(const std::string& topic) { this->_topic = topic; }
+void Channel::setTopic(const std::string& topic) { this->_topic = topic; }
+void Channel::setInviteOnly(bool flag) { _inviteOnly = flag; }
+void Channel::setTopicControl(bool flag) { _isTopicRestricted = flag; }
 
 // Getters
 int Channel::getVIP() {return _VIP;}
@@ -134,6 +139,8 @@ Client *Channel::getClientInChannel(std::string name) {
 	return NULL;
 }
 
+size_t Channel::getSize() const { return _clients.size() + _admins.size(); }
+
 bool Channel::isClientInChannel(std::string &nick) {
     for(size_t i = 0; i < _clients.size(); i++){
 		if(_clients[i].getNickName() == nick)
@@ -145,6 +152,13 @@ bool Channel::isClientInChannel(std::string &nick) {
 	}
 	return false;
 }
+
+std::vector<Client*> Channel::getClients() const {
+    return _clients;
+}
+
+bool Channel::isOperator(Client* client) const { return std::find(_admins.begin(), _admins.end(), client) != _admins.end(); }
+
 void Channel::storeClient(Client newClient) { _clients.push_back(newClient);}
 void Channel::storeAdmin(Client newClient) {_admins.push_back(newClient);}
 
@@ -201,4 +215,55 @@ void Channel::sendMsgToAll(std::string rpl1, int fd){
 			if(send(_clients[i].getFD(), rpl1.c_str(), rpl1.size(),0) == -1)
 				std::cerr << "send() faild" << std::endl;
 	}
+}
+
+void Channel::addOperator(Client* client) {
+    if (std::find(_admins.begin(), _admins.end(), client) == _admins.end()) {
+        _admins.push_back(client);
+    }
+}
+
+void Channel::removeOperator(Client* client) {
+    _admins.erase(std::remove(_admins.begin(), _admins.end(), client), _admins.end());
+}
+
+
+void Channel::changeOperatorStatus(Client* client, const std::string& targetNick, bool adding) {
+    if (!isOperator(client)) {
+        client->reply(ERR_CHANOPRIVSNEEDED(client->getNickname(), getName()));  // Assurez-vous que getName() est la méthode appropriée pour obtenir le nom du canal.
+        return;
+    }
+
+    Client* target = _srv->getClient(targetNick);
+    if (target && isClientInChannel(target)) {
+        if (adding) {
+            addOperator(target);
+        } else {
+            removeOperator(target);
+        }
+    } else {
+        client->reply(ERR_NOSUCHNICK(client->getNickname(), targetNick));
+    }
+}
+
+void Channel::broadcastModeChange(const std::string& prefix, const std::string& modes, const std::string& param) {
+    std::string message = ":" + prefix + " MODE " + _name + " " + modes + " " + param;
+    sendMsgToAll(message);
+}
+
+void Channel::addClient(Client* client) {
+    // Check if the client is already in the channel
+    for (auto& existingClient : _clients) {
+        if (existingClient == client) {
+            return; // Client is already in the channel, so do nothing
+        }
+    }
+    _clients.push_back(client);
+}
+
+void Channel::removeClient(Client* client) {
+    // Erase from clients vector
+    _clients.erase(std::remove(_clients.begin(), _clients.end(), client), _clients.end());
+    // Optionally, also check and erase from admins if you have different roles
+    _admins.erase(std::remove(_admins.begin(), _admins.end(), client), _admins.end());
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:45:41 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/19 19:45:47 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 02:36:57 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,13 @@ std::string Client::getUserName() { return _userName; }
 std::string Client::getBuffer() { return _buffer; }
 std::string Client::getClientIP() { return _clientIP; }
 std::string Client::getHostname() {std::string hostname = getNickName() + "!" + getUserName();return hostname; }
+std::string Client::getInfo() const {
+    std::stringstream info;
+    info << this->getNickName() << " " << this->getUserName() << " " << this->_clientIP;
+    return info.str();
+}
 
-
+void Client::setPasswordAuthenticated(bool authenticated) { _passwordAuthenticated = authenticated; }
 void Client::setFD(int fd) { _fd = fd; }
 void Client::setNickName(std::string &nickName) { _nickName = nickName; }
 void Client::setLogedin(bool value) { _isLogin = value; }
@@ -66,6 +71,7 @@ void Client::setRegistered(bool value) { _isRegistred = value; }
 void Client::setClientIP(std::string ipadd) { _clientIP = ipadd; }
 
 
+bool Client::isPasswordAuthenticated() const { return _passwordAuthenticated; }
 void Client::clearBuffer() { _buffer.clear(); }
 bool Client::isChannelInvited(std::string &ChName) {
 	for (size_t i = 0; i < _ChannelsInvite.size(); i++) {
@@ -84,4 +90,10 @@ void Client::rmInvitationChan(std::string &chname) {
 			return;
 		}
 	}
+}
+
+void Client::write(const std::string& message) {
+    if (send(_fd, message.c_str(), message.size(), 0) == -1) {
+        std::cerr << "Failed to send message to client: " << strerror(errno) << std::endl;
+    }
 }

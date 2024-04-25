@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:55 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/19 20:35:33 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 03:30:15 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Channel
 		int 								_key;
 		int									_maxClients;
 		bool								_isTopicRestricted;
+		bool                   				_inviteOnly;
 		std::string 						_name;
 		std::string							_time;
 		std::string 						_password;
@@ -33,6 +34,7 @@ class Channel
 		std::vector<Client> 				_clients;
 		std::vector<Client> 				_admins;
 		std::vector<std::pair<char, bool> > _modes;
+		
 public:
 	Channel();
 	~Channel();
@@ -70,11 +72,16 @@ public:
 	Client				*getClientFd(int fd);
 	Client 				*getAdminFd(int fd);
 	Client 				*getClientInChannel(std::string name);
+	size_t 				getSize() const;
+	std::vector<Client*> getClients() const;
 
 
 	bool				isClientInChannel(std::string &nick);
+	bool                isOperator(Client* client) const;
 
-	
+
+	void                setInviteOnly(bool flag);
+	void                setTopicControl(bool flag);
 	void				storeClient(Client newClient);
 	void 				storeAdmin(Client newClient);
 	void				rmClientFd(int fd);
@@ -85,6 +92,12 @@ public:
 
 	void				sendMsgToAll(std::string rpl1);
 	void				sendMsgToAll(std::string rpl1, int fd);
+	void                addOperator(Client* client);
+    void                removeOperator(Client* client);
+	void                changeOperatorStatus(Client* client, const std::string& targetNick, bool adding);
+    void                broadcastModeChange(const std::string& prefix, const std::string& modes, const std::string& param);
+	void 				addClient(Client* client);
+	void 				removeClient(Client* client);
 };
 
 #endif

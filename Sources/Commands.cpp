@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/24 14:18:11 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 03:40:09 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,27 @@ void Commands::handleCommand(int fd,std::string& command)
         handleNICK(fd, command);
     } else if (cmdType == "USER" || cmdType == "user"){
         handleUSER(fd, command);    
+    } else if (cmdType == "JOIN" || cmdType == "join") {
+        handleJOIN(fd, command);
+    } else if (cmdType == "PART" || cmdType == "part") {
+        handlePART(fd, command);
+    } else if (cmdType == "PRIVMSG" || cmdType == "privmsg") {
+        handlePRIVMSG(fd, command);
+    } else if (cmdType == "LIST" || cmdType == "list") {
+        handleLIST(fd, command);
+    } else if (cmdType == "TOPIC" || cmdType == "topic") {
+        handleTOPIC(fd, command);
+    } else if (cmdType == "MODE" || cmdType == "mode") {
+        handleMODE(fd, command);
+    } else if (cmdType == "QUIT" || cmdType == "quit") {
+        handleQUIT(fd, command);
+    } else if (cmdType == "PING" || cmdType == "ping") {
+        handlePING(fd, command);
+    } else if (cmdType == "WHO" || cmdType == "who") {
+        handleWHO(fd, command);
+    } else if (cmdType == "NOTICE" || cmdType == "notice") {
+        handleNOTICE(fd, command);
     }
-    
 }
 
 void Commands::handlePASS(int fd, std::string& cmd) {
@@ -151,9 +170,317 @@ void Commands::handleUSER(int fd, std::string& command) {
     }
 }
 
+//suite des commandes 
+void Commands::handlePART(int fd, std::string& command) {
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    Client* client = _server.getClient(fd);
+
+    if (tokens.size() < 2) {
+        _server.sendMsg(ERR_NEEDMOREPARAMS("*", "PART"), fd);
+        return;
+    }
+
+    std::string channelsStr = tokens[1];
+    std::string partMessage = tokens.size() > 2 ? command.substr(command.find(tokens[2])) : client->getNickName() + " has left the channel.";
+
+    std::stringstream ss(channelsStr);
+    std::string channelName;
+    while (std::getline(ss, channelName, ',')) {
+        Channel* channel = _server.getChannel(channelName);
+        if (channel == nullptr) {
+            _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
+            continue;
+        }
+
+        if (!channel->isClientInChannel(client->getNickName())) {
+    _server.sendMsg(ERR_NOTONCHANNEL(client->getNickName(), channelName), fd);
+    continue;
+}
+        channel->removeClient(client);
+        channel->sendMsgToAll(":" + client->getHostname() + " PART " + channelName + " :" + partMessage);
+    }
+}
+
+std::vector<std::string> Commands::split(const std::string& s, char delimiter) {
+    std::vector<std::string> tokens;
+    std::istringstream tokenStream(s);
+    std::string token;
+    while (std::getline(tokenStream, token, delimiter)) {
+        if (!token.empty())
+            tokens.push_back(token);
+    }
+    return tokens;
+}
+
+void Commands::handleJOIN(int fd, std::string& command) {
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    Client* client = _server.getClient(fd);
+
+    if (tokens.size() < 2) {
+        _server.sendMsg(ERR_NEEDMOREPARAMS(client->getNickName(), "JOIN"), fd);
+        return;
+    }
+
+    std::vector<std::string> channels = split(tokens[1], ',');
+    std::vector<std::string> keys;
+    if (tokens.size() > 2) {
+        keys = split(tokens[2], ',');
+    }
+
+    for (size_t i = 0; i < channels.size(); ++i) {
+        std::string channelName = channels[i];
+        std::string key = i < keys.size() ? keys[i] : "";
+
+        if (channelName.empty() || channelName[0] != '#') {
+            _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
+            continue;
+        }
+
+        Channel* channel = _server.getChannel(channelName);
+        if (!channel) {
+            channel = _server.createChannel(channelName, key, client);
+        }
+
+       if (!key.empty() && channel->getKey() != std::stoi(key)) {
+    _server.sendMsg(ERR_BADCHANNELKEY(client->getNickName(), channelName), fd);
+    continue;
+}
+
+ try {
+            if (!key.empty() && std::stoi(key) != channel->getKey()) {
+                _server.sendMsg(ERR_BADCHANNELKEY(client->getNickName(), channelName), fd);
+                continue;
+            }
+        } catch (const std::invalid_argument& e) {
+            _server.sendMsg("Error: Key must be numeric", fd);
+            continue;
+        } catch (const std::out_of_range& e) {
+            _server.sendMsg("Error: Key value is out of range", fd);
+            continue;
+        }
+
+        channel->addClient(client);
+        _server.sendMsg(":" + client->getHostname() + " JOIN " + channelName, fd);
+        // Broadcast to all clients in channel
+        channel->sendMsgToAll(":" + client->getNickName() + " JOIN " + channelName);
+    }
+}
+
+void Commands::handleNOTICE(int fd, std::string& command) {
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    if (tokens.size() < 3) {
+        return; // No error message is sent for NOTICE
+    }
+
+    std::string targetNick = tokens[1];
+    std::string message = command.substr(command.find(tokens[2])); // Capture the entire message after the targetNick
+
+    Client* targetClient = _server.getNickClient(targetNick);
+    if (targetClient) {
+        targetClient->write(":" + _server.getClient(fd)->getHostname() + " NOTICE " + targetNick + " :" + message);
+    }
+}
 
 
+void Commands::handleLIST(int fd, std::string& command) {
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    Client* client = _server.getClient(fd);
 
+    std::vector<Channel*> channels;
+    if (tokens.size() == 1) {
+        channels = _server.getAllChannels(); // List all channels if no specific channel is mentioned
+    } else {
+        std::stringstream ss(tokens[1]);
+        std::string channelName;
+        while (std::getline(ss, channelName, ',')) {
+            Channel* channel = _server.getChannel(channelName);
+            if (channel) {
+                channels.push_back(channel);
+            }
+        }
+    }
 
+    for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
+    Channel* channel = *it;
+    _server.sendMsg(RPL_LIST(client->getNickName(), channel->getName(), channel->getSize(), channel->getTopic()), fd);
+    _server.sendMsg(RPL_LISTEND(client->getNickName()), fd);
+}
+}
 
+void Commands::handleQUIT(int fd, std::string& command) {
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    std::string reason = (tokens.size() > 1) ? command.substr(command.find(tokens[1])) : "Leaving...";
 
+    if (!reason.empty() && reason[0] == ':') {
+        reason = reason.substr(1);
+    }
+
+    Client* client = _server.getClient(fd);
+    _server.sendMsg(":" + client->getHostname() + " QUIT :" + reason, fd);
+    _server.handleClientDisconnect(fd);
+}
+
+void Commands::handlePRIVMSG(int fd, std::string& command) {
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    if (tokens.size() < 3) {
+        _server.sendMsg(ERR_NOTENOUGHPARAMS(_server.getClient(fd)->getNickName(), "PRIVMSG"), fd);
+        return;
+    }
+    std::string target = tokens[1];
+    std::string message = command.substr(command.find(tokens[2]));
+
+    Channel* channel = _server.getChannel(target);
+    if (channel) {
+        std::string clientNick = _server.getClient(fd)->getNickName();
+        if (!channel->isClientInChannel(clientNick)) {
+            _server.sendMsg(ERR_CANNOTSENDTOCHAN(_server.getClient(fd)->getNickName(), target), fd);
+            return;
+        }
+        channel->sendMsgToAll(":" + _server.getClient(fd)->getHostname() + " PRIVMSG " + target + " :" + message);
+        return;
+    }
+    Client* targetClient = _server.getNickClient(target);
+    if (targetClient) {
+        targetClient->write(":" + _server.getClient(fd)->getHostname() + " PRIVMSG " + target + " :" + message);
+    } else {
+        _server.sendMsg(ERR_NOSUCHNICK(_server.getClient(fd)->getNickName(), target), fd);
+    }
+}
+
+void Commands::handleTOPIC(int fd, std::string& command) {
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    Client* client = _server.getClient(fd);
+    if (tokens.size() < 2) {
+        _server.sendMsg(ERR_NEEDMOREPARAMS(client->getNickName(), "TOPIC"), fd);
+        return;
+    }
+
+    std::string channelName = tokens[1];
+    Channel* channel = _server.getChannel(channelName);
+    if (!channel) {
+        _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
+        return;
+    }
+
+    if (tokens.size() == 2) {
+        std::string topic = channel->getTopicName();
+        if (topic.empty()) {
+            _server.sendMsg(RPL_NOTOPIC(client->getNickName(), channelName), fd);
+        } else {
+            _server.sendMsg(RPL_TOPIC(client->getNickName(), channelName, topic), fd);
+        }
+    } else {
+        std::string topic = command.substr(command.find(tokens[2]));
+        channel->setTopicName(topic);
+        channel->sendMsgToAll(":" + client->getHostname() + " TOPIC " + channelName + " :" + topic);
+    }
+}
+
+void Commands::handleWHO(int fd, std::string& command) {
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    Client* client = _server.getClient(fd);
+    std::vector<Channel*> channels;
+
+    if (tokens.size() > 1) {
+        std::string channelName = tokens[1];
+        Channel* channel = _server.getChannel(channelName);
+        if (channel) {
+            channels.push_back(channel);
+        } else {
+            _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
+            return;
+        }
+    } else {
+        channels = _server.getAllChannels();
+    }
+
+     for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
+        std::vector<Client*> clients = (*it)->getClients();
+        for (std::vector<Client*>::iterator cit = clients.begin(); cit != clients.end(); ++cit) {
+            _server.sendMsg(RPL_WHOREPLY(client->getNickName(), (*it)->getName(), (*cit)->getInfo()), fd);
+        }
+    }
+
+    _server.sendMsg(RPL_ENDOFWHO(client->getNickName()), fd);
+}
+
+void Commands::handleMODE(int fd, std::string& command) {
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    Client* client = _server.getClient(fd);
+    if (tokens.size() < 3) {
+        _server.sendMsg(ERR_NEEDMOREPARAMS(client->getNickName(), "MODE"), fd);
+        return;
+    }
+
+    std::string channelName = tokens[1];
+    std::string modeChanges = tokens[2];
+    std::string modeParam = tokens.size() > 3 ? tokens[3] : "";
+
+    Channel* channel = _server.getChannel(channelName);
+    if (!channel) {
+        _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
+        return;
+    }
+
+    if (!channel->isOperator(client)) {
+        _server.sendMsg(ERR_CHANOPRIVSNEEDED(client->getNickName(), channelName), fd);
+        return;
+    }
+
+    // Process each mode change
+    bool adding = true;
+    for (size_t i = 0; i < modeChanges.length(); ++i) {
+        char mode = modeChanges[i];
+
+        if (mode == '+' || mode == '-') {
+            adding = (mode == '+');
+            continue;
+        }
+
+        // Apply the mode change
+        switch (mode) {
+            case 'i':
+                channel->setInviteOnly(adding);
+                break;
+            case 't':
+                channel->setTopicControl(adding);
+                break;
+            case 'k':
+                if (adding && !modeParam.empty()) {
+                    try {
+                        int keyValue = std::stoi(modeParam);  // Convert string to integer
+                        channel->setKey(keyValue);
+                    } catch (const std::invalid_argument& ia) {
+                    _server.sendMsg("Invalid key value. Must be numeric.", fd);
+                return;
+            }
+    } else {
+        channel->setKey(0);  // Clear the key
+    }
+    break;
+            case 'o':
+                if (!modeParam.empty()) channel->changeOperatorStatus(client, modeParam, adding);
+                break;
+            case 'l':
+                if (adding && !modeParam.empty()) channel->setMaxUsers(std::stoi(modeParam));
+                else channel->setMaxUsers(0);
+                break;
+            default:
+                _server.sendMsg(ERR_UNKNOWNMODE(client->getNickName(), channelName, std::string(1, mode)), fd);
+                return;
+        }
+    }
+
+    channel->broadcastModeChange(client->getHostname(), modeChanges, modeParam);
+}
+
+void Commands::handlePING(int fd, std::string& command) {
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    if (tokens.size() < 2) {
+        _server.sendMsg(ERR_NOORIGIN(_server.getClient(fd)->getNickName()), fd);
+        return;
+    }
+
+    std::string pingArgument = tokens[1];
+    _server.sendMsg("PONG :" + pingArgument, fd);
+}

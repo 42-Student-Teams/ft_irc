@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:51:34 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/23 15:15:25 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 03:06:54 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,18 @@ class Commands
         void handlePASS( int fd,std::string& cmd);
         void handleNICK(int fd, std::string& command);
         void handleUSER(int fd, std::string& command);
-    
+        void handleJOIN(int fd, std::string& command);
+        void handlePART(int fd, std::string& command);
+        void handlePRIVMSG(int fd, std::string& command);
+        void handleLIST(int fd, std::string& command);
+        void handleWHO(int fd, std::string& command);
+        void handleNOTICE(int fd, std::string& command);
+        void handleMODE(int fd, std::string& command);
+        void handleTOPIC(int fd, std::string& command);
+        void handleQUIT(int fd, std::string& command);
+        void handlePING(int fd, std::string& command);
+
+        std::vector<std::string> split(const std::string& s, char delimiter);
 };
 
 
