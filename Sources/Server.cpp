@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 16:10:35 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/25 16:14:02 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ Channel *Server::getChannel(std::string name) {
     return nullptr;
 }
 
+std::vector<Channel>& Server::getChannels() { return _channels; }
 
 void Server::setFD(int fd) { this->_socketFD = fd; }
 void Server::setPort(int port) { this->_port = port; }
