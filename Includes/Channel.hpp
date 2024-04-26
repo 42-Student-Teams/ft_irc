@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:55 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 15:44:11 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/26 17:53:12 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ public:
 	size_t getSize() const;
 	std::vector<Client *> getClients() const;
 
-	bool isClientInChannel(std::string &nick);
+	bool isClientInChannel(int fd);
 	bool isOperator(std::string const nickname);
 
 	void setInviteOnly(bool flag);

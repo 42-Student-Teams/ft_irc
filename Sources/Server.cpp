@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 17:10:19 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:26:31 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,9 @@ Client *Server::getNickClient(std::string nickname) {
     return nullptr;
 }
 Channel *Server::getChannel(std::string name) {
+
+    if (name[0] == '#')
+        name = name.substr(1);
     for (size_t i = 0; i < this->_channels.size(); i++) {
         if (this->_channels[i].getName() == name)
             return &this->_channels[i];

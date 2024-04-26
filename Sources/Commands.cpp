@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 17:08:22 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/26 18:02:37 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,9 +273,9 @@ void Commands::handleQUIT(int fd, std::string& command) {
     
     // Envoi du message QUIT à tous les canaux auxquels le client est connecté
     std::vector<Channel>& channels = _server.getChannels();
-    std::string clientNickName = client->getNickName();
+    // std::string clientNickName = client->getNickName();
     for (size_t i = 0; i < channels.size(); ++i) {
-        if (channels[i].isClientInChannel(clientNickName)) {
+        if (channels[i].isClientInChannel(client->getFD())) {
             channels[i].sendMsgToAll(message, fd); // Envoyer le message de QUIT à tous sauf au client qui quitte
             channels[i].rmClientFd(fd); // Supprimer le client du canal
             if (channels[i].getClientsNumber() == 0) {
@@ -301,32 +301,37 @@ void Commands::handlePART(int fd, std::string &command)
         return;
     }
 
-    std::string channelsStr = tokens[1];
+    std::string channelName = tokens[1]; // Utiliser directement le nom du canal sans boucle
     std::string partMessage = tokens.size() > 2 ? command.substr(command.find(tokens[2])) : client->getNickName() + " has left the channel.";
 
-    std::stringstream ss(channelsStr);
-    std::string channelName;
-    while (std::getline(ss, channelName, ','))
+    // Enlever le traitement de plusieurs canaux avec la virgule - enlever ça
+    // Check if the channel name starts with '#'
+    if (channelName.empty() || channelName[0] != '#')
     {
-        Channel *channel = _server.getChannel(channelName);
-        if (channel == nullptr)
-        {
-            _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
-            continue;
-        }
-
-        // Store the nickname in a variable to avoid temporary string issue
-        std::string nickName = client->getNickName();
-        if (!channel->isClientInChannel(nickName))
-        {
-            _server.sendMsg(ERR_NOTONCHANNEL(client->getNickName(), channelName), fd);
-            continue;
-        }
-
-        channel->removeClient(client->getFD());
-        channel->sendMsgToAll(":" + client->getHostname() + " PART " + channelName + " :" + partMessage);
+        _server.sendMsg("ERROR " + client->getNickName() + " :Missing # to leave a channel", fd);
+        return; // Simplement retourner si le format n'est pas correct
     }
+
+    Channel *channel = _server.getChannel(channelName);
+    if (channel == nullptr)
+    {
+        _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
+        return; // Simplement retourner si le canal n'existe pas
+    }
+
+    std::string nickName = client->getNickName();
+    // TODO : when quit twice it sends message to all clients but not in channel
+    std::cout << "test Client name :" << nickName  << std::endl;
+    if (!channel->isClientInChannel(client->getFD()))
+    {
+        _server.sendMsg(ERR_NOTONCHANNEL(nickName, channelName), fd);
+        return ; // Simplement retourner si le client n'est pas sur le canal
+    }
+
+    channel->removeClient(client->getFD());
+    channel->sendMsgToAll(":" + client->getHostname() + " PART " + channelName + " :" + partMessage);
 }
+
 
 std::vector<std::string> Commands::split(const std::string &s, char delimiter)
 {
@@ -484,8 +489,8 @@ void Commands::handlePRIVMSG(int fd, std::string &command)
     Channel *channel = _server.getChannel(target);
     if (channel)
     {
-        std::string clientNick = _server.getClient(fd)->getNickName();
-        if (!channel->isClientInChannel(clientNick))
+        // std::string clientNick = _server.getClient(fd)->getNickName();
+        if (!channel->isClientInChannel(fd))
         {
             _server.sendMsg(ERR_CANNOTSENDTOCHAN(_server.getClient(fd)->getNickName(), target), fd);
             return;
