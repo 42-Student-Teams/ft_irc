@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:45:41 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 14:33:08 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/26 20:01:53 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 Client::Client() :
       _fd(-1),
-     // _isOperator(false),
       _isRegistred(false),
       _isLogin(false),
       _nickName(""),

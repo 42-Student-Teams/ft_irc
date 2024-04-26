@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:48 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 16:10:24 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/26 17:35:17 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,11 +116,6 @@ class Server
         bool isNicknameInUse(std::string& nickname);
         void handleNickCollision(std::string& nickname);
         
-
-        void                        PASS(int fd, std::string pass);
-        void                        NICK(std::string cmd, int fd);
-        void                        USER(std::string &username, int fd);
-        void                        QUIT(std::string cmd, int fd);
 
         //---------------------------//JOIN CMD
         void JOIN(std::string cmd, int fd);

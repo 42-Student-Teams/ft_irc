@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:52 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 02:37:25 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/26 20:01:41 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ class Client
 {
 	private:
 		int							_fd;
-		//bool						_isOperator;
 		bool						_isRegistred;
 		bool						_isLogin;
 		bool            			_passwordAuthenticated;

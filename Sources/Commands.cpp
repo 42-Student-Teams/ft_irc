@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 17:08:22 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/26 20:43:18 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,41 +214,6 @@ void Commands::handleUSER(int fd, std::string &command)
 
 
 
-
-// void Commands::handleQUIT(int fd, std::string& command) {
-    
-//     std::string quitMessage = "no reason provide";  // Message par défaut
-//     size_t pos = command.find(':');
-//     if (pos != std::string::npos) {
-//         quitMessage = command.substr(pos + 1);
-//     }
-
-//     Client* client = _server.getClient(fd);
-//     if (!client) {
-//         return; // Si le client n'existe pas, arrêtez la méthode ici
-//     }
-
-//     std::string clientInfo = ":" + client->getNickName() + "!~" + client->getUserName() + "@localhost";
-//     std::string message = clientInfo + " QUIT :" + quitMessage + "\r\n";
-    
-//     std::vector<Channel>& channels = _server.getChannels();
-//     std::string clientNickName = client->getNickName();
-//     for (size_t i = 0; i < channels.size(); ++i) {
-//         if (channels[i].isClientInChannel(clientNickName)) {
-//             channels[i].sendMsgToAll(message, fd); // Envoyer le message de QUIT à tous sauf au client qui quitte
-//             channels[i].rmClientFd(fd); // Supprimer le client du canal
-//             if (channels[i].getClientsNumber() == 0) {
-//                 channels.erase(channels.begin() + i--); // Supprimer le canal s'il est vide
-//             }
-//         }
-//     }
-
-//     std::cout << "Client <" << fd << "> disconnected: " << quitMessage << std::endl;
-//     _server.rmClient(fd);
-//     _server.rmPfds(fd);
-//     close(fd);
-// }
-
 void Commands::handleQUIT(int fd, std::string& command) {
     // Définir le message de déconnexion par défaut
     std::string quitMessage = "no reason provided";
@@ -342,7 +307,6 @@ std::vector<std::string> Commands::split(const std::string &s, char delimiter)
 }
 
 
-
 void Commands::handleJOIN(int fd, std::string &command)
 {
 
@@ -383,6 +347,7 @@ void Commands::handleJOIN(int fd, std::string &command)
         {
             channel = _server.createChannel(channelName, key, client);
             channel->addClient(client);
+            channel->addOperator(client);
             channel->sendMsgToAll(":" + client->getNickName() + " JOIN " + channelName);
         }
 
@@ -411,7 +376,9 @@ void Commands::handleJOIN(int fd, std::string &command)
             continue;
         }
     }
+    std::cout << "JOIN command received" << std::endl;
 }
+
 
 void Commands::handleNOTICE(int fd, std::string &command)
 {
