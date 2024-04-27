@@ -75,7 +75,6 @@ class Server
         Client                      *getNickClient(std::string nickname);
         Channel                     *getChannel(std::string name);
         std::vector<Channel>&        getChannels();
-       
 
         void                        setFD(int server_fdsocket);
         void                        setPort(int port);
@@ -103,7 +102,7 @@ class Server
         void                        createSocket();
         void                        handleClientConnection();
         void                        handleClientInput(int fd);
-        bool                        notRegistered(int fd);
+        bool                        checkAuth(int fd);
         void                        handleClientDisconnect(int fd);
 
         
