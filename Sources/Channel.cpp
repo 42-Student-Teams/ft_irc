@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:18 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/26 17:57:44 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/29 19:18:59 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -314,35 +314,68 @@ void Channel::removeOperator(Client *client)
     }
 }
 
-void Channel::changeOperatorStatus(Client *client, const std::string &targetNick, bool adding)
-{
-    if (!isOperator(client->getNickName()))
-    {
-        _srv.sendMsg(ERR_CHANOPRIVSNEEDED(client->getNickName(), targetNick), client->getFD()); // Assurez-vous que getName() est la méthode appropriée pour obtenir le nom du canal.
+// void Channel::changeOperatorStatus(Client *client, const std::string &targetNick, bool adding)
+// {
+//     if (!isOperator(client->getNickName()))
+//     {
+//         _srv.sendMsg(ERR_CHANOPRIVSNEEDED(client->getNickName(), targetNick), client->getFD()); // Assurez-vous que getName() est la méthode appropriée pour obtenir le nom du canal.
+//         return;
+//     }
+//     std::string refNick = client->getNickName();
+
+//     Client *target = _srv.getClient(client->getFD());
+//     if (target && isClientInChannel(client->getFD()))
+//     {
+//         if (adding)
+//         {
+//             addOperator(target);
+//         }
+//         else
+//         {
+//             removeOperator(target);
+//         }
+//     }
+//     else
+//     {
+//         // send_message(ERR_NOSUCHNICK(client->getNickName(), targetNick));
+//         _srv.sendMsg(ERR_NOSUCHNICK(client->getNickName(), targetNick), client->getFD());
+//         // client->(ERR_NOSUCHNICK(client->getNickName(), targetNick));
+//         // Server.-
+//     }
+// }
+
+void Channel::changeOperatorStatus(Client* client, const std::string& targetNick, bool adding) {
+    // Vérifier si le client est déjà un opérateur du canal
+    if (!isOperator(client->getNickName())) {
+        _srv.sendMsg(ERR_CHANOPRIVSNEEDED(client->getNickName(), _name), client->getFD());
         return;
     }
-    std::string refNick = client->getNickName();
 
-    Client *target = _srv.getClient(client->getFD());
-    if (target && isClientInChannel(client->getFD()))
-    {
-        if (adding)
-        {
-            addOperator(target);
-        }
-        else
-        {
-            removeOperator(target);
-        }
-    }
-    else
-    {
-        // send_message(ERR_NOSUCHNICK(client->getNickName(), targetNick));
+    // Recherche du client cible dans le canal
+    Client* targetClient = getClientInChannel(targetNick);
+    if (!targetClient) {
         _srv.sendMsg(ERR_NOSUCHNICK(client->getNickName(), targetNick), client->getFD());
-        // client->(ERR_NOSUCHNICK(client->getNickName(), targetNick));
-        // Server.-
+        return;
+    }
+
+    // Ajout ou suppression du statut d'opérateur
+    if (adding) {
+        // Ajouter aux opérateurs si pas déjà un opérateur
+        if (!isOperator(targetNick)) {
+            storeAdmin(*targetClient);
+            _srv.sendMsg(":" + client->getNickName() + " MODE " + _name + " +o " + targetNick, client->getFD());
+            sendMsgToAll(":" + client->getNickName() + " MODE " + _name + " +o " + targetNick);
+        }
+    } else {
+        // Retirer des opérateurs si actuellement un opérateur
+        if (isOperator(targetNick)) {
+            removeOperator(targetClient);
+            _srv.sendMsg(":" + client->getNickName() + " MODE " + _name + " -o " + targetNick, client->getFD());
+            sendMsgToAll(":" + client->getNickName() + " MODE " + _name + " -o " + targetNick);
+        }
     }
 }
+
 
 void Channel::broadcastModeChange(const std::string &prefix, const std::string &modes, const std::string &param)
 {
