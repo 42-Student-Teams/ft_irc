@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/26 20:43:18 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/26 21:22:05 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -348,7 +348,7 @@ void Commands::handleJOIN(int fd, std::string &command)
             channel = _server.createChannel(channelName, key, client);
             channel->addClient(client);
             channel->addOperator(client);
-            channel->sendMsgToAll(":" + client->getNickName() + " JOIN " + channelName);
+            //channel->sendMsgToAll(":" + client->getNickName() + " JOIN " + channelName);
         }
 
         if (!key.empty() && channel->getKey() != std::stoi(key))
@@ -509,42 +509,71 @@ void Commands::handleTOPIC(int fd, std::string &command)
     }
 }
 
+// void Commands::handleWHO(int fd, std::string &command)
+// {
+//     std::vector<std::string> tokens = _server.parseCmd(command);
+//     Client *client = _server.getClient(fd);
+//     std::vector<Channel *> channels;
+
+//     if (tokens.size() > 1)
+//     {
+//         std::string channelName = tokens[1];
+//         Channel *channel = _server.getChannel(channelName);
+//         if (channel)
+//         {
+//             channels.push_back(channel);
+//         }
+//         else
+//         {
+//             _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
+//             return;
+//         }
+//     }
+//     else
+//     {
+//         // channels = _server.getAllChannels();
+//     }
+
+//     for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
+//     {
+//         std::vector<Client *> clients = (*it)->getClients();
+//         for (std::vector<Client *>::iterator cit = clients.begin(); cit != clients.end(); ++cit)
+//         {
+//             _server.sendMsg(RPL_WHOREPLY(client->getNickName(), (*it)->getName(), (*cit)->getInfo()), fd);
+//         }
+//     }
+
+//     _server.sendMsg(RPL_ENDOFWHO(client->getNickName()), fd);
+// }
+
 void Commands::handleWHO(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
-    Client *client = _server.getClient(fd);
-    std::vector<Channel *> channels;
 
-    if (tokens.size() > 1)
-    {
-        std::string channelName = tokens[1];
-        Channel *channel = _server.getChannel(channelName);
-        if (channel)
-        {
-            channels.push_back(channel);
-        }
-        else
-        {
-            _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
-            return;
-        }
-    }
-    else
-    {
-        // channels = _server.getAllChannels();
+    // Vérifier si le nom du canal est fourni
+    std::string channelName;
+    if (tokens.size() > 1) {
+        channelName = tokens[1];  // Le deuxième élément devrait être le nom du canal
+    } else {
+        _server.sendMsg("Usage: NAMES <channel_name>", fd);
+        return;
     }
 
-    for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
-    {
-        std::vector<Client *> clients = (*it)->getClients();
-        for (std::vector<Client *>::iterator cit = clients.begin(); cit != clients.end(); ++cit)
-        {
-            _server.sendMsg(RPL_WHOREPLY(client->getNickName(), (*it)->getName(), (*cit)->getInfo()), fd);
-        }
+    // Obtenir l'instance du canal
+    Channel* channel = _server.getChannel(channelName);
+    if (!channel) {
+        _server.sendMsg("No such channel: " + channelName,fd);
+        return;
     }
 
-    _server.sendMsg(RPL_ENDOFWHO(client->getNickName()), fd);
+    // Obtenir la liste des utilisateurs dans le canal
+    std::string userList = channel->getChannelList();  // Utilise la méthode de Channel pour obtenir la liste des utilisateurs
+
+    // Préparer et envoyer la réponse
+    std::string response = "Users in " + channelName + ": " + userList;
+    _server.sendMsg(response,fd);
 }
+
 
 void Commands::handleMODE(int fd, std::string &command)
 {
