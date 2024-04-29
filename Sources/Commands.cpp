@@ -6,13 +6,14 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/29 12:50:21 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/29 12:51:20 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/Commands.hpp"
 
 // explicit Commands::Commands(Server& server) : _server(server) {}
+
 
 void Commands::handleCommand(int fd, std::string &command)
 {
@@ -35,43 +36,50 @@ void Commands::handleCommand(int fd, std::string &command)
     else if (cmdType == "USER" || cmdType == "user")
     {
         handleUSER(fd, command);
-    }else if (cmdType == "QUIT" || cmdType == "quit"){
+    }
+    else if (cmdType == "QUIT" || cmdType == "quit")
         handleQUIT(fd, command);
-    }
-    else if (cmdType == "JOIN" || cmdType == "join")
+    else if (_server.checkAuth(fd))
     {
-        handleJOIN(fd, command);
+
+        if (cmdType == "JOIN" || cmdType == "join")
+        {
+            std::cout << "JOIN" << std::endl;
+            handleJOIN(fd, command);
+        }
+        else if (cmdType == "PART" || cmdType == "part")
+        {
+            handlePART(fd, command);
+        }
+        else if (cmdType == "PRIVMSG" || cmdType == "privmsg")
+        {
+            handlePRIVMSG(fd, command);
+        }
+        else if (cmdType == "TOPIC" || cmdType == "topic")
+        {
+            handleTOPIC(fd, command);
+        }
+        else if (cmdType == "MODE" || cmdType == "mode")
+        {
+            handleMODE(fd, command);
+        }
+        else if (cmdType == "PING" || cmdType == "ping")
+        {
+            handlePING(fd, command);
+        }
+        else if (cmdType == "WHO" || cmdType == "who")
+        {
+            handleWHO(fd, command);
+        }
+        else if (cmdType == "NOTICE" || cmdType == "notice")
+        {
+            handleNOTICE(fd, command);
+        }
     }
-    else if (cmdType == "PART" || cmdType == "part")
+    else if (!_server.checkAuth(fd))
     {
-        handlePART(fd, command);
+        _server.sendMsg(ERR_NOTREGISTERED2("*"), fd);
     }
-    else if (cmdType == "PRIVMSG" || cmdType == "privmsg")
-    {
-        handlePRIVMSG(fd, command);
-    }
-    else if (cmdType == "TOPIC" || cmdType == "topic")
-    {
-        handleTOPIC(fd, command);
-    }
-    else if (cmdType == "MODE" || cmdType == "mode")
-    {
-        handleMODE(fd, command);
-    }
-    else if (cmdType == "PING" || cmdType == "ping")
-    {
-        handlePING(fd, command);
-    }
-    else if (cmdType == "WHO" || cmdType == "who")
-    {
-        handleWHO(fd, command);
-    }
-    else if (cmdType == "NOTICE" || cmdType == "notice")
-    {
-        handleNOTICE(fd, command);
-    }
-    // else if (cmdType == "LIST" || cmdType == "list") {
-    //     handleLIST(fd, command);
 }
 
 void Commands::handlePASS(int fd, std::string &cmd)
@@ -214,42 +222,80 @@ void Commands::handleUSER(int fd, std::string &command)
 
 
 
+
+// void Commands::handleQUIT(int fd, std::string& command) {
+    
+//     std::string quitMessage = "no reason provide";  // Message par défaut
+//     size_t pos = command.find(':');
+//     if (pos != std::string::npos) {
+//         quitMessage = command.substr(pos + 1);
+//     }
+
+//     Client* client = _server.getClient(fd);
+//     if (!client) {
+//         return; // Si le client n'existe pas, arrêtez la méthode ici
+//     }
+
+//     std::string clientInfo = ":" + client->getNickName() + "!~" + client->getUserName() + "@localhost";
+//     std::string message = clientInfo + " QUIT :" + quitMessage + "\r\n";
+    
+//     std::vector<Channel>& channels = _server.getChannels();
+//     std::string clientNickName = client->getNickName();
+//     for (size_t i = 0; i < channels.size(); ++i) {
+//         if (channels[i].isClientInChannel(clientNickName)) {
+//             channels[i].sendMsgToAll(message, fd); // Envoyer le message de QUIT à tous sauf au client qui quitte
+//             channels[i].rmClientFd(fd); // Supprimer le client du canal
+//             if (channels[i].getClientsNumber() == 0) {
+//                 channels.erase(channels.begin() + i--); // Supprimer le canal s'il est vide
+//             }
+//         }
+//     }
+
+//     std::cout << "Client <" << fd << "> disconnected: " << quitMessage << std::endl;
+//     _server.rmClient(fd);
+//     _server.rmPfds(fd);
+//     close(fd);
+// }
+
 void Commands::handleQUIT(int fd, std::string& command) {
     // Définir le message de déconnexion par défaut
     std::string quitMessage = "no reason provided";
 
     // Essayer de trouver un message après "QUIT "
     size_t pos = command.find("QUIT ");
-    if (pos != std::string::npos && pos + 5 < command.size()) {
+    if (pos != std::string::npos && pos + 5 < command.size())
+    {
         quitMessage = command.substr(pos + 5);
         // Supprimer tout espace initial inutile qui pourrait affecter le message
         quitMessage.erase(0, quitMessage.find_first_not_of(" "));
     }
 
     // vérification de l'existence du client
-    Client* client = _server.getClient(fd);
-    if (!client) {
+    Client *client = _server.getClient(fd);
+    if (!client)
+    {
         return; // Si le client n'existe pas, arrêtez la méthode ici
     }
 
     // Construction du message d'information du client
     std::string clientInfo = ":" + client->getNickName() + "!~" + client->getUserName() + "@localhost";
     std::string message = clientInfo + " QUIT :" + quitMessage + "\r\n";
-    
+
     // Envoi du message QUIT à tous les canaux auxquels le client est connecté
     std::vector<Channel>& channels = _server.getChannels();
-    std::string clientNickName = client->getNickName();
+    // std::string clientNickName = client->getNickName();
     for (size_t i = 0; i < channels.size(); ++i) {
-        if (channels[i].isClientInChannel(clientNickName)) {
+        if (channels[i].isClientInChannel(client->getFD())) {
             channels[i].sendMsgToAll(message, fd); // Envoyer le message de QUIT à tous sauf au client qui quitte
-            channels[i].rmClientFd(fd); // Supprimer le client du canal
-            if (channels[i].getClientsNumber() == 0) {
+            channels[i].rmClientFd(fd);            // Supprimer le client du canal
+            if (channels[i].getClientsNumber() == 0)
+            {
                 channels.erase(channels.begin() + i--); // Supprimer le canal s'il est vide
             }
         }
     }
 
-    std::cout << RED <<"Client <" << fd <<"> disconnected: " << RESET << quitMessage << std::endl;
+    std::cout << RED << "Client <" << fd << "> disconnected: " << RESET << quitMessage << std::endl;
     _server.rmClient(fd);
     _server.rmPfds(fd);
     close(fd);
@@ -266,32 +312,37 @@ void Commands::handlePART(int fd, std::string &command)
         return;
     }
 
-    std::string channelsStr = tokens[1];
+    std::string channelName = tokens[1]; // Utiliser directement le nom du canal sans boucle
     std::string partMessage = tokens.size() > 2 ? command.substr(command.find(tokens[2])) : client->getNickName() + " has left the channel.";
 
-    std::stringstream ss(channelsStr);
-    std::string channelName;
-    while (std::getline(ss, channelName, ','))
+    // Enlever le traitement de plusieurs canaux avec la virgule - enlever ça
+    // Check if the channel name starts with '#'
+    if (channelName.empty() || channelName[0] != '#')
     {
-        Channel *channel = _server.getChannel(channelName);
-        if (channel == nullptr)
-        {
-            _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
-            continue;
-        }
-
-        // Store the nickname in a variable to avoid temporary string issue
-        std::string nickName = client->getNickName();
-        if (!channel->isClientInChannel(nickName))
-        {
-            _server.sendMsg(ERR_NOTONCHANNEL(client->getNickName(), channelName), fd);
-            continue;
-        }
-
-        channel->removeClient(client->getFD());
-        channel->sendMsgToAll(":" + client->getHostname() + " PART " + channelName + " :" + partMessage);
+        _server.sendMsg("ERROR " + client->getNickName() + " :Missing # to leave a channel", fd);
+        return; // Simplement retourner si le format n'est pas correct
     }
+
+    Channel *channel = _server.getChannel(channelName);
+    if (channel == nullptr)
+    {
+        _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
+        return; // Simplement retourner si le canal n'existe pas
+    }
+
+    std::string nickName = client->getNickName();
+    // TODO : when quit twice it sends message to all clients but not in channel
+    std::cout << "test Client name :" << nickName  << std::endl;
+    if (!channel->isClientInChannel(client->getFD()))
+    {
+        _server.sendMsg(ERR_NOTONCHANNEL(nickName, channelName), fd);
+        return ; // Simplement retourner si le client n'est pas sur le canal
+    }
+
+    channel->removeClient(client->getFD());
+    channel->sendMsgToAll(":" + client->getHostname() + " PART " + channelName + " :" + partMessage);
 }
+
 
 std::vector<std::string> Commands::split(const std::string &s, char delimiter)
 {
@@ -305,6 +356,7 @@ std::vector<std::string> Commands::split(const std::string &s, char delimiter)
     }
     return tokens;
 }
+
 
 
 void Commands::handleJOIN(int fd, std::string &command)
@@ -451,8 +503,8 @@ void Commands::handlePRIVMSG(int fd, std::string &command)
     Channel *channel = _server.getChannel(target);
     if (channel)
     {
-        std::string clientNick = _server.getClient(fd)->getNickName();
-        if (!channel->isClientInChannel(clientNick))
+        // std::string clientNick = _server.getClient(fd)->getNickName();
+        if (!channel->isClientInChannel(fd))
         {
             _server.sendMsg(ERR_CANNOTSENDTOCHAN(_server.getClient(fd)->getNickName(), target), fd);
             return;

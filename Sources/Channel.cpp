@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:18 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 16:14:51 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/26 17:57:44 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,16 +169,18 @@ Client *Channel::getClientInChannel(std::string name)
 
 size_t Channel::getSize() const { return _clients.size() + _admins.size(); }
 
-bool Channel::isClientInChannel(std::string &nick)
+bool Channel::isClientInChannel(int fd)
 {
+
     for (size_t i = 0; i < _clients.size(); i++)
     {
-        if (_clients[i].getNickName() == nick)
+        std::cout << "client name : " << _clients[i].getNickName() << std::endl; 
+        if (_clients[i].getFD() == fd)
             return true;
     }
     for (size_t i = 0; i < _admins.size(); i++)
     {
-        if (_admins[i].getNickName() == nick)
+        if (_admins[i].getFD() == fd)
             return true;
     }
     return false;
@@ -322,7 +324,7 @@ void Channel::changeOperatorStatus(Client *client, const std::string &targetNick
     std::string refNick = client->getNickName();
 
     Client *target = _srv.getClient(client->getFD());
-    if (target && isClientInChannel(refNick))
+    if (target && isClientInChannel(client->getFD()))
     {
         if (adding)
         {

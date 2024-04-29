@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 17:10:19 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:26:31 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,9 @@ Client *Server::getNickClient(std::string nickname) {
     return nullptr;
 }
 Channel *Server::getChannel(std::string name) {
+
+    if (name[0] == '#')
+        name = name.substr(1);
     for (size_t i = 0; i < this->_channels.size(); i++) {
         if (this->_channels[i].getName() == name)
             return &this->_channels[i];
@@ -188,9 +191,9 @@ void Server::sendErrInChannel(int code, std::string clientname, std::string chan
 
 
 void Server::run(int port, std::string pass) {
-    _pass = pass;
-    _port = port;
-    createSocket();
+    this->_pass = pass;
+    this->_port = port;
+    this->createSocket();
 
     std::cout << "Waiting to accept a connection...\n";
     while (_signal == false) {
@@ -199,9 +202,9 @@ void Server::run(int port, std::string pass) {
         for (size_t i = 0; i < _pfds.size(); i++) {
             if (_pfds[i].revents & POLLIN) {
                 if (_pfds[i].fd == _socketFD)
-                    handleClientConnection();
+                    this->handleClientConnection();
                 else
-                    handleClientInput(_pfds[i].fd);
+                    this->handleClientInput(_pfds[i].fd);
             }
         }
     }
@@ -237,6 +240,27 @@ void Server::createSocket() {
     _newConnection.revents = 0;
     _pfds.push_back(_newConnection);
 }
+
+// void Server::accept_new_client()
+// {
+// 	Client cli;
+// 	memset(&cliadd, 0, sizeof(cliadd));
+// 	socklen_t len = sizeof(cliadd);
+// 	int incofd = accept(server_fdsocket, (sockaddr *)&(cliadd), &len);
+// 	if (incofd == -1)
+// 		{std::cout << "accept() failed" << std::endl; return;}
+// 	if (fcntl(incofd, F_SETFL, O_NONBLOCK) == -1)
+// 		{std::cout << "fcntl() failed" << std::endl; return;}
+// 	new_cli.fd = incofd;
+// 	new_cli.events = POLLIN;
+// 	new_cli.revents = 0;
+// 	cli.SetFd(incofd);
+// 	cli.setIpAdd(inet_ntoa((cliadd.sin_addr)));
+// 	clients.push_back(cli);
+// 	fds.push_back(new_cli);
+// 	std::cout << GRE << "Client <" << incofd << "> Connected" << WHI << std::endl;
+// }
+
 void Server::handleClientConnection() {
     Client cli;
     memset(&_clientAddr, 0, sizeof(_clientAddr));
@@ -259,6 +283,7 @@ void Server::handleClientConnection() {
     _pfds.push_back(_newConnection);
     std::cout << GREEN << "Client <" << incofd << "> Connected" << RESET << std::endl;
 }
+
 void Server::handleClientInput(int fd) {
     std::vector<std::string> cmd;
     char buff[1024];
@@ -283,7 +308,7 @@ void Server::handleClientInput(int fd) {
             getClient(fd)->clearBuffer();
     }
 }
-bool Server::notRegistered(int fd)
+bool Server::checkAuth(int fd)
 {
 	if (!getClient(fd) || getClient(fd)->getNickName().empty() || getClient(fd)->getUserName().empty() || getClient(fd)->getNickName() == "*"  || !getClient(fd)->getLogedIn())
 		return false;
