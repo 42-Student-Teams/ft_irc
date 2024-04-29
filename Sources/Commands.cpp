@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/26 21:22:05 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/29 12:50:21 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -348,7 +348,7 @@ void Commands::handleJOIN(int fd, std::string &command)
             channel = _server.createChannel(channelName, key, client);
             channel->addClient(client);
             channel->addOperator(client);
-            //channel->sendMsgToAll(":" + client->getNickName() + " JOIN " + channelName);
+            channel->sendMsgToAll(":" + client->getNickName() + " JOIN " + channelName);
         }
 
         if (!key.empty() && channel->getKey() != std::stoi(key))
