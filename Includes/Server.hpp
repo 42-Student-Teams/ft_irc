@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:48 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/26 17:35:17 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/30 12:26:33 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,10 +64,11 @@ class Server
         Server(Server const &src);
         Server &operator=(Server const &src);
     
+        /*-------------------------SIGNALS + CHAN-----------------------------------*/
         static void                  handleSignal(int signum);
-
         Channel*                     createChannel(const std::string& name, const std::string& key, Client* client);
 
+        /*-------------------------GET SETTINGS-----------------------------------*/
         int                          getFD();
         int                          getPort();
         std::string                  getPass();
@@ -76,77 +77,46 @@ class Server
         Channel                     *getChannel(std::string name);
         std::vector<Channel>&        getChannels();
 
+        /*-------------------------SET SETTINGS-----------------------------------*/
         void                        setFD(int server_fdsocket);
         void                        setPort(int port);
         void                        setPass(std::string password);
         
-
+        /*-------------------------STORE SETTINGS-----------------------------------*/
         void                        storeClient(Client newClient);
         void                        storeChannel(Channel newChannel);
         void                        storePfds(pollfd newFd);
        
-       
+       /*-------------------------REMOVE SETTINGS-----------------------------------*/
         void                        rmClient(int fd);
         void                        rmFds();
         void                        rmPfds(int fd);
         void                        rmClientFromChan(int fd);
         void                        rmChannel(std::string name);
         
-       
+       /*-------------------------MESSAGES SETTINGS-----------------------------------*/
         void                        sendMsg(std::string msg, int fd);
         void                        sendErrToClient(int code, std::string clientname, int fd, std::string msg);
         void                        sendErrInChannel(int code, std::string clientname, std::string channelname, int fd, std::string msg);
       
     
+        /*-------------------------SERVER SETTINGS-----------------------------------*/
         void                        run(int port, std::string pass);
         void                        createSocket();
         void                        handleClientConnection();
         void                        handleClientInput(int fd);
         bool                        checkAuth(int fd);
         void                        handleClientDisconnect(int fd);
-
         
-
+        /*-------------------------PARSER INPUT BUFF-----------------------------------*/
         std::vector<std::string>    parseBuffer(std::string str);
         std::vector<std::string>    parseCmd(std::string &str);
         void                        execCmd(std::string &cmd, int fd);
        
        /*-------------------------COMMANDES SETTINGS-----------------------------------*/
-        bool isNicknameInUse(std::string& nickname);
-        void handleNickCollision(std::string& nickname);
+        bool                        isNicknameInUse(std::string& nickname);
+        void                        handleNickCollision(std::string& nickname);
         
-
-        //---------------------------//JOIN CMD
-        void JOIN(std::string cmd, int fd);
-        int SplitJoin(std::vector<std::pair<std::string, std::string> > &token, std::string cmd, int fd);
-        int SearchForClients(std::string nickname);
-        //---------------------------//PART CMD
-        void PART(std::string cmd, int fd);
-        int SplitCmdPart(std::string cmd, std::vector<std::string> &tmp, std::string &reason, int fd);
-        //---------------------------//CKIK CMD
-        void KICK(std::string cmd, int fd);
-        std::string SplitCmdKick(std::string cmd, std::vector<std::string> &tmp, std::string &user, int fd);
-        //---------------------------//PRIVMSG CMD
-        void PRIVMSG(std::string cmd, int fd);
-        void CheckForChannels_Clients(std::vector<std::string> &tmp, int fd);
-
-        //---------------------------//MODE CMD
-        void MODE(std::string &cmd, int fd);
-        std::string invite_only(Channel *channel, char opera, std::string chain);
-        std::string topic_restriction(Channel *channel, char opera, std::string chain);
-        std::string password_mode(std::vector<std::string> splited, Channel *channel, size_t &pos, char opera, int fd, std::string chain, std::string &arguments);
-        std::string operator_privilege(std::vector<std::string> splited, Channel *channel, size_t &pos, int fd, char opera, std::string chain, std::string &arguments);
-        std::string channel_limit(std::vector<std::string> splited, Channel *channel, size_t &pos, char opera, int fd, std::string chain, std::string &arguments);
-        bool isvalid_limit(std::string &limit);
-        std::string mode_toAppend(std::string chain, char opera, char mode);
-        std::vector<std::string> splitParams(std::string params);
-        void getCmdArgs(std::string cmd, std::string &name, std::string &modeset, std::string &params);
-        //---------------------------//TOPIC CMD
-        std::string tTopic();
-        void Topic(std::string &cmd, int &fd);
-        void Invite(std::string &cmd, int &fd);
-        std::string gettopic(std::string &input);
-        int getpos(std::string &cmd);
 };
 
 #endif
