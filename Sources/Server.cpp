@@ -50,7 +50,7 @@ Channel* Server::createChannel(const std::string& name, const std::string& key, 
     // When a client creates a channel, they are automatically an operator
     newChannel.addOperator(client);
     
-    newChannel.addClient(client);
+    // newChannel.addClient(client);
     _channels.push_back(newChannel);
 
     return &_channels.back();
@@ -170,7 +170,6 @@ void Server::rmClientFromChan(int fd) {
 }
 
 void Server::sendMsg(std::string msg, int fd) {
-    // std::cout << "msg:\n" << msg;
     if (send(fd, msg.c_str(), msg.size(), 0) == -1)
         std::cerr << "msg send() failed" << std::endl;
 }
@@ -194,7 +193,7 @@ void Server::sendWelcome() const {
                 "*                                       *\n"
                 "*   SERVER IRC                          *\n"
                 "*                                       *\n"
-                "*   By: Inaranjo/Lamilton/Neila         *\n"
+                "*   By: Isaac/Leonel/Neila              *\n"
                 "*                                       *\n"
                 "*****************************************\n\n";
 }
@@ -229,7 +228,6 @@ void Server::run(int port, std::string pass) {
         return;
     }
     
-   //std::cout << "Waiting to accept a connection...\n";
     while (_signal == false) {
         if ((poll(&_pfds[0], _pfds.size(), -1) == -1) && _signal == false)
             throw(std::runtime_error("poll() failed"));

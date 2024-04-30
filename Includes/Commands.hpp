@@ -45,6 +45,7 @@ class Commands
         void handleTOPIC(int fd, std::string& command);
         void handleQUIT(int fd, std::string& command);
         void handlePING(int fd, std::string& command);
+        void handleKICK(int fd, std::string& command);
         // void handleLIST(int fd, std::string& command);
 
         std::vector<std::string> split(const std::string& s, char delimiter);

@@ -62,7 +62,7 @@
 
 NAME = ircserv
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98
+CFLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
 
 SRCS = main.cpp Sources/Commands.cpp Sources/Channel.cpp Sources/Client.cpp Sources/Server.cpp 
 
@@ -74,7 +74,7 @@ $(NAME): $(OBJS)
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 
 bonus: $(OBJS_BONUS)
-	@$(CC) $(CFLAGS) -o $(NAME_BOUNUS) $(OBJS_BONUS)
+	@$(CC) $(CFLAGS) -o $(NAME_BONUS) $(OBJS_BONUS)
 
 %.o: %.cpp Includes/Server.hpp Includes/Client.hpp Includes/Channel.hpp Includes/Reply.hpp  Includes/Commands.hpp
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -83,7 +83,7 @@ clean:
 	@rm -f $(OBJS) $(OBJS_BONUS)
 
 fclean: clean
-	@rm -f $(NAME) $(NAME_BOUNUS)
+	@rm -f $(NAME) $(NAME_BONUS)
 
 re: fclean all
 

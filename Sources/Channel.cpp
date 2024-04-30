@@ -175,7 +175,6 @@ bool Channel::isClientInChannel(int fd)
 
     for (size_t i = 0; i < _clients.size(); i++)
     {
-        std::cout << "client name : " << _clients[i].getNickName() << std::endl; 
         if (_clients[i].getFD() == fd)
             return true;
     }
@@ -388,7 +387,7 @@ void Channel::changeOperatorStatus(Client* client, const std::string& targetNick
 
 void Channel::broadcastModeChange(const std::string &prefix, const std::string &modes, const std::string &param)
 {
-    std::string message = ":" + prefix + " MODE " + _name + " " + modes + " " + param;
+    std::string message = ":" + prefix + " MODE " + _name + " " + modes + " " + param + "\r\n";
     sendMsgToAll(message);
 }
 

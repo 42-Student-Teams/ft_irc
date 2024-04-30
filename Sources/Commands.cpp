@@ -14,7 +14,6 @@
 
 // explicit Commands::Commands(Server& server) : _server(server) {}
 
-
 void Commands::handleCommand(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
@@ -26,60 +25,37 @@ void Commands::handleCommand(int fd, std::string &command)
 
     std::string cmdType = tokens[0];
     if (cmdType == "PASS" || cmdType == "pass")
-    {
         handlePASS(fd, command);
-    }
     else if (cmdType == "NICK" || cmdType == "nick")
-    {
         handleNICK(fd, command);
-    }
     else if (cmdType == "USER" || cmdType == "user")
-    {
         handleUSER(fd, command);
-    }
     else if (cmdType == "QUIT" || cmdType == "quit")
         handleQUIT(fd, command);
     else if (_server.checkAuth(fd))
     {
 
         if (cmdType == "JOIN" || cmdType == "join")
-        {
-            std::cout << "JOIN" << std::endl;
             handleJOIN(fd, command);
-        }
         else if (cmdType == "PART" || cmdType == "part")
-        {
             handlePART(fd, command);
-        }
         else if (cmdType == "PRIVMSG" || cmdType == "privmsg")
-        {
             handlePRIVMSG(fd, command);
-        }
         else if (cmdType == "TOPIC" || cmdType == "topic")
-        {
             handleTOPIC(fd, command);
-        }
         else if (cmdType == "MODE" || cmdType == "mode")
-        {
             handleMODE(fd, command);
-        }
         else if (cmdType == "PING" || cmdType == "ping")
-        {
             handlePING(fd, command);
-        }
         else if (cmdType == "WHO" || cmdType == "who")
-        {
             handleWHO(fd, command);
-        }
+        else if (cmdType == "KICK" || cmdType == "kick")
+            handleKICK(fd, command);
         else if (cmdType == "NOTICE" || cmdType == "notice")
-        {
             handleNOTICE(fd, command);
-        }
     }
     else if (!_server.checkAuth(fd))
-    {
         _server.sendMsg(ERR_NOTREGISTERED2("*"), fd);
-    }
 }
 
 void Commands::handlePASS(int fd, std::string &cmd)
@@ -161,7 +137,7 @@ void Commands::handleNICK(int fd, std::string &command)
         _server.sendMsg(RPL_NICKCHANGE(oldNick, newNick), fd);
     }
     else if (oldNick.empty())
-    {                                                // Si c'est la première fois que le client est enregistré
+    {                                                  // Si c'est la première fois que le client est enregistré
         _server.sendMsg(RPL_SUCC_CONNEC(newNick), fd); // Bienvenue au nouvel utilisateur
     }
 }
@@ -220,9 +196,8 @@ void Commands::handleUSER(int fd, std::string &command)
     }
 }
 
-
-
-void Commands::handleQUIT(int fd, std::string& command) {
+void Commands::handleQUIT(int fd, std::string &command)
+{
     // Définir le message de déconnexion par défaut
     std::string quitMessage = "no reason provided";
 
@@ -247,10 +222,12 @@ void Commands::handleQUIT(int fd, std::string& command) {
     std::string message = clientInfo + " QUIT :" + quitMessage + "\r\n";
 
     // Envoi du message QUIT à tous les canaux auxquels le client est connecté
-    std::vector<Channel>& channels = _server.getChannels();
+    std::vector<Channel> &channels = _server.getChannels();
     // std::string clientNickName = client->getNickName();
-    for (size_t i = 0; i < channels.size(); ++i) {
-        if (channels[i].isClientInChannel(client->getFD())) {
+    for (size_t i = 0; i < channels.size(); ++i)
+    {
+        if (channels[i].isClientInChannel(client->getFD()))
+        {
             channels[i].sendMsgToAll(message, fd); // Envoyer le message de QUIT à tous sauf au client qui quitte
             channels[i].rmClientFd(fd);            // Supprimer le client du canal
             if (channels[i].getClientsNumber() == 0)
@@ -297,17 +274,15 @@ void Commands::handlePART(int fd, std::string &command)
 
     std::string nickName = client->getNickName();
     // TODO : when quit twice it sends message to all clients but not in channel
-    std::cout << "test Client name :" << nickName  << std::endl;
     if (!channel->isClientInChannel(client->getFD()))
     {
         _server.sendMsg(ERR_NOTONCHANNEL(nickName, channelName), fd);
-        return ; // Simplement retourner si le client n'est pas sur le canal
+        return; // Simplement retourner si le client n'est pas sur le canal
     }
 
     channel->removeClient(client->getFD());
     channel->sendMsgToAll(":" + client->getHostname() + " PART " + channelName + " :" + partMessage);
 }
-
 
 std::vector<std::string> Commands::split(const std::string &s, char delimiter)
 {
@@ -321,7 +296,6 @@ std::vector<std::string> Commands::split(const std::string &s, char delimiter)
     }
     return tokens;
 }
-
 
 void Commands::handleJOIN(int fd, std::string &command)
 {
@@ -350,7 +324,7 @@ void Commands::handleJOIN(int fd, std::string &command)
         Channel *channel = _server.getChannel(channelName);
         if (channel)
         {
-             // Vérifie si le canal est en mode invitation seulement
+            // Vérifie si le canal est en mode invitation seulement
             if (channel->getInviteOnly() && !channel->isClientInChannel(fd))
             {
                 _server.sendMsg(ERR_INVITEONLYCHAN(client->getNickName(), channelName), fd);
@@ -358,18 +332,17 @@ void Commands::handleJOIN(int fd, std::string &command)
             }
 
             channel->addClient(client);
-            channel->sendMsgToAll(client->getNickName() +  " has join the channel : " + channelName + "\n");
-            //channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
+            channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\n");
+            // channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
         else if (channelName[0] == '#')
         {
             channel = _server.createChannel(channelName, key, client);
-            channel->addClient(client);
+            // channel->addClient(client);
             channel->addOperator(client);
-            channel->sendMsgToAll(client->getNickName() +  " has join the channel : " + channelName + "\n");
-            //channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
+            channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\n");
+            // channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
-
 
         if (!key.empty() && channel->getKey() != std::stoi(key))
         {
@@ -396,9 +369,7 @@ void Commands::handleJOIN(int fd, std::string &command)
             continue;
         }
     }
-    std::cout << "JOIN command received" << std::endl;
 }
-
 
 void Commands::handleNOTICE(int fd, std::string &command)
 {
@@ -442,7 +413,6 @@ void Commands::handleNOTICE(int fd, std::string &command)
 //     _server.sendMsg(RPL_LISTEND(client->getNickName()), fd);
 // }
 
-
 void Commands::handlePRIVMSG(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
@@ -463,13 +433,13 @@ void Commands::handlePRIVMSG(int fd, std::string &command)
             _server.sendMsg(ERR_CANNOTSENDTOCHAN(_server.getClient(fd)->getNickName(), target), fd);
             return;
         }
-        channel->sendMsgToAll(":" + _server.getClient(fd)->getHostname() + " PRIVMSG " + target + " :" + message);
+        channel->sendMsgToAll(":" + _server.getClient(fd)->getHostname() + " PRIVMSG " + target + " :" + message + "\r\n");
         return;
     }
     Client *targetClient = _server.getNickClient(target);
     if (targetClient)
     {
-        targetClient->write(":" + _server.getClient(fd)->getHostname() + " PRIVMSG " + target + " :" + message);
+        targetClient->write(":" + _server.getClient(fd)->getHostname() + " PRIVMSG " + target + " :" + message + "\r\n");
     }
     else
     {
@@ -511,7 +481,7 @@ void Commands::handleTOPIC(int fd, std::string &command)
     {
         std::string topic = command.substr(command.find(tokens[2]));
         channel->setTopicName(topic);
-        channel->sendMsgToAll(":" + client->getHostname() + " TOPIC " + channelName + " :" + topic);
+        channel->sendMsgToAll(":" + client->getHostname() + " TOPIC " + channelName + " :" + topic + "\r\n");
     }
 }
 
@@ -552,34 +522,58 @@ void Commands::handleTOPIC(int fd, std::string &command)
 //     _server.sendMsg(RPL_ENDOFWHO(client->getNickName()), fd);
 // }
 
+void Commands::handleKICK(int fd, std::string &command)
+{
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    if (tokens.size() < 3)
+    {
+        _server.sendMsg(ERR_NOTENOUGHPARAMS(_server.getClient(fd)->getNickName(), "KICK"), fd);
+        return;
+    }
+    std::string target = tokens[1];
+    std::cout << "target: " << target << std::endl;
+    std::string msg = command.substr(command.find(tokens[2]));
+    std::cout << "message: " << msg << std::endl;
+
+
+    // search for the channel
+    // check if the channel exist
+    // check if the client is in the channel
+    // check if the client is admin
+    // check if the client to kick is in the channel
+}
+
 void Commands::handleWHO(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
 
     // Vérifier si le nom du canal est fourni
     std::string channelName;
-    if (tokens.size() > 1) {
-        channelName = tokens[1];  // Le deuxième élément devrait être le nom du canal
-    } else {
+    if (tokens.size() > 1)
+    {
+        channelName = tokens[1]; // Le deuxième élément devrait être le nom du canal
+    }
+    else
+    {
         _server.sendMsg("Usage: NAMES <channel_name>", fd);
         return;
     }
 
     // Obtenir l'instance du canal
-    Channel* channel = _server.getChannel(channelName);
-    if (!channel) {
-        _server.sendMsg("No such channel: " + channelName,fd);
+    Channel *channel = _server.getChannel(channelName);
+    if (!channel)
+    {
+        _server.sendMsg("No such channel: " + channelName, fd);
         return;
     }
 
     // Obtenir la liste des utilisateurs dans le canal
-    std::string userList = channel->getChannelList();  // Utilise la méthode de Channel pour obtenir la liste des utilisateurs
+    std::string userList = channel->getChannelList(); // Utilise la méthode de Channel pour obtenir la liste des utilisateurs
 
     // Préparer et envoyer la réponse
     std::string response = "Users in " + channelName + ": " + userList;
-    _server.sendMsg(response,fd);
+    _server.sendMsg(response, fd);
 }
-
 
 void Commands::handleMODE(int fd, std::string &command)
 {
