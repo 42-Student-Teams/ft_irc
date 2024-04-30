@@ -130,23 +130,6 @@ void Server::rmPfds(int fd) {
     }
 }
 
-// void	Server::RmChannels(int fd){
-// 	for (size_t i = 0; i < this->channels.size(); i++){
-// 		int flag = 0;
-// 		if (channels[i].get_client(fd))
-// 			{channels[i].remove_client(fd); flag = 1;}
-// 		else if (channels[i].get_admin(fd))
-// 			{channels[i].remove_admin(fd); flag = 1;}
-// 		if (channels[i].GetClientsNumber() == 0)
-// 			{channels.erase(channels.begin() + i); i--; continue;}
-// 		if (flag){
-// 			// std::string rpl = ":" + GetClient(fd)->GetNickName() + "!~" + GetClient(fd)->GetUserName() + "@localhost QUIT Quit\r\n";
-// 			// channels[i].sendTo_all(rpl);
-// 		}
-// 	}
-// }
-
-
 void Server::rmClientFromChan(int fd) {
     for (size_t i = 0; i < this->_channels.size(); i++) {
         int flag = 0;
@@ -157,7 +140,7 @@ void Server::rmClientFromChan(int fd) {
             this->_channels[i].rmAdminFd(fd);
             flag = 1;
         }
-        if (this->_channels[i].getClientsNumber() == 0) {
+        if (this->_channels[i].getNbClients() == 0) {
             this->_channels.erase(this->_channels.begin() + i);
             i--;
             continue;
@@ -330,6 +313,23 @@ bool Server::checkAuth(int fd)
 	if (!getClient(fd) || getClient(fd)->getNickName().empty() || getClient(fd)->getUserName().empty() || getClient(fd)->getNickName() == "*"  || !getClient(fd)->getLogedIn())
 		return false;
 	return true;
+}
+
+void    Server::rmChannel(std::string name)
+{
+
+    if (name[0] == '#')
+        name = name.substr(1);
+    
+    for (size_t i = 0; i < _channels.size(); i++)
+    {
+        if (_channels[i].getName() == name)
+        {
+            _channels.erase(_channels.begin() + i);
+            return;
+        }
+    }
+
 }
 
 

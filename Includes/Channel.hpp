@@ -61,7 +61,7 @@ public:
 	int getTopic();
 	int getKey();
 	int getMaxClients();
-	int getClientsNumber();
+	int getNbClients();
 	bool getTopicRestric() const;
 	bool getModeAtindex(size_t index);
 	std::string getTopicName();

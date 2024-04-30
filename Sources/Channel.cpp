@@ -26,7 +26,6 @@ Channel::Channel() : _srv(*new Server())
     char charaters[5] = {'i', 't', 'k', 'o', 'l'};
     for (int i = 0; i < 5; i++)
         _modes.push_back(std::make_pair(charaters[i], false));
-
 }
 
 Channel::Channel(Server &server) : _srv(server)
@@ -44,8 +43,6 @@ Channel::Channel(Server &server) : _srv(server)
     for (int i = 0; i < 5; i++)
         _modes.push_back(std::make_pair(charaters[i], false));
 }
-
-
 
 Channel::~Channel()
 {
@@ -96,7 +93,7 @@ bool Channel::getInviteOnly() { return _inviteOnly; }
 int Channel::getTopic() { return _topic; }
 int Channel::getKey() { return _key; }
 int Channel::getMaxClients() { return _maxClients; }
-int Channel::getClientsNumber() { return this->_clients.size() + this->_admins.size(); }
+int Channel::getNbClients(){return this->_clients.size() + this->_admins.size();}
 bool Channel::getTopicRestric() const { return _isTopicRestricted; }
 bool Channel::getModeAtindex(size_t index) { return _modes[index].second; }
 std::string Channel::getTopicName() { return _topicName; }
@@ -304,7 +301,6 @@ void Channel::sendMsgToAll(std::string rpl1)
 //     }
 // }
 
-
 void Channel::sendMsgToAll(std::string rpl1, int fd)
 {
     for (size_t i = 0; i < _admins.size(); i++)
@@ -351,39 +347,45 @@ void Channel::removeOperator(Client *client)
     }
 }
 
-
-void Channel::changeOperatorStatus(Client* client, const std::string& targetNick, bool adding) {
+void Channel::changeOperatorStatus(Client *client, const std::string &targetNick, bool adding)
+{
     // Vérifier si le client est déjà un opérateur du canal
-    if (!isOperator(client->getNickName())) {
+    if (!isOperator(client->getNickName()))
+    {
         _srv.sendMsg(ERR_CHANOPRIVSNEEDED(client->getNickName(), _name), client->getFD());
         return;
     }
 
     // Recherche du client cible dans le canal
-    Client* targetClient = getClientInChannel(targetNick);
-    if (!targetClient) {
+    Client *targetClient = getClientInChannel(targetNick);
+    if (!targetClient)
+    {
         _srv.sendMsg(ERR_NOSUCHNICK(client->getNickName(), targetNick), client->getFD());
         return;
     }
 
     // Ajout ou suppression du statut d'opérateur
-    if (adding) {
+    if (adding)
+    {
         // Ajouter aux opérateurs si pas déjà un opérateur
-        if (!isOperator(targetNick)) {
+        if (!isOperator(targetNick))
+        {
             storeAdmin(*targetClient);
             _srv.sendMsg(":" + client->getNickName() + " MODE " + _name + " +o " + targetNick, client->getFD());
             sendMsgToAll(":" + client->getNickName() + " MODE " + _name + " +o " + targetNick);
         }
-    } else {
+    }
+    else
+    {
         // Retirer des opérateurs si actuellement un opérateur
-        if (isOperator(targetNick)) {
+        if (isOperator(targetNick))
+        {
             removeOperator(targetClient);
             _srv.sendMsg(":" + client->getNickName() + " MODE " + _name + " -o " + targetNick, client->getFD());
             sendMsgToAll(":" + client->getNickName() + " MODE " + _name + " -o " + targetNick);
         }
     }
 }
-
 
 void Channel::broadcastModeChange(const std::string &prefix, const std::string &modes, const std::string &param)
 {

@@ -230,7 +230,7 @@ void Commands::handleQUIT(int fd, std::string &command)
         {
             channels[i].sendMsgToAll(message, fd); // Envoyer le message de QUIT à tous sauf au client qui quitte
             channels[i].rmClientFd(fd);            // Supprimer le client du canal
-            if (channels[i].getClientsNumber() == 0)
+            if (channels[i].getNbClients() == 0)
             {
                 channels.erase(channels.begin() + i--); // Supprimer le canal s'il est vide
             }
@@ -248,6 +248,7 @@ void Commands::handlePART(int fd, std::string &command)
     std::vector<std::string> tokens = _server.parseCmd(command);
     Client *client = _server.getClient(fd);
 
+
     if (tokens.size() < 2)
     {
         _server.sendMsg(ERR_NEEDMOREPARAMS("*", "PART"), fd);
@@ -255,7 +256,7 @@ void Commands::handlePART(int fd, std::string &command)
     }
 
     std::string channelName = tokens[1]; // Utiliser directement le nom du canal sans boucle
-    std::string partMessage = tokens.size() > 2 ? command.substr(command.find(tokens[2])) : client->getNickName() + " has left the channel.";
+    std::string partMessage = tokens.size() > 2 ? command.substr(command.find(tokens[2])) : client->getNickName() + " has left the channel.\r\n";
 
     // Enlever le traitement de plusieurs canaux avec la virgule - enlever ça
     // Check if the channel name starts with '#'
@@ -280,8 +281,14 @@ void Commands::handlePART(int fd, std::string &command)
         return; // Simplement retourner si le client n'est pas sur le canal
     }
 
-    channel->removeClient(client->getFD());
     channel->sendMsgToAll(":" + client->getHostname() + " PART " + channelName + " :" + partMessage);
+    if (channel->isOperator(nickName))
+        channel->removeOperator(client);
+    else
+        channel->removeClient(client->getFD());
+    // Supprimer le canal s'il est vide
+    if (channel->getNbClients() == 0)
+        _server.rmChannel(channelName);
 }
 
 std::vector<std::string> Commands::split(const std::string &s, char delimiter)
