@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 13:54:42 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/30 17:16:38 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,9 +209,9 @@ void* Server::blinkDots(void* arg) {
         for (int j = 0; j < 3; ++j) {
             std::cout << '.';
             std::cout.flush();
-            usleep(500000); // wait(half a second)
+            usleep(250000); // wait(half a second)
         }
-        usleep(500000);
+        usleep(250000);
     }
     std::cout << std::endl;
     return NULL;

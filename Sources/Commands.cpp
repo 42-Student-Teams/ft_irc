@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 16:42:31 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/30 17:59:49 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -323,7 +323,6 @@ std::vector<std::string> Commands::split(const std::string &s, char delimiter)
 }
 
 
-
 void Commands::handleJOIN(int fd, std::string &command)
 {
 
@@ -359,15 +358,18 @@ void Commands::handleJOIN(int fd, std::string &command)
             }
 
             channel->addClient(client);
-            channel->sendMsgToAll(":" + client->getNickName() + " JOIN " + channelName);
+            channel->sendMsgToAll(client->getNickName() +  " has join the channel : " + channelName + "\n");
+            //channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
         else if (channelName[0] == '#')
         {
             channel = _server.createChannel(channelName, key, client);
             channel->addClient(client);
             channel->addOperator(client);
-            channel->sendMsgToAll(":" + client->getNickName() + " JOIN " + channelName);
+            channel->sendMsgToAll(client->getNickName() +  " has join the channel : " + channelName + "\n");
+            //channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
+
 
         if (!key.empty() && channel->getKey() != std::stoi(key))
         {
