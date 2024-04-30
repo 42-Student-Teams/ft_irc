@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:48 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 12:26:33 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/30 12:36:53 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ class Server
         void                        sendMsg(std::string msg, int fd);
         void                        sendErrToClient(int code, std::string clientname, int fd, std::string msg);
         void                        sendErrInChannel(int code, std::string clientname, std::string channelname, int fd, std::string msg);
-      
+        void                        sendWelcome() const;
     
         /*-------------------------SERVER SETTINGS-----------------------------------*/
         void                        run(int port, std::string pass);

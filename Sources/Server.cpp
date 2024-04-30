@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/26 16:26:31 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/30 12:47:17 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,12 +189,23 @@ void Server::sendErrInChannel(int code, std::string clientname, std::string chan
         std::cerr << "send() failed" << std::endl;
 }
 
+void Server::sendWelcome() const {
+    std::cout << "*****************************************\n"
+                "*                                       *\n"
+                "*   SERVER IRC                          *\n"
+                "*                                       *\n"
+                "*   By: Inaranjo/Lamilton/Neila         *\n"
+                "*                                       *\n"
+                "*****************************************\n\n";
+}
+
 
 void Server::run(int port, std::string pass) {
     this->_pass = pass;
     this->_port = port;
     this->createSocket();
-
+    this->sendWelcome();    
+    
     std::cout << "Waiting to accept a connection...\n";
     while (_signal == false) {
         if ((poll(&_pfds[0], _pfds.size(), -1) == -1) && _signal == false)

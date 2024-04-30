@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 20:20:20 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/19 20:21:21 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/30 12:43:37 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ int main(int ac, char **av)
 	Server ser;
 	if (ac != 3)
 		{std::cout << "Usage: " << av[0] << " <port number> <password>" << std::endl; return 1;}
-	std::cout << "---- SERVER ----" << std::endl;
 	try
 	{
 		signal(SIGINT, Server::handleSignal);
