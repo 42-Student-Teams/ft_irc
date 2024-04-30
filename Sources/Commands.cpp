@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/29 19:18:03 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/30 14:03:04 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,7 +162,7 @@ void Commands::handleNICK(int fd, std::string &command)
     }
     else if (oldNick.empty())
     {                                                // Si c'est la première fois que le client est enregistré
-        _server.sendMsg(RPL_CONNECTED(newNick), fd); // Bienvenue au nouvel utilisateur
+        _server.sendMsg(RPL_SUCC_CONNEC(newNick), fd); // Bienvenue au nouvel utilisateur
     }
 }
 
