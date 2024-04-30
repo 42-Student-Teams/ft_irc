@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Reply.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:04:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/25 12:44:15 by Probook          ###   ########.fr       */
+/*   Updated: 2024/04/30 13:35:15 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,3 +69,17 @@
 #define RPL_ENDOFWHO(nickname)                          "366 " + nickname + " :End of WHO list" + CRLF
 #define ERR_BADCHANNELKEY(source, channel)              "475 " + source + " " + channel + " :Cannot join channel (+k)" + CRLF
 #define ERR_NEEDMOREPARAMS(source, command)             ("461 " + std::string(source) + " " + std::string(command) + " :Not enough parameters" + CRLF)
+
+
+ static inline void log(const std::string& message) {
+        time_t      rawtime;
+        struct tm   *timeinfo;
+        char        buffer[80];
+
+        time(&rawtime);
+        timeinfo = localtime(&rawtime);
+        strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
+        std::string str(buffer);
+
+        std::cout << "\033[0;34m[" << str << "]\033[0m " << message << std::endl;
+    }

@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:48 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 12:36:53 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/30 13:40:27 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@
 #define RESET "\e[0;37m"
 #define GREEN "\e[1;32m"
 #define YELLLOW "\e[1;33m"
+#define ORANGE "\e[38;5;214m" 
 
 class Client;
 class Channel;
@@ -99,6 +100,7 @@ class Server
         void                        sendErrToClient(int code, std::string clientname, int fd, std::string msg);
         void                        sendErrInChannel(int code, std::string clientname, std::string channelname, int fd, std::string msg);
         void                        sendWelcome() const;
+        static void                 *blinkDots(void* arg);
     
         /*-------------------------SERVER SETTINGS-----------------------------------*/
         void                        run(int port, std::string pass);

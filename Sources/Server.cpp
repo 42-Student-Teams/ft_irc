@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 12:47:17 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/30 13:54:42 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,14 +199,37 @@ void Server::sendWelcome() const {
                 "*****************************************\n\n";
 }
 
+void* Server::blinkDots(void* arg) {
+    (void)arg;
+    
+    std::string waitingMSG = "Waiting for a client connection";
+    for (int i = 0; i < 4; ++i) {
+        std::cout << "\r" << ORANGE << waitingMSG << RESET;
+        std::cout.flush();
+        for (int j = 0; j < 3; ++j) {
+            std::cout << '.';
+            std::cout.flush();
+            usleep(500000); // wait(half a second)
+        }
+        usleep(500000);
+    }
+    std::cout << std::endl;
+    return NULL;
+}
 
 void Server::run(int port, std::string pass) {
     this->_pass = pass;
     this->_port = port;
     this->createSocket();
     this->sendWelcome();    
+
+    pthread_t thread_id;
+    if (pthread_create(&thread_id, NULL, Server::blinkDots, NULL) != 0) {
+        std::cerr << "Failed creating thread" << std::endl;
+        return;
+    }
     
-    std::cout << "Waiting to accept a connection...\n";
+   //std::cout << "Waiting to accept a connection...\n";
     while (_signal == false) {
         if ((poll(&_pfds[0], _pfds.size(), -1) == -1) && _signal == false)
             throw(std::runtime_error("poll() failed"));
@@ -218,6 +241,10 @@ void Server::run(int port, std::string pass) {
                     this->handleClientInput(_pfds[i].fd);
             }
         }
+        
+    }
+    if (pthread_join(thread_id, NULL) != 0) {
+        std::cerr << "Failed to join blinking dots thread" << std::endl;
     }
     rmFds();
 }
@@ -252,25 +279,6 @@ void Server::createSocket() {
     _pfds.push_back(_newConnection);
 }
 
-// void Server::accept_new_client()
-// {
-// 	Client cli;
-// 	memset(&cliadd, 0, sizeof(cliadd));
-// 	socklen_t len = sizeof(cliadd);
-// 	int incofd = accept(server_fdsocket, (sockaddr *)&(cliadd), &len);
-// 	if (incofd == -1)
-// 		{std::cout << "accept() failed" << std::endl; return;}
-// 	if (fcntl(incofd, F_SETFL, O_NONBLOCK) == -1)
-// 		{std::cout << "fcntl() failed" << std::endl; return;}
-// 	new_cli.fd = incofd;
-// 	new_cli.events = POLLIN;
-// 	new_cli.revents = 0;
-// 	cli.SetFd(incofd);
-// 	cli.setIpAdd(inet_ntoa((cliadd.sin_addr)));
-// 	clients.push_back(cli);
-// 	fds.push_back(new_cli);
-// 	std::cout << GRE << "Client <" << incofd << "> Connected" << WHI << std::endl;
-// }
 
 void Server::handleClientConnection() {
     Client cli;
@@ -381,44 +389,3 @@ void Server::execCmd( std::string& cmd, int fd)
     Commands cmdHandler(*this);
     cmdHandler.handleCommand(fd,cmd);
 }
-
-
-// void Server::execCmd(std::string &cmd, int fd)
-// {
-// 	if(cmd.empty())
-// 		return ;
-// 	std::vector<std::string> splited_cmd = parseCmd(cmd);
-// 	size_t found = cmd.find_first_not_of(" \t\v");
-// 	if(found != std::string::npos)
-// 		cmd = cmd.substr(found);
-//     if(splited_cmd.size() && (splited_cmd[0] == "PASS" || splited_cmd[0] == "pass"))
-//         PASS(fd, cmd);
-// 	else if (splited_cmd.size() && (splited_cmd[0] == "NICK" || splited_cmd[0] == "nick"))
-// 		NICK(cmd,fd);
-// 	else if(splited_cmd.size() && (splited_cmd[0] == "USER" || splited_cmd[0] == "user"))
-// 		USER(cmd, fd);
-// 	// else if (splited_cmd.size() && (splited_cmd[0] == "QUIT" || splited_cmd[0] == "quit"))
-// 	// 	QUIT(cmd,fd);
-// 	else if(notRegistered(fd))
-// 	{
-// 		// if (splited_cmd.size() && (splited_cmd[0] == "KICK" || splited_cmd[0] == "kick"))
-// 		// 	KICK(cmd, fd);
-// 		// else if (splited_cmd.size() && (splited_cmd[0] == "JOIN" || splited_cmd[0] == "join"))
-// 		// 	JOIN(cmd, fd);
-// 		// else if (splited_cmd.size() && (splited_cmd[0] == "TOPIC" || splited_cmd[0] == "topic"))
-// 		// 	Topic(cmd, fd);
-// 		// else if (splited_cmd.size() && (splited_cmd[0] == "MODE" || splited_cmd[0] == "mode"))
-// 		// 	MODE(cmd, fd);
-// 		// else if (splited_cmd.size() && (splited_cmd[0] == "PART" || splited_cmd[0] == "part"))
-// 		// 	PART(cmd, fd);
-// 		// else if (splited_cmd.size() && (splited_cmd[0] == "PRIVMSG" || splited_cmd[0] == "privmsg"))
-// 		// 	PRIVMSG(cmd, fd);
-// 		// else if (splited_cmd.size() && (splited_cmd[0] == "INVITE" || splited_cmd[0] == "invite"))
-// 		// 	Invite(cmd,fd);
-// 		// else if (splited_cmd.size())
-// 		// 	sendMsg(ERR_CMDNOTFOUND(getClient(fd)->getNickName(),splited_cmd[0]),fd);
-// 	}
-// 	else if (!notRegistered(fd))
-// 		sendMsg(ERR_NOTREGISTERED(std::string("*")),fd);
-// }
-// //---------------//Parsing Methods
