@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 14:03:04 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/30 16:42:31 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -348,15 +348,16 @@ void Commands::handleJOIN(int fd, std::string &command)
         std::string channelName = channels[i];
         std::string key = i < keys.size() ? keys[i] : "";
 
-        if (channelName.empty()) //|| channelName[0] != '#')
-        {
-            _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
-            continue;
-        }
-
         Channel *channel = _server.getChannel(channelName);
         if (channel)
         {
+             // Vérifie si le canal est en mode invitation seulement
+            if (channel->getInviteOnly() && !channel->isClientInChannel(fd))
+            {
+                _server.sendMsg(ERR_INVITEONLYCHAN(client->getNickName(), channelName), fd);
+                continue; // Ne pas permettre au client de rejoindre le canal
+            }
+
             channel->addClient(client);
             channel->sendMsgToAll(":" + client->getNickName() + " JOIN " + channelName);
         }

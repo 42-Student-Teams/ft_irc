@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:04:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 14:11:33 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/30 15:14:10 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,14 @@
 #define RPL_ENDOFWHO(nickname)                          "366 " + nickname + " :End of WHO list" + CRLF
 #define ERR_BADCHANNELKEY(source, channel)              "475 " + source + " " + channel + " :Cannot join channel (+k)" + CRLF
 #define ERR_NEEDMOREPARAMS(source, command)             ("461 " + std::string(source) + " " + std::string(command) + " :Not enough parameters" + CRLF)
+
+
+
+
+#define ERR_INVITEONLYCHAN(nickname, channelname) (": 473 " + nickname + " #" + channelname + " :Cannot join channel (+i)" + CRLF)
+
+#define RPL_INVITING(nickname, channelname) (":" + nickname + " 341 " + nickname + " " + channelname + " :You have been invited to join " + channelname + CRLF)
+
 
 
  static inline void log(const std::string& message) {

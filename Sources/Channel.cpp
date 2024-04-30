@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:18 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/29 19:18:59 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/04/30 16:04:22 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,7 @@ void Channel::setTopicControl(bool flag) { _isTopicRestricted = flag; }
 
 // Getters
 int Channel::getVIP() { return _VIP; }
+bool Channel::getInviteOnly() { return _inviteOnly; }
 int Channel::getTopic() { return _topic; }
 int Channel::getKey() { return _key; }
 int Channel::getMaxClients() { return _maxClients; }
@@ -314,35 +315,6 @@ void Channel::removeOperator(Client *client)
     }
 }
 
-// void Channel::changeOperatorStatus(Client *client, const std::string &targetNick, bool adding)
-// {
-//     if (!isOperator(client->getNickName()))
-//     {
-//         _srv.sendMsg(ERR_CHANOPRIVSNEEDED(client->getNickName(), targetNick), client->getFD()); // Assurez-vous que getName() est la méthode appropriée pour obtenir le nom du canal.
-//         return;
-//     }
-//     std::string refNick = client->getNickName();
-
-//     Client *target = _srv.getClient(client->getFD());
-//     if (target && isClientInChannel(client->getFD()))
-//     {
-//         if (adding)
-//         {
-//             addOperator(target);
-//         }
-//         else
-//         {
-//             removeOperator(target);
-//         }
-//     }
-//     else
-//     {
-//         // send_message(ERR_NOSUCHNICK(client->getNickName(), targetNick));
-//         _srv.sendMsg(ERR_NOSUCHNICK(client->getNickName(), targetNick), client->getFD());
-//         // client->(ERR_NOSUCHNICK(client->getNickName(), targetNick));
-//         // Server.-
-//     }
-// }
 
 void Channel::changeOperatorStatus(Client* client, const std::string& targetNick, bool adding) {
     // Vérifier si le client est déjà un opérateur du canal
