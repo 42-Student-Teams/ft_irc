@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:51:34 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/29 19:07:12 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/01 12:57:11 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class Commands
         void handleQUIT(int fd, std::string& command);
         void handlePING(int fd, std::string& command);
         void handleKICK(int fd, std::string& command);
+        void handleINVITE(int fd, std::string& command);
         // void handleLIST(int fd, std::string& command);
 
         std::vector<std::string> split(const std::string& s, char delimiter);

@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:04:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/01 12:44:31 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/01 12:58:30 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,8 @@
 
 #define RPL_INVITING(nickname, channelname) (":" + nickname + " 341 " + nickname + " " + channelname + " :You have been invited to join " + channelname + CRLF)
 
+#define ERR_ALREADYONCHANNEL(nickname, channelname) (": 443 " + nickname + " " + channelname + " :is already on channel" + CRLF)
+#define RPL_INVITATIONSENT(nickname, target, channelname) (": 341 " + nickname + " " + target + " " + channelname + " :Invitation to join " + channelname + " sent" + CRLF)
 
 
  static inline void log(const std::string& message) {
