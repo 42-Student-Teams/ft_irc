@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/01 13:29:52 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/01 13:37:46 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -695,68 +695,11 @@ void Commands::handleMODE(int fd, std::string &command)
     channel->broadcastModeChange(client->getHostname(), modeChanges, modeParam);
 }
 
-// void Commands::handleINVITE(int fd, std::string &command)
-// {
-//     std::vector<std::string> tokens = _server.parseCmd(command);
-//     if (tokens.size() < 3)
-//     {
-//         _server.sendMsg(ERR_NEEDMOREPARAMS(_server.getClient(fd)->getNickName(), "INVITE"), fd);
-//         return;
-//     }
-
-//     std::string targetNick = tokens[1];
-//     std::string channelName = tokens[2];
-
-//     Client *inviter = _server.getClient(fd);
-//     Channel *channel = _server.getChannel(channelName);
-//     if (!channel)
-//     {
-//         _server.sendMsg(ERR_NOSUCHCHANNEL(inviter->getNickName(), channelName), fd);
-//         return;
-//     }
-
-//     if (!channel->getInviteOnly())
-//     {
-//         _server.sendMsg(ERR_INVITEONLYCHAN(inviter->getNickName(), channelName), fd);
-//         return;
-//     }
-
-//     Client *targetClient = _server.getNickClient(targetNick);
-//     if (!targetClient)
-//     {
-//         _server.sendMsg(ERR_NOSUCHNICK(inviter->getNickName(), targetNick), fd);
-//         return;
-//     }
-
-//     // Check if the inviter is an operator in the channel
-//     if (!channel->isOperator(inviter->getNickName()))
-//     {
-//         _server.sendMsg(ERR_CHANOPRIVSNEEDED(inviter->getNickName(), channelName), fd);
-//         return;
-//     }
-
-//     // Check if the target client is already in the channel
-//     if (channel->isClientInChannel(targetClient->getFD()))
-//     {
-//         _server.sendMsg(ERR_ALREADYONCHANNEL(inviter->getNickName(), channelName), fd);
-//         return;
-//     }
-
-//     // Send invite to the target client
-//     targetClient->write(RPL_INVITING(inviter->getNickName(), channelName));
-
-//     // Send confirmation to the inviter
-//     _server.sendMsg(RPL_INVITATIONSENT(inviter->getNickName(), targetNick, channelName), fd);
-// }
-
 void Commands::handleINVITE(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
     if (tokens.size() < 3)
-    {
-        // Pas assez de paramètres
         return;
-    }
 
     std::string inviterNick = _server.getClient(fd)->getNickName();
     std::string targetNick = tokens[1];
