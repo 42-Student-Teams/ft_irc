@@ -369,17 +369,17 @@ bool Server::isNicknameInUse( std::string& nickname){
     return false;
 }
 
-void Server::handleNickCollision(std::string& nickname) {
-    // Parcourir la liste des clients et trouver tous ceux avec le pseudonyme en collision
-    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ) {
-        if (it->getNickName() == nickname) {
-            sendMsg(ERR_NICKCOLLISION(nickname), it->getFD());
-            it = _clients.erase(it);  // Supprimer le client du vecteur et avancer l'itérateur
-        } else {
-            ++it;
-        }
-    }
-}
+// void Server::handleNickCollision(std::string& nickname) {
+//     // Parcourir la liste des clients et trouver tous ceux avec le pseudonyme en collision
+//     for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ) {
+//         if (it->getNickName() == nickname) {
+//             sendMsg(ERR_NICKCOLLISION(nickname), it->getFD());
+//             it = _clients.erase(it);  // Supprimer le client du vecteur et avancer l'itérateur
+//         } else {
+//             ++it;
+//         }
+//     }
+// }
 
 
 void Server::execCmd( std::string& cmd, int fd)
