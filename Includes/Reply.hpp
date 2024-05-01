@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:04:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/01 13:04:08 by Probook          ###   ########.fr       */
+/*   Updated: 2024/05/01 13:43:36 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@
 #define ERR_BADCHANNELKEY(source, channel)              "475 " + source + " " + channel + " :Cannot join channel (+k)" + CRLF
 #define ERR_NEEDMOREPARAMS(source, command)             ("461 " + std::string(source) + " " + std::string(command) + " :Not enough parameters" + CRLF)
 #define ERR_USERNOTINCHANNEL(nickname, name, channel)   (": 441 " + nickname + " " + name + " " + channel + " :They aren't on that channel" + CRLF)
+#define ERR_CHANNELISFULL(nickname, channelname) ("471 " + nickname + " #" + channelname + " :Cannot join channel (+l)" + CRLF)
 
 
 
@@ -79,6 +80,8 @@
 
 #define RPL_INVITING(nickname, channelname) (":" + nickname + " 341 " + nickname + " " + channelname + " :You have been invited to join " + channelname + CRLF)
 
+#define ERR_ALREADYONCHANNEL(nickname, channelname) (": 443 " + nickname + " " + channelname + " :is already on channel" + CRLF)
+#define RPL_INVITATIONSENT(nickname, target, channelname) (": 341 " + nickname + " " + target + " " + channelname + " :Invitation to join " + channelname + " sent" + CRLF)
 
 
  static inline void log(const std::string& message) {

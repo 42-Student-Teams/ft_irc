@@ -6,7 +6,7 @@
 /*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/01 13:28:39 by Probook          ###   ########.fr       */
+/*   Updated: 2024/05/01 13:44:34 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,10 @@ void Commands::handleCommand(int fd, std::string &command)
             handleKICK(fd, command);
         else if (cmdType == "NOTICE" || cmdType == "notice")
             handleNOTICE(fd, command);
+        else if (cmdType == "INVITE" || cmdType == "invite")
+            handleINVITE(fd, command);
+        else
+            _server.sendMsg(ERR_CMDNOTFOUND(_server.getClient(fd)->getNickName(), cmdType), fd);
     }
     else if (!_server.checkAuth(fd))
         _server.sendMsg(ERR_NOTREGISTERED2("*"), fd);
@@ -342,6 +346,12 @@ void Commands::handleJOIN(int fd, std::string &command)
             {
                 _server.sendMsg(ERR_BADCHANNELKEY(client->getNickName(), channelName), fd);
                 continue; // Clé incorrecte, ne pas permettre au client de rejoindre le canal
+            }
+            
+            if (channel->getMaxClients() != 0 && channel->getNbClients() >= channel->getMaxClients())
+            {
+                _server.sendMsg(ERR_CHANNELISFULL(client->getNickName(), channelName), fd);
+                continue; // Le canal est plein, ne pas permettre au client de rejoindre le canal
             }
 
             channel->addClient(client);
@@ -721,6 +731,49 @@ void Commands::handleMODE(int fd, std::string &command)
 
     channel->broadcastModeChange(client->getHostname(), modeChanges, modeParam);
 }
+
+void Commands::handleINVITE(int fd, std::string &command)
+{
+    std::vector<std::string> tokens = _server.parseCmd(command);
+    if (tokens.size() < 3)
+        return;
+
+    std::string inviterNick = _server.getClient(fd)->getNickName();
+    std::string targetNick = tokens[1];
+    std::string channelName = tokens[2];
+
+    Channel *channel = _server.getChannel(channelName);
+    if (!channel)
+    {
+        // Le canal n'existe pas
+        _server.sendMsg(ERR_NOSUCHCHANNEL(inviterNick, channelName), fd);
+        return;
+    }
+
+    if (channel->getInviteOnly())
+    {
+        // Supprimer le mode invite seulement
+        channel->setInviteOnly(false);
+        // Envoyer une confirmation
+        _server.sendMsg(RPL_INVITATIONSENT(inviterNick, targetNick, channelName), fd);
+    }
+
+    // Vérifier si le client cible existe
+    Client *targetClient = _server.getNickClient(targetNick);
+    if (!targetClient)
+    {
+        // Le client cible n'existe pas
+        _server.sendMsg(ERR_NOSUCHNICK(inviterNick, targetNick), fd);
+        return;
+    }
+
+    // Envoyer l'invitation au client cible
+    channel->addClient(targetClient);
+    // Envoyer un message au client invité pour l'informer de l'invitation
+    targetClient->write(RPL_INVITING(inviterNick, channelName));
+}
+
+
 
 void Commands::handlePING(int fd, std::string &command)
 {
