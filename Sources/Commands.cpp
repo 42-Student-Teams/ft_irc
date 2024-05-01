@@ -276,14 +276,14 @@ void Commands::handlePART(int fd, std::string &command)
         return;
     }
 
+    // print tokens
     std::string channelName = tokens[1]; // Utiliser directement le nom du canal sans boucle
     std::string partMessage = tokens.size() > 2 ? command.substr(command.find(tokens[2])) : client->getNickName() + " has left the channel.\r\n";
 
-    // Enlever le traitement de plusieurs canaux avec la virgule - enlever ça
     // Check if the channel name starts with '#'
     if (channelName.empty() || channelName[0] != '#')
     {
-        _server.sendMsg("ERROR " + client->getNickName() + " :Missing # to leave a channel", fd);
+        _server.sendMsg("ERROR " + client->getNickName() + " :Missing # to leave a channel\r\n", fd);
         return; // Simplement retourner si le format n'est pas correct
     }
 
@@ -309,9 +309,7 @@ void Commands::handlePART(int fd, std::string &command)
             _server.rmChannel(channelName);
     }
     else
-    {
         _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName + "\r\n"), fd);
-    }
 }
 
 std::vector<std::string> Commands::split(const std::string &s, char delimiter)
@@ -373,6 +371,8 @@ void Commands::handleJOIN(int fd, std::string &command)
             channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\r\n");
             // channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
+        else
+            _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
 
         if (!key.empty() && channel->getKey() != std::stoi(key))
         {
