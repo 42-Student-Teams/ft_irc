@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/01 11:36:35 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/01 12:01:21 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -337,6 +337,12 @@ void Commands::handleJOIN(int fd, std::string &command)
                 _server.sendMsg(ERR_INVITEONLYCHAN(client->getNickName(), channelName), fd);
                 continue; // Ne pas permettre au client de rejoindre le canal
             }
+            
+            if (channel->getKey() != 0 && key != std::to_string(channel->getKey()))
+            {
+                _server.sendMsg(ERR_BADCHANNELKEY(client->getNickName(), channelName), fd);
+                continue; // Clé incorrecte, ne pas permettre au client de rejoindre le canal
+            }
 
             channel->addClient(client);
             channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\n");
@@ -350,13 +356,7 @@ void Commands::handleJOIN(int fd, std::string &command)
             channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\n");
             // channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
-
-        if (!key.empty() && channel->getKey() != std::stoi(key))
-        {
-            _server.sendMsg(ERR_BADCHANNELKEY(client->getNickName(), channelName), fd);
-            continue;
-        }
-
+        
         try
         {
             if (!key.empty() && std::stoi(key) != channel->getKey())
