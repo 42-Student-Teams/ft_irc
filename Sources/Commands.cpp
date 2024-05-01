@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/01 12:01:21 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/01 12:44:52 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -342,6 +342,12 @@ void Commands::handleJOIN(int fd, std::string &command)
             {
                 _server.sendMsg(ERR_BADCHANNELKEY(client->getNickName(), channelName), fd);
                 continue; // Clé incorrecte, ne pas permettre au client de rejoindre le canal
+            }
+            
+            if (channel->getMaxClients() != 0 && channel->getNbClients() >= channel->getMaxClients())
+            {
+                _server.sendMsg(ERR_CHANNELISFULL(client->getNickName(), channelName), fd);
+                continue; // Le canal est plein, ne pas permettre au client de rejoindre le canal
             }
 
             channel->addClient(client);
