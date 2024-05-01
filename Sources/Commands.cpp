@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/01 10:23:28 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/01 11:36:35 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -484,7 +484,8 @@ void Commands::handleTOPIC(int fd, std::string &command)
             _server.sendMsg(RPL_TOPIC(client->getNickName(), channelName, topic), fd);
         }
     }
-  {
+    else if (tokens.size() >= 3) // Vérifier si au moins 3 tokens sont présents
+    {
         // Vérifier si le mode "t" est activé
         if (channel->getTopicRestric())
         {
@@ -499,6 +500,11 @@ void Commands::handleTOPIC(int fd, std::string &command)
         std::string topic = command.substr(command.find(tokens[2]));
         channel->setTopicName(topic);
         channel->sendMsgToAll(":" + client->getHostname() + " TOPIC " + channelName + " :" + topic + "\r\n");
+    }
+    else
+    {
+        // Gérer le cas où 'tokens' ne contient pas suffisamment d'éléments
+        _server.sendMsg(ERR_NEEDMOREPARAMS(client->getNickName(), "TOPIC"), fd);
     }
 }
 
