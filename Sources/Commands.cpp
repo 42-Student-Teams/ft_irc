@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 17:59:49 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/01 10:23:28 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -484,13 +484,24 @@ void Commands::handleTOPIC(int fd, std::string &command)
             _server.sendMsg(RPL_TOPIC(client->getNickName(), channelName, topic), fd);
         }
     }
-    else
-    {
+  {
+        // Vérifier si le mode "t" est activé
+        if (channel->getTopicRestric())
+        {
+            // Vérifier si le client est autorisé à modifier le sujet
+            if (!channel->isOperator(client->getNickName()))
+            {
+                _server.sendMsg(ERR_CHANOPRIVSNEEDED(client->getNickName(), channelName), fd);
+                return;
+            }
+        }
+
         std::string topic = command.substr(command.find(tokens[2]));
         channel->setTopicName(topic);
         channel->sendMsgToAll(":" + client->getHostname() + " TOPIC " + channelName + " :" + topic + "\r\n");
     }
 }
+
 
 // void Commands::handleWHO(int fd, std::string &command)
 // {
