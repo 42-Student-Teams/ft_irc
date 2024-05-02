@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:18 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 13:04:16 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 13:12:58 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,6 +282,7 @@ void Channel::sendMsgToAll(std::string rpl1, int fd)
                 std::cerr << "send() faild" << std::endl;
     }
 }
+
 
 void Channel::addOperator(Client *client)
 {
