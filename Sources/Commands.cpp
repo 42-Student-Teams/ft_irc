@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/05/02 13:14:22 by inaranjo         ###   ########.fr       */
+/*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
+/*   Updated: 2024/05/02 13:31:39 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -518,6 +518,55 @@ void Commands::handleTOPIC(int fd, std::string &command)
 }
 
 
+// void Commands::handleWHO(int fd, std::string &command)
+// {
+//     std::vector<std::string> tokens = _server.parseCmd(command);
+//     Client *client = _server.getClient(fd);
+//     std::vector<Channel *> channels;
+
+//     if (tokens.size() > 1)
+//     {
+//         std::string channelName = tokens[1];
+//         Channel *channel = _server.getChannel(channelName);
+//         if (channel)
+//         {
+//             channels.push_back(channel);
+//         }
+//         else
+//         {
+//             _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
+//             return;
+//         }
+//     }
+//     else
+//     {
+//         // channels = _server.getAllChannels();
+//     }
+
+//     for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
+//     {
+//         std::vector<Client *> clients = (*it)->getClients();
+//         for (std::vector<Client *>::iterator cit = clients.begin(); cit != clients.end(); ++cit)
+//         {
+//             _server.sendMsg(RPL_WHOREPLY(client->getNickName(), (*it)->getName(), (*cit)->getInfo()), fd);
+//         }
+//     }
+
+//     _server.sendMsg(RPL_ENDOFWHO(client->getNickName()), fd);
+// }
+
+// Function to trim whitespace from the start and end of a string
+static inline std::string trim(const std::string& str)
+{
+    const char* whitespace = " \t\n\r\f\v"; // Define whitespace characters
+    std::string::size_type start = str.find_first_not_of(whitespace);
+    if (start == std::string::npos) // If the string is all whitespace
+        return ""; // Return an empty string
+
+    std::string::size_type end = str.find_last_not_of(whitespace);
+    return str.substr(start, end - start + 1);
+}
+
 void Commands::handleKICK(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
@@ -526,10 +575,42 @@ void Commands::handleKICK(int fd, std::string &command)
         _server.sendMsg(ERR_NOTENOUGHPARAMS(_server.getClient(fd)->getNickName(), "KICK"), fd);
         return;
     }
-    std::string target = tokens[1];
-    std::cout << "target: " << target << std::endl;
-    std::string msg = command.substr(command.find(tokens[2]));
-    std::cout << "message: " << msg << std::endl;
+    std::string channelName = tokens[1];
+    std::string targetNickName = tokens[2];
+    std::string msg = command.substr(command.find(targetNickName) + targetNickName.length());
+    msg = trim(msg);  // Assuming you've implemented trim as suggested earlier.
+
+    // Rechercher le canal
+    Channel *channel = _server.getChannel(channelName);
+    // Vérifier si le canal existe
+    if (channel == nullptr)
+    {
+        _server.sendMsg(ERR_NOSUCHCHANNEL(_server.getClient(fd)->getNickName(), channelName), fd);
+        return;
+    }
+    // Vérifier si le client est dans le canal
+    if (!channel->isClientInChannel(fd))
+    {
+        _server.sendMsg(ERR_NOTONCHANNEL(_server.getClient(fd)->getNickName(), channelName), fd);
+        return;
+    }
+    // Vérifier si le client est admin
+    if (!channel->isOperator(_server.getClient(fd)->getNickName())) {
+        _server.sendMsg(ERR_CHANOPRIVSNEEDED(_server.getClient(fd)->getNickName(), channelName), fd);
+        return;
+    }
+    // Vérifier si le client à expulser est dans le canal
+    Client* targetClient = channel->getClientInChannel(targetNickName);
+    if (targetClient == nullptr)
+    {
+        _server.sendMsg(ERR_USERNOTINCHANNEL(_server.getClient(fd)->getNickName(), targetNickName, channelName), fd);
+        return;
+    }
+    int targetFd = targetClient->getFD();
+    // Expulser le client
+    channel->rmClientFd(targetFd);
+    // Envoyer le message à tous les clients du canal
+    channel->sendMsgToAll(":" + _server.getClient(fd)->getNickName() + " KICK " + channelName + " " + targetNickName + " :" + msg);
 }
 
 void Commands::handleWHO(int fd, std::string &command)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Reply.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: Probook <Probook@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:04:00 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/01 12:58:30 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/01 13:43:36 by Probook          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@
 #define RPL_ENDOFWHO(nickname)                          "366 " + nickname + " :End of WHO list" + CRLF
 #define ERR_BADCHANNELKEY(source, channel)              "475 " + source + " " + channel + " :Cannot join channel (+k)" + CRLF
 #define ERR_NEEDMOREPARAMS(source, command)             ("461 " + std::string(source) + " " + std::string(command) + " :Not enough parameters" + CRLF)
+#define ERR_USERNOTINCHANNEL(nickname, name, channel)   (": 441 " + nickname + " " + name + " " + channel + " :They aren't on that channel" + CRLF)
 #define ERR_CHANNELISFULL(nickname, channelname) ("471 " + nickname + " #" + channelname + " :Cannot join channel (+l)" + CRLF)
 
 
