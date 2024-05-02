@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 17:16:38 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 22:51:36 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,15 +28,15 @@ Server &Server::operator=(Server const &src) {
         this->_clients = src._clients;
         this->_channels = src._channels;
         this->_pfds = src._pfds;
-        this->_serverAddr = src._serverAddr;
-        this->_clientAddr = src._clientAddr;
         this->_newConnection = src._newConnection;
+        this->_clientAddr = src._clientAddr;
+        this->_serverAddr = src._serverAddr;
     }
     return *this;
 }
 
-void Server::handleSignal(int signum) {
-    (void)signum;
+void Server::handleSignal(int sign) {
+    (void)sign;
     std::cout << std::endl << "Signal Received!" << std::endl;
     Server::_signal = true;
 }
@@ -84,13 +84,6 @@ Channel *Server::getChannel(std::string name) {
     return nullptr;
 }
 
-// std::vector<Channel*> Server::getAllChannels() {
-//     std::vector<Channel*> allChannels;
-//     for (Channel& channel : _channels) {
-//         allChannels.push_back(&channel);
-//     }
-//     return allChannels;
-// }
 std::vector<Channel>& Server::getChannels() { return _channels; }
 
 void Server::setFD(int fd) { this->_socketFD = fd; }
@@ -146,8 +139,8 @@ void Server::rmClientFromChan(int fd) {
             continue;
         }
         if (flag) {
-            std::string rpl = ":" + getClient(fd)->getNickName() + "!~" + getClient(fd)->getUserName() + "@localhost QUIT Quit\r\n";
-            this->_channels[i].sendMsgToAll(rpl);
+            std::string send = ":" + getClient(fd)->getNickName() + "!~" + getClient(fd)->getUserName() + "@localhost QUIT Quit\r\n";
+            this->_channels[i].sendMsgToAll(send);
         }
     }
 }
@@ -155,20 +148,6 @@ void Server::rmClientFromChan(int fd) {
 void Server::sendMsg(std::string msg, int fd) {
     if (send(fd, msg.c_str(), msg.size(), 0) == -1)
         std::cerr << "msg send() failed" << std::endl;
-}
-void Server::sendErrToClient(int code, std::string clientname, int fd, std::string msg) {
-    std::stringstream ss;
-    ss << ":localhost " << code << " " << clientname << msg;
-    std::string resp = ss.str();
-    if (send(fd, resp.c_str(), resp.size(), 0) == -1)
-        std::cerr << "send() failed" << std::endl;
-}
-void Server::sendErrInChannel(int code, std::string clientname, std::string channelname, int fd, std::string msg) {
-    std::stringstream ss;
-    ss << ":localhost " << code << " " << clientname << " " << channelname << msg;
-    std::string resp = ss.str();
-    if (send(fd, resp.c_str(), resp.size(), 0) == -1)
-        std::cerr << "send() failed" << std::endl;
 }
 
 void Server::sendWelcome() const {
@@ -200,10 +179,10 @@ void* Server::blinkDots(void* arg) {
 }
 
 void Server::run(int port, std::string pass) {
-    this->_pass = pass;
-    this->_port = port;
-    this->createSocket();
-    this->sendWelcome();    
+    _port = port;
+    _pass = pass;
+    createSocket();
+    sendWelcome();    
 
     pthread_t thread_id;
     if (pthread_create(&thread_id, NULL, Server::blinkDots, NULL) != 0) {
@@ -239,27 +218,54 @@ void Server::handleClientDisconnect(int fd) {
 }
 
 void Server::createSocket() {
-    int en = 1;
+    int reuseAddr = 1;
+    bool socketCreationFailed = false;
+    bool setsockoptFailed = false;
+    bool setNonBlockingFailed = false;
+    bool bindFailed = false;
+    bool listenFailed = false;
+
     _serverAddr.sin_family = AF_INET;
     _serverAddr.sin_addr.s_addr = INADDR_ANY;
     _serverAddr.sin_port = htons(_port);
+
     _socketFD = socket(AF_INET, SOCK_STREAM, 0);
-    if (_socketFD == -1)
-        throw(std::runtime_error("failed to create socket"));
-    if (setsockopt(_socketFD, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
-        throw(std::runtime_error("failed to set option (SO_REUSEADDR) on socket"));
-    if (fcntl(_socketFD, F_SETFL, O_NONBLOCK) == -1)
-        throw(std::runtime_error("failed to set option (O_NONBLOCK) on socket"));
-    if (bind(_socketFD, (struct sockaddr *)&_serverAddr, sizeof(_serverAddr)) == -1)
-        throw(std::runtime_error("failed to bind socket"));
-    if (listen(_socketFD, SOMAXCONN) == -1)
-        throw(std::runtime_error("listen() failed"));
+    if (_socketFD == -1) {
+        std::cerr << "Failed to create socket" << std::endl;
+        socketCreationFailed = true;
+    }
+
+    if (!socketCreationFailed && setsockopt(_socketFD, SOL_SOCKET, SO_REUSEADDR, &reuseAddr, sizeof(reuseAddr)) == -1) {
+        std::cerr << "Failed to set option (SO_REUSEADDR) on socket" << std::endl;
+        setsockoptFailed = true;
+    }
+
+    if (!socketCreationFailed && !setsockoptFailed && fcntl(_socketFD, F_SETFL, O_NONBLOCK) == -1) {
+        std::cerr << "Failed to set option (O_NONBLOCK) on socket" << std::endl;
+        setNonBlockingFailed = true;
+    }
+
+    if (!socketCreationFailed && !setsockoptFailed && !setNonBlockingFailed &&
+        bind(_socketFD, (struct sockaddr *)&_serverAddr, sizeof(_serverAddr)) == -1) {
+        std::cerr << "Failed to bind socket" << std::endl;
+        bindFailed = true;
+    }
+
+    if (!socketCreationFailed && !setsockoptFailed && !setNonBlockingFailed && !bindFailed &&
+        listen(_socketFD, SOMAXCONN) == -1) {
+        std::cerr << "listen() failed" << std::endl;
+        listenFailed = true;
+    }
+
+    if (socketCreationFailed || setsockoptFailed || setNonBlockingFailed || bindFailed || listenFailed) {
+        close(_socketFD);
+        throw std::runtime_error("Failed to create socket");
+    }
     _newConnection.fd = _socketFD;
     _newConnection.events = POLLIN;
     _newConnection.revents = 0;
     _pfds.push_back(_newConnection);
 }
-
 
 void Server::handleClientConnection() {
     Client cli;
@@ -285,29 +291,34 @@ void Server::handleClientConnection() {
 }
 
 void Server::handleClientInput(int fd) {
-    std::vector<std::string> cmd;
-    char buff[1024];
-    memset(buff, 0, sizeof(buff));
-    Client *cli = getClient(fd);
-    ssize_t bytes = recv(fd, buff, sizeof(buff) - 1 , 0);
-    if (bytes <= 0) {
-        std::cout << RED << "Client <" << fd << "> Disconnected" << RESET << std::endl;
-        rmClientFromChan(fd);
-        rmClient(fd);
-        rmPfds(fd);
-        close(fd);
-    } else { 
-        cli->setBuffer(buff);
-        if (cli->getBuffer().find_first_of("\r\n") == std::string::npos)
+    std::string buffer;
+    buffer.resize(1024);
+    
+    Client *clientPtr = getClient(fd);
+    ssize_t bytes = recv(fd, &buffer[0], buffer.size() - 1 , 0);
+    if (bytes <= 0)
+        handleClientDisconnect(fd);
+    else
+    { 
+        buffer.resize(bytes);
+        clientPtr->setBuffer(buffer);
+        size_t pos = clientPtr->getBuffer().find_first_of("\r\n");
+        if (pos == std::string::npos)
             return;
-        cmd = parseBuffer(cli->getBuffer());
-        std::cout << "Client <" << cli->getFD() << "> Debug: " << cli->getBuffer();
-        for (size_t i = 0; i < cmd.size(); i++)
-            execCmd(cmd[i], fd);
+            
+        std::cout << "Client <" << clientPtr->getFD() << "> Debug: " << clientPtr->getBuffer();
+        
+        std::istringstream iss(clientPtr->getBuffer());
+        std::string cmd;
+        while (std::getline(iss, cmd)) {
+            execCmd(cmd, fd);
+        }
         if (getClient(fd))
             getClient(fd)->clearBuffer();
     }
 }
+
+
 bool Server::checkAuth(int fd)
 {
 	if (!getClient(fd) || getClient(fd)->getNickName().empty() || getClient(fd)->getUserName().empty() || getClient(fd)->getNickName() == "*"  || !getClient(fd)->getLogedIn())
@@ -332,21 +343,6 @@ void    Server::rmChannel(std::string name)
 
 }
 
-
-std::vector<std::string> Server::parseBuffer(std::string str)
-{
-	std::vector<std::string> vec;
-	std::istringstream stm(str);
-	std::string line;
-	while(std::getline(stm, line))
-	{
-		size_t pos = line.find_first_of("\r\n");
-		if(pos != std::string::npos)
-			line = line.substr(0, pos);
-		vec.push_back(line);
-	}
-	return vec;
-}
 std::vector<std::string> Server::parseCmd(std::string& cmd)
 {
 	std::vector<std::string> vec;
@@ -368,19 +364,6 @@ bool Server::isNicknameInUse( std::string& nickname){
     }
     return false;
 }
-
-// void Server::handleNickCollision(std::string& nickname) {
-//     // Parcourir la liste des clients et trouver tous ceux avec le pseudonyme en collision
-//     for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ) {
-//         if (it->getNickName() == nickname) {
-//             sendMsg(ERR_NICKCOLLISION(nickname), it->getFD());
-//             it = _clients.erase(it);  // Supprimer le client du vecteur et avancer l'itérateur
-//         } else {
-//             ++it;
-//         }
-//     }
-// }
-
 
 void Server::execCmd( std::string& cmd, int fd)
 {

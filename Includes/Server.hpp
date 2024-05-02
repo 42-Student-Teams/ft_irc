@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:48 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 13:40:27 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 22:51:59 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,10 +55,10 @@ class Server
         std::vector<Client>         _clients;
         std::vector<Channel>        _channels;
         std::vector<struct pollfd>  _pfds;
-        struct sockaddr_in          _serverAddr;
-        struct sockaddr_in          _clientAddr;
         struct pollfd               _newConnection;
-
+        struct sockaddr_in          _clientAddr;
+        struct sockaddr_in          _serverAddr;
+        
     public:
         Server();
         ~Server();
@@ -66,7 +66,7 @@ class Server
         Server &operator=(Server const &src);
     
         /*-------------------------SIGNALS + CHAN-----------------------------------*/
-        static void                  handleSignal(int signum);
+        static void                  handleSignal(int sign);
         Channel*                     createChannel(const std::string& name, const std::string& key, Client* client);
 
         /*-------------------------GET SETTINGS-----------------------------------*/
@@ -97,8 +97,6 @@ class Server
         
        /*-------------------------MESSAGES SETTINGS-----------------------------------*/
         void                        sendMsg(std::string msg, int fd);
-        void                        sendErrToClient(int code, std::string clientname, int fd, std::string msg);
-        void                        sendErrInChannel(int code, std::string clientname, std::string channelname, int fd, std::string msg);
         void                        sendWelcome() const;
         static void                 *blinkDots(void* arg);
     
@@ -111,13 +109,11 @@ class Server
         void                        handleClientDisconnect(int fd);
         
         /*-------------------------PARSER INPUT BUFF-----------------------------------*/
-        std::vector<std::string>    parseBuffer(std::string str);
         std::vector<std::string>    parseCmd(std::string &str);
         void                        execCmd(std::string &cmd, int fd);
        
        /*-------------------------COMMANDES SETTINGS-----------------------------------*/
         bool                        isNicknameInUse(std::string& nickname);
-        void                        handleNickCollision(std::string& nickname);
         
 };
 

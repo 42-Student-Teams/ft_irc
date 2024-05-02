@@ -3,63 +3,62 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 13:45:34 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 22:15:06 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../Includes/Commands.hpp"
 
-void Commands::handleCommand(int fd, std::string &command)
+void Commands::handleCommand(int fd, std::string &command) 
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
     if (tokens.empty())
         return;
-    size_t found = command.find_first_not_of(" \t\v");
-    if (found != std::string::npos)
-        command = command.substr(found);
 
+    // Normaliser le type de commande en minuscules
     std::string cmdType = tokens[0];
-    if (cmdType == "PASS" || cmdType == "pass")
-        handlePASS(fd, command);
-    else if (cmdType == "NICK" || cmdType == "nick")
-        handleNICK(fd, command);
-    else if (cmdType == "USER" || cmdType == "user")
-        handleUSER(fd, command);
-    else if (cmdType == "QUIT" || cmdType == "quit")
-        handleQUIT(fd, command);
-    else if (_server.checkAuth(fd))
-    {
+    std::transform(cmdType.begin(), cmdType.end(), cmdType.begin(), ::tolower);
 
-        if (cmdType == "JOIN" || cmdType == "join")
+    if (cmdType == "pass")
+        handlePASS(fd, command);
+    else if (cmdType == "nick")
+        handleNICK(fd, command);
+    else if (cmdType == "user")
+        handleUSER(fd, command);
+    else if (cmdType == "quit")
+        handleQUIT(fd, command);
+    else if (_server.checkAuth(fd)) {
+        if (cmdType == "join")
             handleJOIN(fd, command);
-        else if (cmdType == "PART" || cmdType == "part")
+        else if (cmdType == "part")
             handlePART(fd, command);
-        else if (cmdType == "PRIVMSG" || cmdType == "privmsg")
+        else if (cmdType == "privmsg")
             handlePRIVMSG(fd, command);
-        else if (cmdType == "TOPIC" || cmdType == "topic")
+        else if (cmdType == "topic")
             handleTOPIC(fd, command);
-        else if (cmdType == "MODE" || cmdType == "mode")
+        else if (cmdType == "mode")
             handleMODE(fd, command);
-        else if (cmdType == "PING" || cmdType == "ping")
+        else if (cmdType == "ping")
             handlePING(fd, command);
-        else if (cmdType == "WHO" || cmdType == "who")
+        else if (cmdType == "who")
             handleWHO(fd, command);
-        else if (cmdType == "KICK" || cmdType == "kick")
+        else if (cmdType == "kick")
             handleKICK(fd, command);
-        else if (cmdType == "NOTICE" || cmdType == "notice")
+        else if (cmdType == "notice")
             handleNOTICE(fd, command);
-        else if (cmdType == "INVITE" || cmdType == "invite")
+        else if (cmdType == "invite")
             handleINVITE(fd, command);
         else
             _server.sendMsg(ERR_CMDNOTFOUND(_server.getClient(fd)->getNickName(), cmdType), fd);
-    }
-    else if (!_server.checkAuth(fd))
+    } else {
         _server.sendMsg(ERR_NOTREGISTERED2("*"), fd);
+    }
 }
+
 
 void Commands::handlePASS(int fd, std::string &cmd)
 {
@@ -87,82 +86,42 @@ void Commands::handlePASS(int fd, std::string &cmd)
         _server.sendMsg(ERR_ALREADYREGISTERED(cli->getNickName()), fd);
 }
 
-static bool validateNickname(std::string nickname)
-{
-    if (nickname.empty() || nickname[0] == '&' || nickname[0] == '#' || nickname[0] == ':')
-        return false;
-    for (size_t i = 1; i < nickname.length(); i++)
-    {
-        if (!std::isalnum(nickname[i]) && nickname[i] != '_')
-            return false;
-    }
-    return true;
-}
-
 void Commands::handleNICK(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
-    std::string usingNick;
-
-    if (tokens.size() < 2)
-    {
+    if (tokens.size() < 2) {
         _server.sendMsg(ERR_NONICKNAME2("*"), fd);
         return;
     }
 
     std::string newNick = tokens[1];
-    Client *cli = _server.getClient(fd);
-
-    // Vérifie si le pseudonyme est valide
-    if (!checkNickname(newNick))
-    {
+    Client *currentClient = _server.getClient(fd);
+    if (!checkNickname(newNick)) {
         _server.sendMsg(ERR_ERRONEUSNICK(newNick), fd);
         return;
     }
-    // Vérifie les collisions de pseudonyme
-    if (_server.isNicknameInUse(newNick) && cli->getNickName() != newNick)
-    {
-        // En cas de changement de pseudonyme, gére la collision
-        usingNick = "*";
-        if (!cli->getNickName().empty())
-        {
-            cli->setNickName(usingNick);
-            _server.sendMsg(ERR_NICKNAMEINUSE(newNick), fd);
-            return;
-        }
-    }
-
-    if (!validateNickname(newNick))
-    {
-        _server.sendMsg(ERR_ERRONEUSNICK(newNick), fd);
+    if (_server.isNicknameInUse(newNick) && (currentClient ? currentClient->getNickName() != newNick : true)) {
+        _server.sendMsg(ERR_NICKNAMEINUSE(newNick), fd);
         return;
     }
-    else
+    if (currentClient) 
     {
-        if (cli && cli->getRegistered())
-        {
-            std::string oldnick = cli->getNickName();
-            cli->setNickName(newNick);
-            if (!oldnick.empty() && oldnick != newNick)
-            {
-                if (oldnick == "*" && !cli->getUserName().empty())
-                {
-                    cli->setLogedin(true);
-                    _server.sendMsg(RPL_CONNECTED(cli->getNickName()), fd);
-                    _server.sendMsg(RPL_NICKCHANGE(cli->getNickName(), newNick), fd);
+        std::string previousNick = currentClient->getNickName();
+        currentClient->setNickName(newNick);
+        if (previousNick != newNick) {
+            if (currentClient->getRegistered() && !currentClient->getUserName().empty()) {
+                if (previousNick == "*" && !currentClient->getLogedIn()) {
+                    currentClient->setLogedin(true);
+                    _server.sendMsg(RPL_CONNECTED(newNick), fd);
                 }
-                else
-                    _server.sendMsg(RPL_NICKCHANGE(oldnick, newNick), fd);
-                return;
+                _server.sendMsg(RPL_NICKCHANGE(previousNick, newNick), fd);
+            } else if (!currentClient->getRegistered()) {
+                _server.sendMsg(ERR_NOTREGISTERED(newNick), fd);
             }
+        } else if (currentClient->getRegistered() && !currentClient->getUserName().empty() && previousNick != "*" && !currentClient->getLogedIn()) {
+            currentClient->setLogedin(true);
+            _server.sendMsg(RPL_CONNECTED(newNick), fd);
         }
-        else if (cli && !cli->getRegistered())
-            _server.sendMsg(ERR_NOTREGISTERED(std::string(newNick)), fd);
-    }
-    if (cli && cli->getRegistered() && !cli->getUserName().empty() && !cli->getNickName().empty() && cli->getNickName() != "*" && !cli->getLogedIn())
-    {
-        cli->setLogedin(true);
-        _server.sendMsg(RPL_CONNECTED(cli->getNickName()), fd);
     }
 }
 
