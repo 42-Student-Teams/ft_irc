@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 09:37:06 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 11:06:40 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,8 +66,6 @@ void Commands::handlePASS(int fd, std::string &cmd)
 {
     std::vector<std::string> tokens = _server.parseCmd(cmd);
     Client *cli = _server.getClient(fd);
-
-    // Vérifier si la commande a suffisamment de paramètres et traiter le mot de passe.
     if (tokens.size() < 2)
     {
         _server.sendMsg(ERR_NOTENOUGHPARAM2("*"), fd);
@@ -75,7 +73,6 @@ void Commands::handlePASS(int fd, std::string &cmd)
     }
 
     std::string &password = tokens[1]; // Mot de passe positionné à l'index 1
-
     if (!cli->getRegistered())
     {
         if (password == _server.getPass())
@@ -98,7 +95,6 @@ void Commands::handleNICK(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
 
-    // check si  NICK a suffisamment de paramètres
     if (tokens.size() < 2)
     {
         _server.sendMsg(ERR_NONICKNAME2("*"), fd);
@@ -114,9 +110,6 @@ void Commands::handleNICK(int fd, std::string &command)
         _server.sendMsg(ERR_ERRONEUSNICK(newNick), fd);
         return;
     }
-
-    // Ignorer le paramètre <hopcount> s'il est fourni
-
     // Vérifie les collisions de pseudonyme
     if (_server.isNicknameInUse(newNick) && cli->getNickName() != newNick)
     {
@@ -130,20 +123,15 @@ void Commands::handleNICK(int fd, std::string &command)
         _server.sendMsg(ERR_NICKNAMEINUSE(newNick), fd);
         return;
     }
-
     // Définir le nouveau pseudonyme et notifier le changement si nécessaire
     std::string oldNick = cli->getNickName();
     cli->setNickName(newNick);
 
     // Si c'est un changement de pseudonyme
     if (!oldNick.empty() && oldNick != newNick)
-    {
         _server.sendMsg(RPL_NICKCHANGE(oldNick, newNick), fd);
-    }
-    else if (oldNick.empty())
-    {                                                  // Si c'est la première fois que le client est enregistré
+    else if (oldNick.empty()) // Si c'est la première fois que le client est enregistré
         _server.sendMsg(RPL_SUCC_CONNEC(newNick), fd); // Bienvenue au nouvel utilisateur
-    }
 }
 
 bool Commands::checkNickname(std::string &nickname)
@@ -167,8 +155,6 @@ void Commands::handleUSER(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
     Client *user = _server.getClient(fd);
-
-    // Vérifie si les paramètres sont suffisants
     if (user && tokens.size() < 5)
     {
         _server.sendMsg(ERR_NOTENOUGHPARAM(user->getNickName()), fd);
@@ -227,6 +213,7 @@ void Commands::handleQUIT(int fd, std::string &command)
 
     // Envoi du message QUIT à tous les canaux auxquels le client est connecté
     std::vector<Channel> &channels = _server.getChannels();
+    
     // std::string clientNickName = client->getNickName();
     for (size_t i = 0; i < channels.size(); ++i)
     {
@@ -240,7 +227,6 @@ void Commands::handleQUIT(int fd, std::string &command)
             }
         }
     }
-
     std::cout << RED << "Client <" << fd << "> disconnected: " << RESET << quitMessage << std::endl;
     _server.rmClient(fd);
     _server.rmPfds(fd);
@@ -251,8 +237,6 @@ void Commands::handlePART(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
     Client *client = _server.getClient(fd);
-
-
     if (tokens.size() < 2)
     {
         _server.sendMsg(ERR_NEEDMOREPARAMS("*", "PART"), fd);
@@ -313,7 +297,6 @@ void Commands::handleJOIN(int fd, std::string &command)
 
     std::vector<std::string> tokens = _server.parseCmd(command);
     Client *client = _server.getClient(fd);
-
     if (tokens.size() < 2)
     {
         _server.sendMsg(ERR_NEEDMOREPARAMS(client->getNickName(), "JOIN"), fd);
@@ -353,10 +336,8 @@ void Commands::handleJOIN(int fd, std::string &command)
                 _server.sendMsg(ERR_CHANNELISFULL(client->getNickName(), channelName), fd);
                 continue; // Le canal est plein, ne pas permettre au client de rejoindre le canal
             }
-
             channel->addClient(client);
             channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\n");
-            // channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
         else if (channelName[0] == '#')
         {
@@ -366,7 +347,6 @@ void Commands::handleJOIN(int fd, std::string &command)
             channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\n");
             // channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
-        
         try
         {
             if (!key.empty() && std::stoi(key) != channel->getKey())
@@ -490,13 +470,9 @@ void Commands::handleTOPIC(int fd, std::string &command)
     {
         std::string topic = channel->getTopicName();
         if (topic.empty())
-        {
             _server.sendMsg(RPL_NOTOPIC(client->getNickName(), channelName), fd);
-        }
         else
-        {
             _server.sendMsg(RPL_TOPIC(client->getNickName(), channelName, topic), fd);
-        }
     }
     else if (tokens.size() >= 3) // Vérifier si au moins 3 tokens sont présents
     {
@@ -510,16 +486,13 @@ void Commands::handleTOPIC(int fd, std::string &command)
                 return;
             }
         }
-
         std::string topic = command.substr(command.find(tokens[2]));
         channel->setTopicName(topic);
         channel->sendMsgToAll(":" + client->getHostname() + " TOPIC " + channelName + " :" + topic + "\r\n");
     }
     else
-    {
         // Gérer le cas où 'tokens' ne contient pas suffisamment d'éléments
         _server.sendMsg(ERR_NEEDMOREPARAMS(client->getNickName(), "TOPIC"), fd);
-    }
 }
 
 
@@ -588,9 +561,7 @@ void Commands::handleWHO(int fd, std::string &command)
     // Vérifier si le nom du canal est fourni
     std::string channelName;
     if (tokens.size() > 1)
-    {
         channelName = tokens[1]; // Le deuxième élément devrait être le nom du canal
-    }
     else
     {
         _server.sendMsg("Usage: NAMES <channel_name>", fd);
@@ -622,7 +593,7 @@ void Commands::handleMODE(int fd, std::string &command)
         _server.sendMsg(ERR_NEEDMOREPARAMS(client->getNickName(), "MODE"), fd);
         return;
     }
-
+    
     std::string channelName = tokens[1];
     std::string modeChanges = tokens[2];
     std::string modeParam = tokens.size() > 3 ? tokens[3] : "";
@@ -651,7 +622,6 @@ void Commands::handleMODE(int fd, std::string &command)
             adding = (mode == '+');
             continue;
         }
-
         // Apply the mode change
         switch (mode)
         {
@@ -739,8 +709,6 @@ void Commands::handleINVITE(int fd, std::string &command)
     // Envoyer un message au client invité pour l'informer de l'invitation
     targetClient->write(RPL_INVITING(inviterNick, channelName));
 }
-
-
 
 void Commands::handlePING(int fd, std::string &command)
 {
