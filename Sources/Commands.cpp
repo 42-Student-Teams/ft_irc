@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 16:25:44 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/03 01:19:20 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,23 +87,9 @@ void Commands::handlePASS(int fd, std::string &cmd)
         _server.sendMsg(ERR_ALREADYREGISTERED(cli->getNickName()), fd);
 }
 
-static bool validateNickname(std::string nickname)
-{
-    if (nickname.empty() || nickname[0] == '&' || nickname[0] == '#' || nickname[0] == ':')
-        return false;
-    for (size_t i = 1; i < nickname.length(); i++)
-    {
-        if (!std::isalnum(nickname[i]) && nickname[i] != '_')
-            return false;
-    }
-    return true;
-}
-
 void Commands::handleNICK(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
-    std::string usingNick;
-
     if (tokens.size() < 2)
     {
         _server.sendMsg(ERR_NONICKNAME2("*"), fd);
@@ -119,50 +105,30 @@ void Commands::handleNICK(int fd, std::string &command)
         _server.sendMsg(ERR_ERRONEUSNICK(newNick), fd);
         return;
     }
+
     // Vérifie les collisions de pseudonyme
-    if (_server.isNicknameInUse(newNick) && cli->getNickName() != newNick)
+    if (_server.isNicknameInUse(newNick))
     {
-        // En cas de changement de pseudonyme, gére la collision
-        usingNick = "*";
-        if (!cli->getNickName().empty())
+        if (cli->getNickName() != newNick) // Assurez-vous que le pseudonyme est différent de l'actuel
         {
-            cli->setNickName(usingNick);
             _server.sendMsg(ERR_NICKNAMEINUSE(newNick), fd);
             return;
         }
     }
 
-    if (!validateNickname(newNick))
+    // Met à jour le pseudonyme si tout est correct
+    if (cli->getRegistered()) // Ajoute une condition pour vérifier si le client est enregistré
     {
-        _server.sendMsg(ERR_ERRONEUSNICK(newNick), fd);
-        return;
+        std::string oldNick = cli->getNickName();
+        cli->setNickName(newNick); // Met à jour le pseudonyme
+        if (!oldNick.empty() && oldNick != newNick)
+        {
+            _server.sendMsg(RPL_NICKCHANGE(oldNick, newNick), fd); // Informe le client du changement
+        }
     }
     else
     {
-        if (cli && cli->getRegistered())
-        {
-            std::string oldnick = cli->getNickName();
-            cli->setNickName(newNick);
-            if (!oldnick.empty() && oldnick != newNick)
-            {
-                if (oldnick == "*" && !cli->getUserName().empty())
-                {
-                    cli->setLogedin(true);
-                    _server.sendMsg(RPL_CONNECTED(cli->getNickName()), fd);
-                    _server.sendMsg(RPL_NICKCHANGE(cli->getNickName(), newNick), fd);
-                }
-                else
-                    _server.sendMsg(RPL_NICKCHANGE(oldnick, newNick), fd);
-                return;
-            }
-        }
-        else if (cli && !cli->getRegistered())
-            _server.sendMsg(ERR_NOTREGISTERED(std::string(newNick)), fd);
-    }
-    if (cli && cli->getRegistered() && !cli->getUserName().empty() && !cli->getNickName().empty() && cli->getNickName() != "*" && !cli->getLogedIn())
-    {
-        cli->setLogedin(true);
-        _server.sendMsg(RPL_CONNECTED(cli->getNickName()), fd);
+        _server.sendMsg(ERR_NOTREGISTERED(newNick), fd); // Gère les clients non enregistrés
     }
 }
 
