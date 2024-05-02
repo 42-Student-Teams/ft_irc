@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 09:25:04 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 09:37:06 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -475,6 +475,10 @@ void Commands::handleTOPIC(int fd, std::string &command)
     }
 
     std::string channelName = tokens[1];
+    if (channelName[0] != '#') {
+        channelName = "#" + channelName;
+    }
+    
     Channel *channel = _server.getChannel(channelName);
     if (!channel)
     {
