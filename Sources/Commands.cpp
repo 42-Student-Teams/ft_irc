@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 13:31:39 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 13:31:59 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,6 @@ void Commands::handleCommand(int fd, std::string &command)
             handleNOTICE(fd, command);
         else if (cmdType == "INVITE" || cmdType == "invite")
             handleINVITE(fd, command);
-        else
-            _server.sendMsg(ERR_CMDNOTFOUND(_server.getClient(fd)->getNickName(), cmdType), fd);
         else
             _server.sendMsg(ERR_CMDNOTFOUND(_server.getClient(fd)->getNickName(), cmdType), fd);
     }
