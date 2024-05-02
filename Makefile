@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+         #
+#    By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/24 12:13:57 by inaranjo          #+#    #+#              #
-#    Updated: 2024/05/02 10:23:05 by inaranjo         ###   ########.fr        #
+#    Updated: 2024/05/02 15:20:34 by inaranjo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ SRCS = $(wildcard $(SRC_DIR)/*.cpp main.cpp)
 OBJS = $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 
 CC = c++
-FLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
+FLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
 INCLUDES = -I ./Includes
 
 RM = rm -rf

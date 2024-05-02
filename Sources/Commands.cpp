@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 13:45:34 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 16:25:44 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -349,7 +349,7 @@ void Commands::handleJOIN(int fd, std::string &command)
         if (channel)
         {
             // Vérifie si le canal est en mode invitation seulement
-            if (channel->getInviteOnly() && !channel->isClientInChannel(fd))
+            if (!channel->isClientInvited(fd))
             {
                 _server.sendMsg(ERR_INVITEONLYCHAN(client->getNickName(), channelName), fd);
                 continue; // Ne pas permettre au client de rejoindre le canal
@@ -366,15 +366,20 @@ void Commands::handleJOIN(int fd, std::string &command)
                 _server.sendMsg(ERR_CHANNELISFULL(client->getNickName(), channelName), fd);
                 continue; // Le canal est plein, ne pas permettre au client de rejoindre le canal
             }
+            
             channel->addClient(client);
             channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\r\n");
             // channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
         else if (channelName[0] == '#')
         {
+            std::cout << "HEllo 1" << std::endl;
             channel = _server.createChannel(channelName, key, client);
+            
+            std::cout << "HEllo 2" << std::endl;
             // channel->addClient(client);
             channel->addOperator(client);
+            std::cout << "HEllo 3" << std::endl;
             channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\r\n");
             // channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
@@ -761,9 +766,9 @@ void Commands::handleINVITE(int fd, std::string &command)
         _server.sendMsg(ERR_NOSUCHNICK(inviterNick, targetNick), fd);
         return;
     }
-
     // Envoyer l'invitation au client cible
     channel->addClient(targetClient);
+    channel->addToInvitedList(targetClient);
     // Envoyer un message au client invité pour l'informer de l'invitation
     targetClient->write(RPL_INVITING(inviterNick, channelName));
 }

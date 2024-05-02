@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:55 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 16:00:35 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 15:18:29 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ private:
 	std::string _created_at;
 	std::string _topicName;
 	std::vector<Client> _clients;
+	std::vector<Client> _invited;
 	Server &_srv;
 	std::vector<Client> _admins;
 	std::vector<std::pair<char, bool> > _modes;
@@ -97,6 +98,9 @@ public:
 	void broadcastModeChange(const std::string &prefix, const std::string &modes, const std::string &param);
 	void addClient(Client *client);
 	void removeClient(int fd);
+
+	bool isClientInvited(int fd);
+	void addToInvitedList(Client *client);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:18 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 13:40:35 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 16:24:41 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ Channel &Channel::operator=(Channel const &src)
         _created_at = src._created_at;
         _topicName = src._topicName;
         _clients = src._clients;
+        _invited = src._invited;
         _admins = src._admins;
         _modes = src._modes;
     }
@@ -81,6 +82,8 @@ void Channel::setKey(int key) { _key = key; }
 void Channel::setMaxUsers(int limit) { _maxClients = limit; }
 void Channel::setTopicName(std::string topic_name) { _topicName = topic_name; }
 void Channel::setPass(std::string password) { _password = password; }
+// void Channel::setInvited(std::string password) { _password = password; }
+
 void Channel::setName(std::string name) { _name = name; }
 void Channel::setTime(std::string time) { _time = time; }
 
@@ -89,11 +92,14 @@ void Channel::setTopicControl(bool flag) { _isTopicRestricted = flag; }
 
 // Getters
 int Channel::getVIP() { return _VIP; }
-bool Channel::getInviteOnly() { return _inviteOnly; }
+bool Channel::getInviteOnly()
+{
+    return _inviteOnly;
+}
 int Channel::getTopic() { return _topic; }
 int Channel::getKey() { return _key; }
 int Channel::getMaxClients() { return _maxClients; }
-int Channel::getNbClients(){return this->_clients.size() + this->_admins.size();}
+int Channel::getNbClients() { return this->_clients.size() + this->_admins.size(); }
 bool Channel::getTopicRestric() const { return _isTopicRestricted; }
 bool Channel::getModeAtindex(size_t index) { return _modes[index].second; }
 std::string Channel::getTopicName() { return _topicName; }
@@ -150,6 +156,7 @@ Client *Channel::getAdminFd(int fd)
     }
     return NULL;
 }
+
 Client *Channel::getClientInChannel(std::string name)
 {
     for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
@@ -180,6 +187,20 @@ bool Channel::isClientInChannel(int fd)
         if (_admins[i].getFD() == fd)
             return true;
     }
+    return false;
+}
+
+bool Channel::isClientInvited(int fd)
+{
+
+    for (size_t i = 0; i < _invited.size(); i++)
+    {
+        if (_invited[i].getFD() == fd)
+        {
+            return true;
+        }
+    }
+    
     return false;
 }
 
@@ -217,7 +238,6 @@ void Channel::rmClientFd(int fd)
         }
     }
 }
-
 
 void Channel::rmAdminFd(int fd)
 {
@@ -268,7 +288,6 @@ void Channel::sendMsgToAll(std::string rpl1)
             std::cerr << "send() faild" << std::endl;
 }
 
-
 void Channel::sendMsgToAll(std::string rpl1, int fd)
 {
     for (size_t i = 0; i < _admins.size(); i++)
@@ -285,7 +304,6 @@ void Channel::sendMsgToAll(std::string rpl1, int fd)
     }
 }
 
-
 void Channel::addOperator(Client *client)
 {
     // Check if the client is already an operator
@@ -299,7 +317,17 @@ void Channel::addOperator(Client *client)
     _admins.push_back(*client); // Dereference pointer and store the object
 }
 
-
+void Channel::addToInvitedList(Client *client)
+{
+    for (std::vector<Client>::iterator it = _invited.begin(); it != _invited.end(); ++it)
+    {
+        if (it->getFD() == client->getFD())
+        {
+            return; // Client is already in the channel, so do nothing
+        }
+    }
+    _invited.push_back(*client); // Dereference pointer and store the object
+}
 
 void Channel::removeOperator(Client *client)
 {
