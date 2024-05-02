@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 13:31:59 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 13:45:34 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -605,10 +605,11 @@ void Commands::handleKICK(int fd, std::string &command)
         return;
     }
     int targetFd = targetClient->getFD();
+    // Envoyer le message à tous les clients du canal
+    channel->sendMsgToAll(":" + _server.getClient(fd)->getNickName() + " KICK " + channelName + " " + targetNickName + " :" + msg + "\r\n");
     // Expulser le client
     channel->rmClientFd(targetFd);
-    // Envoyer le message à tous les clients du canal
-    channel->sendMsgToAll(":" + _server.getClient(fd)->getNickName() + " KICK " + channelName + " " + targetNickName + " :" + msg);
+    channel->removeClient(targetFd);
 }
 
 void Commands::handleWHO(int fd, std::string &command)

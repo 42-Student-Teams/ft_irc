@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:18 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 13:12:58 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 13:40:35 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,6 +217,8 @@ void Channel::rmClientFd(int fd)
         }
     }
 }
+
+
 void Channel::rmAdminFd(int fd)
 {
     for (std::vector<Client>::iterator it = _admins.begin(); it != _admins.end(); ++it)
