@@ -6,13 +6,11 @@
 /*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 11:06:40 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 13:02:03 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/Commands.hpp"
-
-// explicit Commands::Commands(Server& server) : _server(server) {}
 
 void Commands::handleCommand(int fd, std::string &command)
 {
@@ -386,29 +384,7 @@ void Commands::handleNOTICE(int fd, std::string &command)
     }
 }
 
-// void Commands::handleLIST(int fd, std::string& command) {
-//     std::vector<std::string> tokens = _server.parseCmd(command);
-//     Client* client = _server.getClient(fd);
 
-//     std::vector<Channel*> channels;
-//     if (tokens.size() == 1) {
-//         channels = _server.getAllChannels(); // List all channels if no specific channel is mentioned
-//     } else {
-//         std::stringstream ss(tokens[1]);
-//         std::string channelName;
-//         while (std::getline(ss, channelName, ',')) {
-//             Channel* channel = _server.getChannel(channelName);
-//             if (channel) {
-//                 channels.push_back(channel);
-//             }
-//         }
-//     }
-
-//     for (Channel* channel : channels) {
-//         _server.sendMsg(RPL_LIST(client->getNickName(), channel->getName(), std::to_string(channel->getSize()), channel->getTopic()), fd);
-//     }
-//     _server.sendMsg(RPL_LISTEND(client->getNickName()), fd);
-// }
 
 void Commands::handlePRIVMSG(int fd, std::string &command)
 {
@@ -460,12 +436,13 @@ void Commands::handleTOPIC(int fd, std::string &command)
     }
     
     Channel *channel = _server.getChannel(channelName);
+    // std::cout << "channelName: " << channelName << std::endl;
     if (!channel)
     {
         _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
         return;
     }
-
+    
     if (tokens.size() == 2)
     {
         std::string topic = channel->getTopicName();
@@ -487,51 +464,15 @@ void Commands::handleTOPIC(int fd, std::string &command)
             }
         }
         std::string topic = command.substr(command.find(tokens[2]));
+        // std::cout << "topic: " << topic << std::endl;
         channel->setTopicName(topic);
         channel->sendMsgToAll(":" + client->getHostname() + " TOPIC " + channelName + " :" + topic + "\r\n");
     }
-    else
-        // Gérer le cas où 'tokens' ne contient pas suffisamment d'éléments
+    else // Gérer le cas où 'tokens' ne contient pas suffisamment d'éléments
         _server.sendMsg(ERR_NEEDMOREPARAMS(client->getNickName(), "TOPIC"), fd);
+    
 }
 
-
-// void Commands::handleWHO(int fd, std::string &command)
-// {
-//     std::vector<std::string> tokens = _server.parseCmd(command);
-//     Client *client = _server.getClient(fd);
-//     std::vector<Channel *> channels;
-
-//     if (tokens.size() > 1)
-//     {
-//         std::string channelName = tokens[1];
-//         Channel *channel = _server.getChannel(channelName);
-//         if (channel)
-//         {
-//             channels.push_back(channel);
-//         }
-//         else
-//         {
-//             _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
-//             return;
-//         }
-//     }
-//     else
-//     {
-//         // channels = _server.getAllChannels();
-//     }
-
-//     for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
-//     {
-//         std::vector<Client *> clients = (*it)->getClients();
-//         for (std::vector<Client *>::iterator cit = clients.begin(); cit != clients.end(); ++cit)
-//         {
-//             _server.sendMsg(RPL_WHOREPLY(client->getNickName(), (*it)->getName(), (*cit)->getInfo()), fd);
-//         }
-//     }
-
-//     _server.sendMsg(RPL_ENDOFWHO(client->getNickName()), fd);
-// }
 
 void Commands::handleKICK(int fd, std::string &command)
 {
@@ -545,13 +486,6 @@ void Commands::handleKICK(int fd, std::string &command)
     std::cout << "target: " << target << std::endl;
     std::string msg = command.substr(command.find(tokens[2]));
     std::cout << "message: " << msg << std::endl;
-
-
-    // search for the channel
-    // check if the channel exist
-    // check if the client is in the channel
-    // check if the client is admin
-    // check if the client to kick is in the channel
 }
 
 void Commands::handleWHO(int fd, std::string &command)

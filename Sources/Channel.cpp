@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:18 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 17:56:25 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 13:04:16 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -266,40 +266,6 @@ void Channel::sendMsgToAll(std::string rpl1)
             std::cerr << "send() faild" << std::endl;
 }
 
-// void Channel::sendMsgToAll(std::string rpl1)
-// {
-//     // Envoyer le message aux clients qui ne sont pas des administrateurs
-//     for (size_t i = 0; i < _clients.size(); i++) {
-//         bool isAdmin = false;
-//         for (size_t j = 0; j < _admins.size(); j++) {
-//             if (_clients[i].getFD() == _admins[j].getFD()) {
-//                 isAdmin = true;
-//                 break;
-//             }
-//         }
-//         if (!isAdmin) {
-//             if (send(_clients[i].getFD(), rpl1.c_str(), rpl1.size(), 0) == -1) {
-//                 std::cerr << "send() failed" << std::endl;
-//             }
-//         }
-//     }
-
-//     // Envoyer le message aux administrateurs qui ne sont pas des clients
-//     for (size_t i = 0; i < _admins.size(); i++) {
-//         bool isClient = false;
-//         for (size_t j = 0; j < _clients.size(); j++) {
-//             if (_admins[i].getFD() == _clients[j].getFD()) {
-//                 isClient = true;
-//                 break;
-//             }
-//         }
-//         if (!isClient) {
-//             if (send(_admins[i].getFD(), rpl1.c_str(), rpl1.size(), 0) == -1) {
-//                 std::cerr << "send() failed" << std::endl;
-//             }
-//         }
-//     }
-// }
 
 void Channel::sendMsgToAll(std::string rpl1, int fd)
 {
@@ -330,10 +296,7 @@ void Channel::addOperator(Client *client)
     _admins.push_back(*client); // Dereference pointer and store the object
 }
 
-// void Channel::removeOperator(Client *client)
-// {
-//     _admins.erase(std::remove(_admins.begin(), _admins.end(), client), _admins.end());
-// }
+
 
 void Channel::removeOperator(Client *client)
 {
@@ -408,7 +371,6 @@ void Channel::addClient(Client *client)
 
 void Channel::removeClient(int fd)
 {
-    // new
     for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
     {
         if (it->getFD() == fd)
@@ -417,9 +379,4 @@ void Channel::removeClient(int fd)
             break;
         }
     }
-
-    // Erase from clients vector
-    // _clients.erase(std::remove(_clients.begin(), _clients.end(), client), _clients.end());
-    // Optionally, also check and erase from admins if you have different roles
-    // _admins.erase(std::remove(_admins.begin(), _admins.end(), client), _admins.end());
 }
