@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:52 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/26 20:01:41 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 23:10:16 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ class Client
 		int							_fd;
 		bool						_isRegistred;
 		bool						_isLogin;
-		bool            			_passwordAuthenticated;
 		std::string					_nickName;
 		std::string 				_userName;
 		std::string 				_buffer;
@@ -44,7 +43,6 @@ class Client
 		std::string 			getClientIP();
 		std::string 			getBuffer();
 		std::string 			getHostname();
-		std::string 			getInfo() const;
 		
 		
 		void					setFD(int fd);

@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 22:51:36 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 23:26:32 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,26 +268,26 @@ void Server::createSocket() {
 }
 
 void Server::handleClientConnection() {
-    Client cli;
+    Client newClient;
     memset(&_clientAddr, 0, sizeof(_clientAddr));
-    socklen_t len = sizeof(_clientAddr);
-    int incofd = accept(_socketFD, (sockaddr *)&_clientAddr, &len);
-    if (incofd == -1) {
+    socklen_t addrlen = sizeof(_clientAddr);
+    int cliSocket = accept(_socketFD, (sockaddr *)&_clientAddr, &addrlen);
+    if (cliSocket == -1) {
         std::cout << "accept() failed" << std::endl;
         return;
     }
-    if (fcntl(incofd, F_SETFL, O_NONBLOCK) == -1) {
+    if (fcntl(cliSocket, F_SETFL, O_NONBLOCK) == -1) {
         std::cout << "fcntl() failed" << std::endl;
         return;
     }
-    _newConnection.fd = incofd;
+    _newConnection.fd = cliSocket;
     _newConnection.events = POLLIN;
     _newConnection.revents = 0;
-    cli.setFD(incofd);
-    cli.setClientIP(inet_ntoa((_clientAddr.sin_addr)));
-    _clients.push_back(cli);
+    newClient.setFD(cliSocket);
+    newClient.setClientIP(inet_ntoa((_clientAddr.sin_addr)));
+    _clients.push_back(newClient);
     _pfds.push_back(_newConnection);
-    std::cout << GREEN << "Client <" << incofd << "> Connected" << RESET << std::endl;
+    std::cout << GREEN << "Client <" << cliSocket << "> Connected" << RESET << std::endl;
 }
 
 void Server::handleClientInput(int fd) {
@@ -317,7 +317,6 @@ void Server::handleClientInput(int fd) {
             getClient(fd)->clearBuffer();
     }
 }
-
 
 bool Server::checkAuth(int fd)
 {

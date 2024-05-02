@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:55 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 16:00:35 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 23:20:40 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,21 +21,17 @@ class Server;
 class Channel
 {
 private:
-	int _VIP;
 	int _topic;
 	int _key;
 	int _maxClients;
 	bool _isTopicRestricted;
 	bool _inviteOnly;
 	std::string _name;
-	std::string _time;
 	std::string _password;
-	std::string _created_at;
 	std::string _topicName;
 	std::vector<Client> _clients;
 	Server &_srv;
 	std::vector<Client> _admins;
-	std::vector<std::pair<char, bool> > _modes;
 
 public:
 	Channel();
@@ -68,7 +64,6 @@ public:
 	std::string getPass();
 	std::string getName();
 	std::string getTime();
-	std::string getTimeCreation();
 	std::string getModes();
 	std::string getChannelList();
 	Client *getClientFd(int fd);
@@ -86,8 +81,6 @@ public:
 	void storeAdmin(Client newClient);
 	void rmClientFd(int fd);
 	void rmAdminFd(int fd);
-	bool clientTOadmin(std::string &nick);
-	bool adminTOclient(std::string &nick);
 
 	void sendMsgToAll(std::string rpl1);
 	void sendMsgToAll(std::string rpl1, int fd);

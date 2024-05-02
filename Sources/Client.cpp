@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:45:41 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/26 20:01:53 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 23:12:07 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,13 +54,8 @@ std::string Client::getUserName() { return _userName; }
 std::string Client::getBuffer() { return _buffer; }
 std::string Client::getClientIP() { return _clientIP; }
 std::string Client::getHostname() {std::string hostname = getNickName() + "!" + getUserName();return hostname; }
-std::string Client::getInfo() const {
-	std::stringstream info;
-	info << this->_nickName << " " << this->_userName << " " << this->_clientIP;
-	return info.str();
-}
 
-void Client::setPasswordAuthenticated(bool authenticated) { _passwordAuthenticated = authenticated; }
+
 void Client::setFD(int fd) { _fd = fd; }
 void Client::setNickName(std::string &nickName) { _nickName = nickName; }
 void Client::setLogedin(bool value) { _isLogin = value; }
@@ -70,7 +65,6 @@ void Client::setRegistered(bool value) { _isRegistred = value; }
 void Client::setClientIP(std::string ipadd) { _clientIP = ipadd; }
 
 
-bool Client::isPasswordAuthenticated() const { return _passwordAuthenticated; }
 void Client::clearBuffer() { _buffer.clear(); }
 bool Client::isChannelInvited(std::string &ChName) {
 	for (size_t i = 0; i < _ChannelsInvite.size(); i++) {

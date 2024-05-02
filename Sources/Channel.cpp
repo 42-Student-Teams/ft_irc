@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:18 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 13:40:35 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 23:21:10 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,34 +14,24 @@
 
 Channel::Channel() : _srv(*new Server())
 {
-    _VIP = 0;
     _topic = 0;
     _key = 0;
     _maxClients = 0;
     _isTopicRestricted = false;
     _name = "";
     _password = "";
-    _created_at = "";
     _topicName = "";
-    char charaters[5] = {'i', 't', 'k', 'o', 'l'};
-    for (int i = 0; i < 5; i++)
-        _modes.push_back(std::make_pair(charaters[i], false));
 }
 
 Channel::Channel(Server &server) : _srv(server)
 {
-    _VIP = 0;
     _topic = 0;
     _key = 0;
     _maxClients = 0;
     _isTopicRestricted = false;
     _name = "";
     _password = "";
-    _created_at = "";
     _topicName = "";
-    char charaters[5] = {'i', 't', 'k', 'o', 'l'};
-    for (int i = 0; i < 5; i++)
-        _modes.push_back(std::make_pair(charaters[i], false));
 }
 
 Channel::~Channel()
@@ -58,61 +48,40 @@ Channel &Channel::operator=(Channel const &src)
 {
     if (this != &src)
     {
-        _VIP = src._VIP;
         _topic = src._topic;
         _key = src._key;
         _maxClients = src._maxClients;
         _isTopicRestricted = src._isTopicRestricted;
         _name = src._name;
         _password = src._password;
-        _created_at = src._created_at;
         _topicName = src._topicName;
         _clients = src._clients;
         _admins = src._admins;
-        _modes = src._modes;
     }
     return *this;
 }
 
 // Setters
-void Channel::setInvitation(int _VIP) { this->_VIP = _VIP; }
 void Channel::setTopic(int topic) { _topic = topic; }
 void Channel::setKey(int key) { _key = key; }
 void Channel::setMaxUsers(int limit) { _maxClients = limit; }
 void Channel::setTopicName(std::string topic_name) { _topicName = topic_name; }
 void Channel::setPass(std::string password) { _password = password; }
 void Channel::setName(std::string name) { _name = name; }
-void Channel::setTime(std::string time) { _time = time; }
 
 void Channel::setInviteOnly(bool flag) { _inviteOnly = flag; }
 void Channel::setTopicControl(bool flag) { _isTopicRestricted = flag; }
 
 // Getters
-int Channel::getVIP() { return _VIP; }
 bool Channel::getInviteOnly() { return _inviteOnly; }
 int Channel::getTopic() { return _topic; }
 int Channel::getKey() { return _key; }
 int Channel::getMaxClients() { return _maxClients; }
 int Channel::getNbClients(){return this->_clients.size() + this->_admins.size();}
 bool Channel::getTopicRestric() const { return _isTopicRestricted; }
-bool Channel::getModeAtindex(size_t index) { return _modes[index].second; }
 std::string Channel::getTopicName() { return _topicName; }
 std::string Channel::getPass() { return _password; }
 std::string Channel::getName() { return _name; }
-std::string Channel::getTime() { return _time; }
-std::string Channel::getTimeCreation() { return _created_at; }
-std::string Channel::getModes()
-{
-    std::string mode;
-    for (size_t i = 0; i < _modes.size(); i++)
-    {
-        if (_modes[i].first != 'o' && _modes[i].second)
-            mode.push_back(_modes[i].first);
-    }
-    if (!mode.empty())
-        mode.insert(mode.begin(), '+');
-    return mode;
-}
 std::string Channel::getChannelList()
 {
     std::string list;
@@ -218,7 +187,6 @@ void Channel::rmClientFd(int fd)
     }
 }
 
-
 void Channel::rmAdminFd(int fd)
 {
     for (std::vector<Client>::iterator it = _admins.begin(); it != _admins.end(); ++it)
@@ -231,33 +199,6 @@ void Channel::rmAdminFd(int fd)
     }
 }
 
-bool Channel::clientTOadmin(std::string &nick)
-{
-    for (size_t i = 0; i < _clients.size(); i++)
-    {
-        if (_clients[i].getNickName() == nick)
-        {
-            _admins.push_back(_clients[i]);
-            _clients.erase(_clients.begin() + i);
-            return true;
-        }
-    }
-    return false;
-}
-bool Channel::adminTOclient(std::string &nick)
-{
-    for (size_t i = 0; i < _admins.size(); i++)
-    {
-        if (_admins[i].getNickName() == nick)
-        {
-            _clients.push_back(_admins[i]);
-            _admins.erase(_admins.begin() + i);
-            return true;
-        }
-    }
-    return false;
-}
-
 void Channel::sendMsgToAll(std::string rpl1)
 {
     for (size_t i = 0; i < _admins.size(); i++)
@@ -267,7 +208,6 @@ void Channel::sendMsgToAll(std::string rpl1)
         if (send(_clients[i].getFD(), rpl1.c_str(), rpl1.size(), 0) == -1)
             std::cerr << "send() faild" << std::endl;
 }
-
 
 void Channel::sendMsgToAll(std::string rpl1, int fd)
 {
@@ -285,7 +225,6 @@ void Channel::sendMsgToAll(std::string rpl1, int fd)
     }
 }
 
-
 void Channel::addOperator(Client *client)
 {
     // Check if the client is already an operator
@@ -298,8 +237,6 @@ void Channel::addOperator(Client *client)
     }
     _admins.push_back(*client); // Dereference pointer and store the object
 }
-
-
 
 void Channel::removeOperator(Client *client)
 {
