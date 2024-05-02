@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/01 13:37:46 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/02 09:25:04 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -341,13 +341,13 @@ void Commands::handleJOIN(int fd, std::string &command)
                 _server.sendMsg(ERR_INVITEONLYCHAN(client->getNickName(), channelName), fd);
                 continue; // Ne pas permettre au client de rejoindre le canal
             }
-            
+            // Vérifie si le canal est en mode clé
             if (channel->getKey() != 0 && key != std::to_string(channel->getKey()))
             {
                 _server.sendMsg(ERR_BADCHANNELKEY(client->getNickName(), channelName), fd);
                 continue; // Clé incorrecte, ne pas permettre au client de rejoindre le canal
             }
-            
+            // Vérifie si le canal est plein
             if (channel->getMaxClients() != 0 && channel->getNbClients() >= channel->getMaxClients())
             {
                 _server.sendMsg(ERR_CHANNELISFULL(client->getNickName(), channelName), fd);
