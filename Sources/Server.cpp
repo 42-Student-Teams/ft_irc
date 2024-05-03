@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 17:16:38 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/03 02:52:39 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,17 +200,16 @@ void* Server::blinkDots(void* arg) {
 }
 
 void Server::run(int port, std::string pass) {
-    this->_pass = pass;
-    this->_port = port;
-    this->createSocket();
-    this->sendWelcome();    
+    _port = port;
+    _pass = pass;
+    createSocket();
+    sendWelcome();    
 
     pthread_t thread_id;
     if (pthread_create(&thread_id, NULL, Server::blinkDots, NULL) != 0) {
         std::cerr << "Failed creating thread" << std::endl;
         return;
     }
-    
     while (_signal == false) {
         if ((poll(&_pfds[0], _pfds.size(), -1) == -1) && _signal == false)
             throw(std::runtime_error("poll() failed"));
@@ -239,21 +238,49 @@ void Server::handleClientDisconnect(int fd) {
 }
 
 void Server::createSocket() {
-    int en = 1;
+    int reuseAddr = 1;
+    bool socketCreationFailed = false;
+    bool setsockoptFailed = false;
+    bool setNonBlockingFailed = false;
+    bool bindFailed = false;
+    bool listenFailed = false;
+
     _serverAddr.sin_family = AF_INET;
     _serverAddr.sin_addr.s_addr = INADDR_ANY;
     _serverAddr.sin_port = htons(_port);
+
     _socketFD = socket(AF_INET, SOCK_STREAM, 0);
-    if (_socketFD == -1)
-        throw(std::runtime_error("failed to create socket"));
-    if (setsockopt(_socketFD, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
-        throw(std::runtime_error("failed to set option (SO_REUSEADDR) on socket"));
-    if (fcntl(_socketFD, F_SETFL, O_NONBLOCK) == -1)
-        throw(std::runtime_error("failed to set option (O_NONBLOCK) on socket"));
-    if (bind(_socketFD, (struct sockaddr *)&_serverAddr, sizeof(_serverAddr)) == -1)
-        throw(std::runtime_error("failed to bind socket"));
-    if (listen(_socketFD, SOMAXCONN) == -1)
-        throw(std::runtime_error("listen() failed"));
+    if (_socketFD == -1) {
+        std::cerr << "Failed to create socket" << std::endl;
+        socketCreationFailed = true;
+    }
+
+    if (!socketCreationFailed && setsockopt(_socketFD, SOL_SOCKET, SO_REUSEADDR, &reuseAddr, sizeof(reuseAddr)) == -1) {
+        std::cerr << "Failed to set option (SO_REUSEADDR) on socket" << std::endl;
+        setsockoptFailed = true;
+    }
+
+    if (!socketCreationFailed && !setsockoptFailed && fcntl(_socketFD, F_SETFL, O_NONBLOCK) == -1) {
+        std::cerr << "Failed to set option (O_NONBLOCK) on socket" << std::endl;
+        setNonBlockingFailed = true;
+    }
+
+    if (!socketCreationFailed && !setsockoptFailed && !setNonBlockingFailed &&
+        bind(_socketFD, (struct sockaddr *)&_serverAddr, sizeof(_serverAddr)) == -1) {
+        std::cerr << "Failed to bind socket" << std::endl;
+        bindFailed = true;
+    }
+
+    if (!socketCreationFailed && !setsockoptFailed && !setNonBlockingFailed && !bindFailed &&
+        listen(_socketFD, SOMAXCONN) == -1) {
+        std::cerr << "listen() failed" << std::endl;
+        listenFailed = true;
+    }
+
+    if (socketCreationFailed || setsockoptFailed || setNonBlockingFailed || bindFailed || listenFailed) {
+        close(_socketFD);
+        throw std::runtime_error("Failed to create socket");
+    }
     _newConnection.fd = _socketFD;
     _newConnection.events = POLLIN;
     _newConnection.revents = 0;
@@ -262,48 +289,45 @@ void Server::createSocket() {
 
 
 void Server::handleClientConnection() {
-    Client cli;
+    Client newClient;
     memset(&_clientAddr, 0, sizeof(_clientAddr));
-    socklen_t len = sizeof(_clientAddr);
-    int incofd = accept(_socketFD, (sockaddr *)&_clientAddr, &len);
-    if (incofd == -1) {
+    socklen_t addrlen = sizeof(_clientAddr);
+    int cliSocket = accept(_socketFD, (sockaddr *)&_clientAddr, &addrlen);
+    if (cliSocket == -1) {
         std::cout << "accept() failed" << std::endl;
         return;
     }
-    if (fcntl(incofd, F_SETFL, O_NONBLOCK) == -1) {
+    if (fcntl(cliSocket, F_SETFL, O_NONBLOCK) == -1) {
         std::cout << "fcntl() failed" << std::endl;
         return;
     }
-    _newConnection.fd = incofd;
+    _newConnection.fd = cliSocket;
     _newConnection.events = POLLIN;
     _newConnection.revents = 0;
-    cli.setFD(incofd);
-    cli.setClientIP(inet_ntoa((_clientAddr.sin_addr)));
-    _clients.push_back(cli);
+    newClient.setFD(cliSocket);
+    newClient.setClientIP(inet_ntoa((_clientAddr.sin_addr)));
+    _clients.push_back(newClient);
     _pfds.push_back(_newConnection);
-    std::cout << GREEN << "Client <" << incofd << "> Connected" << RESET << std::endl;
+    std::cout << GREEN << "Client <" << cliSocket << "> Connected" << RESET << std::endl;
 }
 
 void Server::handleClientInput(int fd) {
-    std::vector<std::string> cmd;
+    std::vector<std::string> cmds;
     char buff[1024];
     memset(buff, 0, sizeof(buff));
-    Client *cli = getClient(fd);
+    Client *currentClient = getClient(fd);
     ssize_t bytes = recv(fd, buff, sizeof(buff) - 1 , 0);
-    if (bytes <= 0) {
-        std::cout << RED << "Client <" << fd << "> Disconnected" << RESET << std::endl;
-        rmClientFromChan(fd);
-        rmClient(fd);
-        rmPfds(fd);
-        close(fd);
-    } else { 
-        cli->setBuffer(buff);
-        if (cli->getBuffer().find_first_of("\r\n") == std::string::npos)
+    if (bytes <= 0)
+        handleClientDisconnect(fd);
+    else
+    { 
+        currentClient->setBuffer(buff);
+        if (currentClient->getBuffer().find_first_of("\r\n") == std::string::npos)
             return;
-        cmd = parseBuffer(cli->getBuffer());
-        std::cout << "Client <" << cli->getFD() << "> Debug: " << cli->getBuffer();
-        for (size_t i = 0; i < cmd.size(); i++)
-            execCmd(cmd[i], fd);
+        cmds = parseBuffer(currentClient->getBuffer());
+        std::cout << "Client <" << currentClient->getFD() << "> Debug: " << currentClient->getBuffer();
+        for (size_t i = 0; i < cmds.size(); i++)
+            execCmd(cmds[i], fd);
         if (getClient(fd))
             getClient(fd)->clearBuffer();
     }
@@ -331,7 +355,6 @@ void    Server::rmChannel(std::string name)
     }
 
 }
-
 
 std::vector<std::string> Server::parseBuffer(std::string str)
 {
@@ -380,7 +403,6 @@ bool Server::isNicknameInUse( std::string& nickname){
 //         }
 //     }
 // }
-
 
 void Server::execCmd( std::string& cmd, int fd)
 {

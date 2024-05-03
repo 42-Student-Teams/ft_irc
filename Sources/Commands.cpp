@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/03 01:19:20 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/03 02:42:59 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -485,44 +485,6 @@ void Commands::handleTOPIC(int fd, std::string &command)
         _server.sendMsg(ERR_NEEDMOREPARAMS(client->getNickName(), "TOPIC"), fd);
     
 }
-
-
-// void Commands::handleWHO(int fd, std::string &command)
-// {
-//     std::vector<std::string> tokens = _server.parseCmd(command);
-//     Client *client = _server.getClient(fd);
-//     std::vector<Channel *> channels;
-
-//     if (tokens.size() > 1)
-//     {
-//         std::string channelName = tokens[1];
-//         Channel *channel = _server.getChannel(channelName);
-//         if (channel)
-//         {
-//             channels.push_back(channel);
-//         }
-//         else
-//         {
-//             _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
-//             return;
-//         }
-//     }
-//     else
-//     {
-//         // channels = _server.getAllChannels();
-//     }
-
-//     for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
-//     {
-//         std::vector<Client *> clients = (*it)->getClients();
-//         for (std::vector<Client *>::iterator cit = clients.begin(); cit != clients.end(); ++cit)
-//         {
-//             _server.sendMsg(RPL_WHOREPLY(client->getNickName(), (*it)->getName(), (*cit)->getInfo()), fd);
-//         }
-//     }
-
-//     _server.sendMsg(RPL_ENDOFWHO(client->getNickName()), fd);
-// }
 
 // Function to trim whitespace from the start and end of a string
 static inline std::string trim(const std::string& str)

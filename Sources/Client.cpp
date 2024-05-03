@@ -6,7 +6,7 @@
 /*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:45:41 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/26 20:01:53 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/03 02:42:37 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,6 @@ std::string Client::getUserName() { return _userName; }
 std::string Client::getBuffer() { return _buffer; }
 std::string Client::getClientIP() { return _clientIP; }
 std::string Client::getHostname() {std::string hostname = getNickName() + "!" + getUserName();return hostname; }
-std::string Client::getInfo() const {
-	std::stringstream info;
-	info << this->_nickName << " " << this->_userName << " " << this->_clientIP;
-	return info.str();
-}
 
 void Client::setPasswordAuthenticated(bool authenticated) { _passwordAuthenticated = authenticated; }
 void Client::setFD(int fd) { _fd = fd; }
