@@ -3,18 +3,32 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 09:58:46 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/03 01:19:20 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/03 13:18:50 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "../Includes/Commands.hpp"
 
 void Commands::handleCommand(int fd, std::string &command)
 {
+    // if (command.empty() || command == "\n")
+    //     return;
+
+    if (_server.getCapStatus() == false && command.find("CAP") != std::string::npos)
+    {
+        std::string msg = ": CAP * LS :\r\n";
+        send(fd, msg.c_str(), msg.length(), 0);
+        _server.setCapStatus(true);
+        // return ;
+    }
+    if (_server.getCapStatus() == true && command.find("CAP END") != std::string::npos)
+        _server.setCapStatus(false);
+    if (command.find("CAP ENDPASS") != std::string::npos)
+        std::cout << "CAP ENDPASS" << std::endl;
+
     std::vector<std::string> tokens = _server.parseCmd(command);
     if (tokens.empty())
         return;
@@ -22,43 +36,66 @@ void Commands::handleCommand(int fd, std::string &command)
     if (found != std::string::npos)
         command = command.substr(found);
 
-    std::string cmdType = tokens[0];
-    if (cmdType == "PASS" || cmdType == "pass")
-        handlePASS(fd, command);
-    else if (cmdType == "NICK" || cmdType == "nick")
-        handleNICK(fd, command);
-    else if (cmdType == "USER" || cmdType == "user")
-        handleUSER(fd, command);
-    else if (cmdType == "QUIT" || cmdType == "quit")
-        handleQUIT(fd, command);
-    else if (_server.checkAuth(fd))
-    {
+    // std::string cmdType = tokens[0];
 
-        if (cmdType == "JOIN" || cmdType == "join")
-            handleJOIN(fd, command);
-        else if (cmdType == "PART" || cmdType == "part")
-            handlePART(fd, command);
-        else if (cmdType == "PRIVMSG" || cmdType == "privmsg")
-            handlePRIVMSG(fd, command);
-        else if (cmdType == "TOPIC" || cmdType == "topic")
-            handleTOPIC(fd, command);
-        else if (cmdType == "MODE" || cmdType == "mode")
-            handleMODE(fd, command);
-        else if (cmdType == "PING" || cmdType == "ping")
-            handlePING(fd, command);
-        else if (cmdType == "WHO" || cmdType == "who")
-            handleWHO(fd, command);
-        else if (cmdType == "KICK" || cmdType == "kick")
-            handleKICK(fd, command);
-        else if (cmdType == "NOTICE" || cmdType == "notice")
-            handleNOTICE(fd, command);
-        else if (cmdType == "INVITE" || cmdType == "invite")
-            handleINVITE(fd, command);
+    // print cmdType and command
+    for (size_t i = 0; i < tokens.size(); i++)
+    {
+        if (_server.getClient(fd) && _server.getClient(fd)->getRegistered() == false)
+        {
+
+            if (tokens[i] == "PASS" || tokens[i] == "pass")
+            {
+                handlePASS(fd, command);
+            }
+            else if (tokens[i] == "USER" || tokens[i] == "user")
+                handleUSER(fd, command);
+            else if (tokens[i] == "NICK" || tokens[i] == "nick")
+                handleNICK(fd, command);
+
+            if (_server.getClient(fd)->getPassword() == _server.getPass())
+            {
+                _server.getClient(fd)->setLogedin(true);
+                _server.sendMsg(RPL_PASSACCEPTED(_server.getClient(fd)->getNickName()), fd);
+            }
+            if (_server.getClient(fd)->getNickName() != "" && _server.getClient(fd)->getUserName() != "")
+                _server.getClient(fd)->setReceivedInfo(true);
+
+            if (_server.getClient(fd)->getLogedIn() == true && _server.getClient(fd)->getNickReceived() == true && _server.getClient(fd)->BigWelcomeSent() == false)
+            {
+                _server.getClient(fd)->setRegistered(true);
+                _server.sendMsg(RPL_CONNECTED(_server.getClient(fd)->getNickName()), fd);
+                _server.getClient(fd)->setBigWelcomeSent(true);
+            }
+        }
         else
-            _server.sendMsg(ERR_CMDNOTFOUND(_server.getClient(fd)->getNickName(), cmdType), fd);
+        {
+            if (tokens[i] == "JOIN" || tokens[i] == "join")
+                handleJOIN(fd, command);
+            else if (tokens[i] == "PART" || tokens[i] == "part")
+                handlePART(fd, command);
+            else if (tokens[i] == "PRIVMSG" || tokens[i] == "privmsg")
+                handlePRIVMSG(fd, command);
+            else if (tokens[i] == "TOPIC" || tokens[i] == "topic")
+                handleTOPIC(fd, command);
+            else if (tokens[i] == "MODE" || tokens[i] == "mode")
+                handleMODE(fd, command);
+            else if (tokens[i] == "PING" || tokens[i] == "ping")
+                handlePING(fd, command);
+            else if (tokens[i] == "WHO" || tokens[i] == "who")
+                handleWHO(fd, command);
+            else if (tokens[i] == "KICK" || tokens[i] == "kick")
+                handleKICK(fd, command);
+            else if (tokens[i] == "NOTICE" || tokens[i] == "notice")
+                handleNOTICE(fd, command);
+            else if (tokens[i] == "INVITE" || tokens[i] == "invite")
+                handleINVITE(fd, command);
+            else if (tokens[i] == "QUIT" || tokens[i] == "quit")
+                handleQUIT(fd, command);
+            // else
+            //     _server.sendMsg(ERR_CMDNOTFOUND(_server.getClient(fd)->getNickName(), tokens[i]), fd);
+        }
     }
-    else if (!_server.checkAuth(fd))
-        _server.sendMsg(ERR_NOTREGISTERED2("*"), fd);
 }
 
 void Commands::handlePASS(int fd, std::string &cmd)
@@ -67,24 +104,19 @@ void Commands::handlePASS(int fd, std::string &cmd)
     Client *cli = _server.getClient(fd);
 
     // Vérifier si la commande a suffisamment de paramètres et traiter le mot de passe.
-    if (tokens.size() < 2 || tokens[1].empty())
+
+    if (tokens[1].empty())
     {
         _server.sendMsg(ERR_NOTENOUGHPARAM2("*"), fd);
-        return;
     }
-    else if (!cli->getRegistered())
+    else if (cli->getRegistered())
     {
-        std::string &password = tokens[1]; // Mot de passe positionné à l'index 1
-        if (password == _server.getPass())
-        {
-            cli->setRegistered(true);
-            _server.sendMsg(RPL_PASSACCEPTED(cli->getNickName()), fd);
-        }
-        else
-            _server.sendMsg(ERR_INCORPASS2("*"), fd);
+        _server.sendMsg(ERR_ALREADYREGISTERED(cli->getNickName()), fd);
     }
     else
-        _server.sendMsg(ERR_ALREADYREGISTERED(cli->getNickName()), fd);
+    {
+        _server.getClient(fd)->setPassword(tokens[1]); // Mot de passe positionné à l'index 1
+    }
 }
 
 void Commands::handleNICK(int fd, std::string &command)
@@ -111,24 +143,26 @@ void Commands::handleNICK(int fd, std::string &command)
     {
         if (cli->getNickName() != newNick) // Assurez-vous que le pseudonyme est différent de l'actuel
         {
+            std::cout << "Nickname already in use: " << newNick << std::endl;
+            std::cout << "Client <" << fd << "> disconnected" << std::endl;
             _server.sendMsg(ERR_NICKNAMEINUSE(newNick), fd);
             return;
         }
     }
-
-    // Met à jour le pseudonyme si tout est correct
-    if (cli->getRegistered()) // Ajoute une condition pour vérifier si le client est enregistré
-    {
-        std::string oldNick = cli->getNickName();
-        cli->setNickName(newNick); // Met à jour le pseudonyme
-        if (!oldNick.empty() && oldNick != newNick)
-        {
-            _server.sendMsg(RPL_NICKCHANGE(oldNick, newNick), fd); // Informe le client du changement
-        }
-    }
     else
     {
-        _server.sendMsg(ERR_NOTREGISTERED(newNick), fd); // Gère les clients non enregistrés
+        if (cli->getRegistered()) // Ajoute une condition pour vérifier si le client est enregistré
+        {
+
+            std::string oldNick = cli->getNickName();
+            cli->setNickName(newNick); // Met à jour le pseudonyme
+            // cli->setReceivedInfo(true); // Marque le pseudonyme comme reçu
+            if (!oldNick.empty() && oldNick != newNick)
+            {
+                _server.sendMsg(RPL_NICKCHANGE(oldNick, newNick), fd); // Informe le client du changement
+            }
+        }
+        cli->setNickName(newNick); // Met à jour le pseudonyme
     }
 }
 
@@ -159,25 +193,14 @@ void Commands::handleUSER(int fd, std::string &command)
         _server.sendMsg(ERR_NOTENOUGHPARAM(user->getNickName()), fd);
         return;
     }
-
-    // Vérifie si le client est déjà enregistré ou si l'objet client n'existe pas
-    if (!user || !user->getRegistered())
-    {
-        _server.sendMsg(ERR_NOTREGISTERED2("*"), fd);
-    }
     else if (user && !user->getUserName().empty())
     {
         _server.sendMsg(ERR_ALREADYREGISTERED(user->getNickName()), fd);
         return;
     }
     else
-        user->setUserName(tokens[1]);
-
-    // Vérifie si le client peut être marqué comme connecté
-    if (user->getRegistered() && !user->getUserName().empty() && !user->getNickName().empty() && user->getNickName() != "*" && !user->getLogedIn())
     {
-        user->setLogedin(true);
-        _server.sendMsg(RPL_CONNECTED(user->getNickName()), fd);
+        user->setUserName(tokens[1]);
     }
 }
 
@@ -208,7 +231,7 @@ void Commands::handleQUIT(int fd, std::string &command)
 
     // Envoi du message QUIT à tous les canaux auxquels le client est connecté
     std::vector<Channel> &channels = _server.getChannels();
-    
+
     // std::string clientNickName = client->getNickName();
     for (size_t i = 0; i < channels.size(); ++i)
     {
@@ -259,7 +282,7 @@ void Commands::handlePART(int fd, std::string &command)
         if (!channel->isClientInChannel(client->getFD()))
         {
             _server.sendMsg(ERR_NOTONCHANNEL(nickName, channelName + "\r\n"), fd);
-            return ; 
+            return;
         }
 
         channel->sendMsgToAll(":" + client->getHostname() + " PART " + channelName + " :" + partMessage + "\r\n");
@@ -332,20 +355,16 @@ void Commands::handleJOIN(int fd, std::string &command)
                 _server.sendMsg(ERR_CHANNELISFULL(client->getNickName(), channelName), fd);
                 continue; // Le canal est plein, ne pas permettre au client de rejoindre le canal
             }
-            
+
             channel->addClient(client);
             channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\r\n");
             // channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
         else if (channelName[0] == '#')
         {
-            std::cout << "HEllo 1" << std::endl;
             channel = _server.createChannel(channelName, key, client);
-            
-            std::cout << "HEllo 2" << std::endl;
             // channel->addClient(client);
             channel->addOperator(client);
-            std::cout << "HEllo 3" << std::endl;
             channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\r\n");
             // channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
@@ -397,8 +416,6 @@ void Commands::handleNOTICE(int fd, std::string &command)
     }
 }
 
-
-
 void Commands::handlePRIVMSG(int fd, std::string &command)
 {
     std::vector<std::string> tokens = _server.parseCmd(command);
@@ -444,10 +461,11 @@ void Commands::handleTOPIC(int fd, std::string &command)
     }
 
     std::string channelName = tokens[1];
-    if (channelName[0] != '#') {
+    if (channelName[0] != '#')
+    {
         channelName = "#" + channelName;
     }
-    
+
     Channel *channel = _server.getChannel(channelName);
     // std::cout << "channelName: " << channelName << std::endl;
     if (!channel)
@@ -455,7 +473,7 @@ void Commands::handleTOPIC(int fd, std::string &command)
         _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
         return;
     }
-    
+
     if (tokens.size() == 2)
     {
         std::string topic = channel->getTopicName();
@@ -483,54 +501,15 @@ void Commands::handleTOPIC(int fd, std::string &command)
     }
     else // Gérer le cas où 'tokens' ne contient pas suffisamment d'éléments
         _server.sendMsg(ERR_NEEDMOREPARAMS(client->getNickName(), "TOPIC"), fd);
-    
 }
 
-
-// void Commands::handleWHO(int fd, std::string &command)
-// {
-//     std::vector<std::string> tokens = _server.parseCmd(command);
-//     Client *client = _server.getClient(fd);
-//     std::vector<Channel *> channels;
-
-//     if (tokens.size() > 1)
-//     {
-//         std::string channelName = tokens[1];
-//         Channel *channel = _server.getChannel(channelName);
-//         if (channel)
-//         {
-//             channels.push_back(channel);
-//         }
-//         else
-//         {
-//             _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
-//             return;
-//         }
-//     }
-//     else
-//     {
-//         // channels = _server.getAllChannels();
-//     }
-
-//     for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
-//     {
-//         std::vector<Client *> clients = (*it)->getClients();
-//         for (std::vector<Client *>::iterator cit = clients.begin(); cit != clients.end(); ++cit)
-//         {
-//             _server.sendMsg(RPL_WHOREPLY(client->getNickName(), (*it)->getName(), (*cit)->getInfo()), fd);
-//         }
-//     }
-
-//     _server.sendMsg(RPL_ENDOFWHO(client->getNickName()), fd);
-// }
-
 // Function to trim whitespace from the start and end of a string
-static inline std::string trim(const std::string& str)
+static inline std::string trim(const std::string &str)
 {
-    const char* whitespace = " \t\n\r\f\v"; // Define whitespace characters
+    const char *whitespace = " \t\n\r\f\v"; // Define whitespace characters
     std::string::size_type start = str.find_first_not_of(whitespace);
     if (start == std::string::npos) // If the string is all whitespace
-        return ""; // Return an empty string
+        return "";                  // Return an empty string
 
     std::string::size_type end = str.find_last_not_of(whitespace);
     return str.substr(start, end - start + 1);
@@ -547,7 +526,7 @@ void Commands::handleKICK(int fd, std::string &command)
     std::string channelName = tokens[1];
     std::string targetNickName = tokens[2];
     std::string msg = command.substr(command.find(targetNickName) + targetNickName.length());
-    msg = trim(msg);  // Assuming you've implemented trim as suggested earlier.
+    msg = trim(msg); // Assuming you've implemented trim as suggested earlier.
 
     // Rechercher le canal
     Channel *channel = _server.getChannel(channelName);
@@ -564,12 +543,13 @@ void Commands::handleKICK(int fd, std::string &command)
         return;
     }
     // Vérifier si le client est admin
-    if (!channel->isOperator(_server.getClient(fd)->getNickName())) {
+    if (!channel->isOperator(_server.getClient(fd)->getNickName()))
+    {
         _server.sendMsg(ERR_CHANOPRIVSNEEDED(_server.getClient(fd)->getNickName(), channelName), fd);
         return;
     }
     // Vérifier si le client à expulser est dans le canal
-    Client* targetClient = channel->getClientInChannel(targetNickName);
+    Client *targetClient = channel->getClientInChannel(targetNickName);
     if (targetClient == nullptr)
     {
         _server.sendMsg(ERR_USERNOTINCHANNEL(_server.getClient(fd)->getNickName(), targetNickName, channelName), fd);
@@ -622,7 +602,7 @@ void Commands::handleMODE(int fd, std::string &command)
         _server.sendMsg(ERR_NEEDMOREPARAMS(client->getNickName(), "MODE"), fd);
         return;
     }
-    
+
     std::string channelName = tokens[1];
     std::string modeChanges = tokens[2];
     std::string modeParam = tokens.size() > 3 ? tokens[3] : "";

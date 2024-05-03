@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:55 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/02 15:18:29 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/03 02:50:41 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ class Server;
 class Channel
 {
 private:
-	int _VIP;
 	int _topic;
 	int _key;
 	int _maxClients;
@@ -36,7 +35,6 @@ private:
 	std::vector<Client> _invited;
 	Server &_srv;
 	std::vector<Client> _admins;
-	std::vector<std::pair<char, bool> > _modes;
 
 public:
 	Channel();
@@ -45,19 +43,13 @@ public:
 	Channel(Channel const &src);
 	Channel &operator=(Channel const &src);
 
-	void setInvitation(int _VIP);
 	void setTopic(int topic);
 	void setKey(int key);
 	void setMaxUsers(int limit);
 	void setTopicName(std::string topic_name);
 	void setPass(std::string password);
 	void setName(std::string name);
-	void setTime(std::string time);
 	void setTopicRestric(bool value);
-	void setModeAtindex(size_t index, bool mode);
-	void setTimeCreation();
-
-	int getVIP();
 	bool getInviteOnly(); // new
 	int getTopic();
 	int getKey();
@@ -68,8 +60,6 @@ public:
 	std::string getTopicName();
 	std::string getPass();
 	std::string getName();
-	std::string getTime();
-	std::string getTimeCreation();
 	std::string getModes();
 	std::string getChannelList();
 	Client *getClientFd(int fd);
@@ -87,8 +77,6 @@ public:
 	void storeAdmin(Client newClient);
 	void rmClientFd(int fd);
 	void rmAdminFd(int fd);
-	bool clientTOadmin(std::string &nick);
-	bool adminTOclient(std::string &nick);
 
 	void sendMsgToAll(std::string rpl1);
 	void sendMsgToAll(std::string rpl1, int fd);

@@ -6,7 +6,7 @@
 #    By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/24 12:13:57 by inaranjo          #+#    #+#              #
-#    Updated: 2024/05/02 15:20:34 by inaranjo         ###   ########.fr        #
+#    Updated: 2024/05/03 13:00:50 by inaranjo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ SRCS = $(wildcard $(SRC_DIR)/*.cpp main.cpp)
 OBJS = $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 
 CC = c++
-FLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
+FLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 INCLUDES = -I ./Includes
 
 RM = rm -rf
