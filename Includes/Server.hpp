@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:48 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/04/30 13:40:27 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/03 12:56:44 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ class Server
         struct sockaddr_in          _serverAddr;
         struct sockaddr_in          _clientAddr;
         struct pollfd               _newConnection;
+        bool                       _capLS;
 
     public:
         Server();
@@ -77,6 +78,9 @@ class Server
         Client                      *getNickClient(std::string nickname);
         Channel                     *getChannel(std::string name);
         std::vector<Channel>&        getChannels();
+
+        bool                        getCapStatus();
+        void                        setCapStatus(bool value);
 
         /*-------------------------SET SETTINGS-----------------------------------*/
         void                        setFD(int server_fdsocket);
@@ -108,6 +112,8 @@ class Server
         void                        handleClientConnection();
         void                        handleClientInput(int fd);
         bool                        checkAuth(int fd);
+        bool                        isRegistered(int fd);
+
         void                        handleClientDisconnect(int fd);
         
         /*-------------------------PARSER INPUT BUFF-----------------------------------*/
