@@ -285,11 +285,11 @@ void Commands::handlePART(int fd, std::string &command)
             return;
         }
 
-        channel->sendMsgToAll(":" + client->getHostname() + " PART " + channelName + " :" + partMessage + "\r\n");
         if (channel->isOperator(nickName))
             channel->removeOperator(client);
         else
             channel->removeClient(client->getFD());
+        channel->sendMsgToAll(":" + client->getHostname() + " PART " + channelName + " :" + partMessage + "\r\n");
         // Supprimer le canal s'il est vide
         if (channel->getNbClients() == 0)
             _server.rmChannel(channelName);
@@ -337,23 +337,31 @@ void Commands::handleJOIN(int fd, std::string &command)
         Channel *channel = _server.getChannel(channelName);
         if (channel)
         {
-            // Vérifie si le canal est en mode invitation seulement
-            if (!channel->isClientInvited(fd))
+            if (channel->isClientInChannel(fd))
             {
-                _server.sendMsg(ERR_INVITEONLYCHAN(client->getNickName(), channelName), fd);
-                continue; // Ne pas permettre au client de rejoindre le canal
+                _server.sendMsg(ERR_ALREADYONCHANNEL(client->getNickName(), channelName), fd);
+                return;
+            }
+            // Vérifie si le canal est en mode invitation seulement
+            if (channel->getInviteOnly())
+            {
+                if (!channel->isClientInvited(fd))
+                {
+                    _server.sendMsg(ERR_INVITEONLYCHAN(client->getNickName(), channelName), fd);
+                    return; // Ne pas permettre au client de rejoindre le canal
+                }
             }
             // Vérifie si le canal est en mode clé
             if (channel->getKey() != 0 && key != std::to_string(channel->getKey()))
             {
                 _server.sendMsg(ERR_BADCHANNELKEY(client->getNickName(), channelName), fd);
-                continue; // Clé incorrecte, ne pas permettre au client de rejoindre le canal
+                return; // Clé incorrecte, ne pas permettre au client de rejoindre le canal
             }
             // Vérifie si le canal est plein
             if (channel->getMaxClients() != 0 && channel->getNbClients() >= channel->getMaxClients())
             {
                 _server.sendMsg(ERR_CHANNELISFULL(client->getNickName(), channelName), fd);
-                continue; // Le canal est plein, ne pas permettre au client de rejoindre le canal
+                return; // Le canal est plein, ne pas permettre au client de rejoindre le canal
             }
 
             channel->addClient(client);
@@ -363,10 +371,8 @@ void Commands::handleJOIN(int fd, std::string &command)
         else if (channelName[0] == '#')
         {
             channel = _server.createChannel(channelName, key, client);
-            // channel->addClient(client);
             channel->addOperator(client);
             channel->sendMsgToAll(client->getNickName() + " has join the channel : " + channelName + "\r\n");
-            // channel->sendMsgToAll(client->getNickName() + " " + "has join the channel :" + channelName, fd);
         }
         else
             _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
@@ -374,25 +380,6 @@ void Commands::handleJOIN(int fd, std::string &command)
         if (!key.empty() && channel->getKey() != std::stoi(key))
         {
             _server.sendMsg(ERR_BADCHANNELKEY(client->getNickName(), channelName), fd);
-            continue;
-        }
-
-        try
-        {
-            if (!key.empty() && std::stoi(key) != channel->getKey())
-            {
-                _server.sendMsg(ERR_BADCHANNELKEY(client->getNickName(), channelName), fd);
-                continue;
-            }
-        }
-        catch (const std::invalid_argument &e)
-        {
-            _server.sendMsg("Error: Key must be numeric", fd);
-            continue;
-        }
-        catch (const std::out_of_range &e)
-        {
-            _server.sendMsg("Error: Key value is out of range", fd);
             continue;
         }
     }
@@ -606,8 +593,13 @@ void Commands::handleMODE(int fd, std::string &command)
     std::string channelName = tokens[1];
     std::string modeChanges = tokens[2];
     std::string modeParam = tokens.size() > 3 ? tokens[3] : "";
+    // print tokens
+    for (size_t i = 0; i < tokens.size(); i++)
+    {
+        std::cout << "tokens[" << i << "]: " << tokens[i] << std::endl;
+    }
 
-    Channel *channel = _server.getChannel(channelName);
+    Channel *channel = _server.getChannel(tokens[1]);
     if (!channel)
     {
         _server.sendMsg(ERR_NOSUCHCHANNEL(client->getNickName(), channelName), fd);
@@ -643,16 +635,8 @@ void Commands::handleMODE(int fd, std::string &command)
         case 'k':
             if (adding && !modeParam.empty())
             {
-                try
-                {
-                    int keyValue = std::stoi(modeParam); // Convert string to integer
-                    channel->setKey(keyValue);
-                }
-                catch (const std::invalid_argument &ia)
-                {
-                    _server.sendMsg("Invalid key value. Must be numeric.", fd);
-                    return;
-                }
+                int keyValue = std::stoi(modeParam); // Convert string to integer
+                channel->setKey(keyValue);
             }
             else
             {
@@ -670,7 +654,7 @@ void Commands::handleMODE(int fd, std::string &command)
                 channel->setMaxUsers(0);
             break;
         default:
-            _server.sendMsg(ERR_UNKNOWNMODE(client->getNickName(), channelName, std::string(1, mode)), fd);
+            _server.sendMsg(ERR_UNKNOWNMODE(client->getNickName(), tokens[1], std::string(1, mode)), fd);
             return;
         }
     }
@@ -696,12 +680,17 @@ void Commands::handleINVITE(int fd, std::string &command)
         return;
     }
 
-    if (channel->getInviteOnly())
+    if (!channel->getClientInChannel(inviterNick))
     {
-        // Supprimer le mode invite seulement
-        channel->setInviteOnly(false);
-        // Envoyer une confirmation
-        _server.sendMsg(RPL_INVITATIONSENT(inviterNick, targetNick, channelName), fd);
+        // Le client n'est pas dans le canal
+        _server.sendMsg(ERR_NOTONCHANNEL(inviterNick, channelName), fd);
+        return;
+    }
+    if (channel->getClientInChannel(targetNick))
+    {
+        // Le client cible est déjà dans le canal
+        _server.sendMsg(ERR_ALREADYONCHANNEL(targetNick, channelName), fd);
+        return;
     }
 
     // Vérifier si le client cible existe
@@ -712,10 +701,17 @@ void Commands::handleINVITE(int fd, std::string &command)
         _server.sendMsg(ERR_NOSUCHNICK(inviterNick, targetNick), fd);
         return;
     }
+    if (channel->getInviteOnly() && !channel->isOperator(inviterNick))
+    {
+        // Le canal est en mode invitation seulement et l'invitant n'est pas un opérateur
+        _server.sendMsg(ERR_NOTOPERATOR(channelName), fd);
+        return;
+    }
+
     // Envoyer l'invitation au client cible
-    channel->addClient(targetClient);
     channel->addToInvitedList(targetClient);
     // Envoyer un message au client invité pour l'informer de l'invitation
+    _server.sendMsg(RPL_INVITATIONSENT(inviterNick, targetNick, channelName), fd);
     targetClient->write(RPL_INVITING(inviterNick, channelName));
 }
 

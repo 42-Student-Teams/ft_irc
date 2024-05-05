@@ -17,7 +17,7 @@ SRCS = $(wildcard $(SRC_DIR)/*.cpp main.cpp)
 OBJS = $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 
 CC = c++
-FLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
+FLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
 INCLUDES = -I ./Includes
 
 RM = rm -rf
