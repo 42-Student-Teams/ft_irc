@@ -457,7 +457,7 @@ void Commands::handleTOPIC(int fd, std::string &command)
     }
 
     // std::cout << "tokens.size(): " << tokens.size() << std::endl;
-    if (tokens.size() == 3)
+    if (tokens.size() == 2)
     {
         std::string topic = channel->getTopicName();
         std::cout << "topic: " << topic << std::endl;
@@ -465,6 +465,7 @@ void Commands::handleTOPIC(int fd, std::string &command)
             _server.sendMsg(RPL_NOTOPIC(client->getNickName(), channelName), fd);
         else
             _server.sendMsg(RPL_TOPIC(client->getNickName(), channelName, topic), fd);
+        return ;
     }
     else if (tokens.size() >= 3) // Vérifier si au moins 3 tokens sont présents
     {
