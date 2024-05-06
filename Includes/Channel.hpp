@@ -46,7 +46,7 @@ public:
 	void setTopic(int topic);
 	void setKey(int key);
 	void setMaxUsers(int limit);
-	void setTopicName(std::string topic_name);
+	void setTopicName(std::string &topic_name);
 	void setPass(std::string password);
 	void setName(std::string name);
 	void setTopicRestric(bool value);

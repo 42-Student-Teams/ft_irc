@@ -69,7 +69,7 @@ Channel &Channel::operator=(Channel const &src)
 void Channel::setTopic(int topic) { _topic = topic; }
 void Channel::setKey(int key) { _key = key; }
 void Channel::setMaxUsers(int limit) { _maxClients = limit; }
-void Channel::setTopicName(std::string topic_name) { _topicName = topic_name; }
+void Channel::setTopicName(std::string &topic_name) { _topicName = topic_name; }
 void Channel::setPass(std::string password) { _password = password; }
 // void Channel::setInvited(std::string password) { _password = password; }
 

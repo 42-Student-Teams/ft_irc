@@ -448,11 +448,6 @@ void Commands::handleTOPIC(int fd, std::string &command)
     }
 
     std::string channelName = tokens[1];
-    if (channelName[0] != '#')
-    {
-        channelName = "#" + channelName;
-    }
-
     Channel *channel = _server.getChannel(channelName);
     // std::cout << "channelName: " << channelName << std::endl;
     if (!channel)
@@ -461,9 +456,11 @@ void Commands::handleTOPIC(int fd, std::string &command)
         return;
     }
 
-    if (tokens.size() == 2)
+    // std::cout << "tokens.size(): " << tokens.size() << std::endl;
+    if (tokens.size() == 3)
     {
         std::string topic = channel->getTopicName();
+        std::cout << "topic: " << topic << std::endl;
         if (topic.empty())
             _server.sendMsg(RPL_NOTOPIC(client->getNickName(), channelName), fd);
         else
@@ -482,7 +479,7 @@ void Commands::handleTOPIC(int fd, std::string &command)
             }
         }
         std::string topic = command.substr(command.find(tokens[2]));
-        // std::cout << "topic: " << topic << std::endl;
+    
         channel->setTopicName(topic);
         channel->sendMsgToAll(":" + client->getHostname() + " TOPIC " + channelName + " :" + topic + "\r\n");
     }
