@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:35 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/03 13:10:15 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/07 09:16:04 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,13 +96,6 @@ Channel *Server::getChannel(std::string name)
     return nullptr;
 }
 
-// std::vector<Channel*> Server::getAllChannels() {
-//     std::vector<Channel*> allChannels;
-//     for (Channel& channel : _channels) {
-//         allChannels.push_back(&channel);
-//     }
-//     return allChannels;
-// }
 std::vector<Channel> &Server::getChannels() { return _channels; }
 
 void Server::setFD(int fd) { this->_socketFD = fd; }
@@ -385,7 +378,11 @@ void Server::handleClientInput(int fd)
 
 bool Server::checkAuth(int fd)
 {
-    if (!getClient(fd) || getClient(fd)->getNickName().empty() || getClient(fd)->getUserName().empty() || getClient(fd)->getNickName() == "*" || !getClient(fd)->getLogedIn())
+    if (!getClient(fd) || 
+            getClient(fd)->getNickName().empty() || 
+            getClient(fd)->getUserName().empty() || 
+            getClient(fd)->getNickName() == "*" || 
+            !getClient(fd)->getLogedIn())
         return false;
     return true;
 }
@@ -433,7 +430,6 @@ std::vector<std::string> Server::parseCmd(std::string &cmd)
     return vec;
 }
 
-
 void Server::setCapStatus(bool value)
 {
     _capLS = value;
@@ -453,18 +449,6 @@ bool Server::isNicknameInUse(std::string &nickname)
     }
     return false;
 }
-
-// void Server::handleNickCollision(std::string& nickname) {
-//     // Parcourir la liste des clients et trouver tous ceux avec le pseudonyme en collision
-//     for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ) {
-//         if (it->getNickName() == nickname) {
-//             sendMsg(ERR_NICKCOLLISION(nickname), it->getFD());
-//             it = _clients.erase(it);  // Supprimer le client du vecteur et avancer l'itérateur
-//         } else {
-//             ++it;
-//         }
-//     }
-// }
 
 void Server::execCmd(std::string &cmd, int fd)
 {
