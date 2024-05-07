@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 11:03:55 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/03 02:50:41 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/07 13:03:05 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ public:
 	void setPass(std::string password);
 	void setName(std::string name);
 	void setTopicRestric(bool value);
-	bool getInviteOnly(); // new
+	bool getInviteOnly();
 	int getTopic();
 	int getKey();
 	int getMaxClients();

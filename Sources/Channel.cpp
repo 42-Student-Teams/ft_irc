@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inaranjo <inaranjo <inaranjo@student.42    +#+  +:+       +#+        */
+/*   By: inaranjo <inaranjo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 19:49:18 by inaranjo          #+#    #+#             */
-/*   Updated: 2024/05/03 02:50:57 by inaranjo         ###   ########.fr       */
+/*   Updated: 2024/05/07 13:02:24 by inaranjo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,6 @@ void Channel::setKey(int key) { _key = key; }
 void Channel::setMaxUsers(int limit) { _maxClients = limit; }
 void Channel::setTopicName(std::string &topic_name) { _topicName = topic_name; }
 void Channel::setPass(std::string password) { _password = password; }
-// void Channel::setInvited(std::string password) { _password = password; }
 
 void Channel::setName(std::string name) { _name = name; }
 
@@ -258,10 +257,10 @@ void Channel::addOperator(Client *client)
     {
         if (it->getNickName() == client->getNickName())
         {
-            return; // Client is already an operator, so do nothing
+            return;
         }
     }
-    _admins.push_back(*client); // Dereference pointer and store the object
+    _admins.push_back(*client);
 }
 
 void Channel::addToInvitedList(Client *client)
@@ -270,7 +269,7 @@ void Channel::addToInvitedList(Client *client)
     {
         if (it->getFD() == client->getFD())
         {
-            return; // Client is already in the channel, so do nothing
+            return;
         }
     }
     _invited.push_back(*client); // Dereference pointer and store the object
