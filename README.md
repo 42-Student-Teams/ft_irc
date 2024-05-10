@@ -34,6 +34,25 @@ nick lsaba
 user lsaba 0 * lsaba
 ```
 
+### Parametre de cmd
+```
+/JOIN : Rejoindre un canal. Paramètres : <channel>
+/PART : Quitter un canal. Paramètres : <channel>
+/NICK : Changer de pseudo. Paramètres : <new_nickname>
+/QUIT : Quitter le serveur IRC. Paramètres : [message]
+/TOPIC : Définir ou afficher le sujet d'un canal. Paramètres : <channel> [new_topic]
+/LIST : Afficher la liste des canaux disponibles. Paramètres : [<channel_mask>]
+/WHO : Afficher la liste des utilisateurs sur un canal. Paramètres : <channel>
+/MSG ou /QUERY : Envoyer un message privé à un utilisateur. Paramètres : <nickname> <message>
+/NOTICE : Envoyer un message de notification à un utilisateur. Paramètres : <nickname> <message>
+/KICK : Expulser un utilisateur d'un canal. Paramètres : <channel> <user> [reason]
+/MODE : Changer les modes d'un canal ou d'un utilisateur. Paramètres : <target> <modes> [parameters]
+/WHOIS : Obtenir des informations sur un utilisateur. Paramètres : <nickname>
+/AWAY : Définir un message d'absence. Paramètres : [message]
+/INVITE : Inviter un utilisateur à rejoindre un canal. Paramètres : <nickname> <channel>
+/USER : Fournit des informations sur l'utilisateur lors de la connexion initiale au serveur IRC. Paramètres : <username> <hostname> <servername> <realname>
+```
+
 ### Logic du serveur :
 ```
 runialisation et fermeture du serveur :
